@@ -1,0 +1,26 @@
+#####Pre-Initialisation
+#Choose a physics list, for a full listing type /A2/physics/ListPhysics
+/A2/physics/Physics QGSP_BIC
+
+####Initialise
+/run/initialize
+
+/A2/generator/Mode 1
+/A2/generator/SetTMax 0 MeV
+/A2/generator/SetTMin 700 MeV
+/A2/generator/SetThetaMin 20 deg
+/A2/generator/SetThetaMax 160 deg
+/A2/generator/SetBeamXSigma 10 mm
+/A2/generator/SetBeamYSigma 10 mm
+/A2/generator/SetTargetZ0 0 mm
+/A2/generator/SetTargetThick 0.1 mm
+/A2/generator/SetTargetRadius 0.001 cm
+
+#####Output
+#Open the output file for writing
+/A2/event/setOutputFile /usr/panther_scratch1/werthm/A2/May_09/MC/eta2g_qf_p/output_proton_center.root
+/A2/physics/CutsAll 1 mm
+/gun/particle proton
+#/gun/direction 0 1 0
+#/gun/energy 300 MeV
+/run/beamOn 100000

@@ -1,0 +1,37 @@
+#
+# Macro file for the initialization phase of "exampleN03.cc"
+# when running in interactive mode
+#####Pre-Initialisation
+#Choose a physics list, for a full listing type /A2/physics/ListPhysics
+/A2/physics/Physics QGSP_BIC
+
+####Initialise
+/run/initialize
+
+##the initial random number seed
+/A2/generator/Seed 123
+
+#/A2/physics/SetRegion CB
+#/A2/physics/RegionCut  0.1 mm
+#/A2/physics/SetRegion TAPS
+#/A2/physics/RegionCut  0.1 mm
+#/A2/physics/SetRegion TAPSV
+#/A2/physics/RegionCut 0.01 mm
+#/A2/physics/SetRegion PID
+#/A2/physics/RegionCut 0.01 mm
+#/A2/physics/SetRegion MWPC
+#/A2/physics/RegionCut 0.1 mm
+
+#Set the number of particles to be tracked from the input ntuple
+/A2/generator/NToBeTracked 3
+#give the indexes of the particles to be tracked
+#(have a look at the branch names in the input file)
+/A2/generator/Track 3
+/A2/generator/Track 5
+/A2/generator/Track 6
+#Open the file and set up the ntuple for reading
+/A2/generator/InputFile /usr/panther_scratch1/werthm/A2/May_09/MC/eta2g_qf_n/input.root
+
+#####Output
+#Open the output file for writing
+/A2/event/setOutputFile /usr/panther_scratch1/werthm/A2/May_09/MC/eta2g_qf_n/output.root
