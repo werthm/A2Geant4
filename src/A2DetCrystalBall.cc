@@ -157,6 +157,39 @@ void A2DetCrystalBall::MakeOther1(){//please read note above
   fTUNLPhysi[1]=new G4PVPlacement(0,G4ThreeVector(0,fGap.x(),-Tshift),fTUNLLogic,"TUNL",fMotherLogic,false,2);
   fTUNLPhysi[2]=new G4PVPlacement(fRot[96],G4ThreeVector(0,-fGap.y(),Tshift),fTUNLLogic,"TUNL",fMotherLogic,false,3);
   fTUNLPhysi[3]=new G4PVPlacement(fRot[96],G4ThreeVector(0,-fGap.y(),-Tshift),fTUNLLogic,"TUNL",fMotherLogic,false,4);
+  
+  // additional material for the tunnel region
+  // choose between 'one layer' or 'complete fill'
+  // added by D.W.
+  G4double tunl_add_rin = tunl_rout;
+  G4double tunl_add_rout = tunl_rout+4*cm;
+  G4double tunl_add_phlow = 0*deg;
+  G4double tunl_add_phdelta = 180*deg;
+  G4double tunl_add_z = 0.3*cm;
+  G4VisAttributes* tun_add_att = new G4VisAttributes(G4Colour(1,0,0));
+  G4RotationMatrix* tunl_add_rmat = new G4RotationMatrix();
+  tunl_add_rmat->rotateX(180*deg);
+  
+  // one layer
+  //G4Tubs* tun_add = new G4Tubs("TUNL_ADD", tunl_add_rin, tunl_add_rout, tunl_add_z, tunl_add_phlow, tunl_add_phdelta);
+  //G4LogicalVolume* tun_add_logic = new G4LogicalVolume(tun_add, fNistManager->FindOrBuildMaterial("G4_Fe"),"TUNL_ADD");
+  //tun_add_logic->SetVisAttributes(tun_add_att);
+  //new G4PVPlacement(0, G4ThreeVector(0, fGap.y(), Tshift+tunl_z+tunl_add_z/2), tun_add_logic, "TUNL_ADD", fMotherLogic, false,0);
+  //new G4PVPlacement(tunl_add_rmat, G4ThreeVector(0, -fGap.y(), Tshift+tunl_z+tunl_add_z/2), tun_add_logic, "TUNL_ADD", fMotherLogic, false, 1);
+  
+  // complete fill
+  const Int_t nFill = 10;
+  G4Tubs* tun_fill[nFill];
+  G4LogicalVolume* tun_fill_logic[nFill];
+  for (int i = 0; i < nFill; i++)
+  {
+    tun_fill[i] = new G4Tubs("TUNL_FILL", tunl_rout, tunl_rout+(-3.9/(nFill-1)*i+4.)*cm, 5*mm, tunl_add_phlow, tunl_add_phdelta);
+    tun_fill_logic[i] = new G4LogicalVolume(tun_fill[i], fNistManager->FindOrBuildMaterial("G4_Fe"),"TUNL_FILL");
+    tun_fill_logic[i]->SetVisAttributes(tun_add_att);
+    new G4PVPlacement(0, G4ThreeVector(0, fGap.y(), Tshift+tunl_z-(2*tunl_z-5*mm)/(nFill-1)*i), tun_fill_logic[i], "TUNL_FILL", fMotherLogic, false, i);
+    new G4PVPlacement(tunl_add_rmat, G4ThreeVector(0, -fGap.y(), Tshift+tunl_z-(2*tunl_z-5*mm)/(nFill-1)*i), tun_fill_logic[i], "TUNL_FILL", fMotherLogic, false, nFill+i);
+  }
+
   //A.S version of CNIN
   //  The inner 'can' around the Crystal Ball. This is a steel sphere ~20
   //  cm in radius, 1/16" thick, with beam openings at both ends covering a
