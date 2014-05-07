@@ -1,0 +1,307 @@
+#include "A2DetMWPC.hh"
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+#include "G4SDManager.hh"
+#include "G4ThreeVector.hh"
+#include "G4RotationMatrix.hh"
+#include "G4Tubs.hh"
+#include "G4Cons.hh"
+#include "G4SubtractionSolid.hh"
+
+A2DetMWPC::A2DetMWPC(){
+
+  fNIWires=192;
+  fNOWires=288;
+
+  fCHF1Physi=NULL;
+  fCHF2Physi=NULL;
+  fCHA1Physi=NULL;
+  fCHA2Physi=NULL;
+
+  fWS1ULogic=NULL; 
+  fWS1DLogic=NULL;
+  fSC1ULogic=NULL;
+  fSC1DLogic=NULL;
+  fWS2ULogic=NULL;
+  fALTULogic=NULL;
+ 
+
+  fWE1ULogic=NULL;
+  fWE1DLogic=NULL;
+  fWE2ULogic=NULL;
+  fWE2DLogic=NULL;
+  
+ 
+
+  fANOIPhysi=new G4VPhysicalVolume*[fNIWires]; //Inner Wire Physical volumes
+  for(G4int i=0;i<fNIWires+1;i++) fANOIPhysi[i]=NULL;
+
+  fANOOPhysi=new G4VPhysicalVolume*[fNOWires]; //Outer Wire Physical volumes
+  for(G4int i=0;i<fNOWires+1;i++) fANOOPhysi[i]=NULL;
+
+}
+A2DetMWPC::~A2DetMWPC(){
+
+}
+
+G4VPhysicalVolume* A2DetMWPC::Construct(G4LogicalVolume* MotherLogical){
+  fMotherLogic=MotherLogical;
+  //Geometric parameters of Wire Chambers
+  fzpos=0*cm;
+  fchf1_dz=18.95*cm;
+  fchf1_rmin=6.1*cm;
+  fchf1_rmax=6.7*cm;
+  fchf2_dz=28.5*cm;
+  fchf2_rmin=9.3*cm;
+  fchf2_rmax=9.9*cm;
+  fanoi_theta=360*deg/fNIWires; 
+  fanoo_theta=360*deg/fNOWires;
+
+  //Geometric parameters of Rohacell walls
+  fcha1_dz=18.95*cm;
+  fcha1_rmin=6.0*cm;
+  fcha1_rmax=6.8*cm;
+  fcha2_dz=28.5*cm;
+  fcha2_rmin=9.2*cm;
+  fcha2_rmax=10.0*cm;
+  
+                          
+  MakeInnerWire();        
+  MakeOuterWire();       
+  MakeChambers();         
+  MakeElectronics();      
+  MakeSupports();        
+ 
+
+  G4double moth_rin=5.56*cm; //May need to change to 5.55 (clash with supports)
+  G4double moth_rout=10.0*cm;
+  G4double moth_z=50.0*cm;          
+  G4Tubs *MWPCMother=new G4Tubs("MWPC",moth_rin,moth_rout,moth_z,0*deg,360*deg);
+ 
+  fMyLogic=new G4LogicalVolume(MWPCMother,fNistManager->FindOrBuildMaterial("G4_AIR"),"MWPC");
+  fMyPhysi = new G4PVPlacement(0,G4ThreeVector(0,0,0),fMyLogic,"MWPC",fMotherLogic,false,1);
+                
+  MakeDetector();  
+  G4cout<<"Weight of wirechambers "<<fMyLogic->GetMass()/kg<<G4endl;  
+
+  fMyLogic->SetVisAttributes (G4VisAttributes::Invisible);
+
+  return fMyPhysi;
+}
+
+
+
+void A2DetMWPC::MakeDetector(){
+  //Place inner chamber into mother volume
+  
+  fCHA1Physi=new G4PVPlacement(0,G4ThreeVector(0,0,0),fCHA1Logic,"CHA1L",fMyLogic,false,0);
+  
+  fCHF1Physi=new G4PVPlacement(0,G4ThreeVector(0,0,0),fCHF1Logic,"CHF1P",fMyLogic,false,0);
+   
+  //Positioning Wire Chamber outer anodes
+   
+
+for(G4int i=0;i<fNIWires;i++){
+    G4double fanoi_R = (fchf1_rmin+fchf1_rmax)/2;  //6.4*cm
+    G4double anoi_angle=fanoi_theta*i;  //angle between adjacent wires=1.875*deg
+    G4double xpos = fanoi_R*cos(anoi_angle);
+    G4double ypos = fanoi_R*sin(anoi_angle);
+    G4ThreeVector dpos(xpos,ypos,fzpos);
+   
+    
+    fANOIPhysi[i] = new G4PVPlacement(0,G4ThreeVector(xpos,ypos,fzpos),fANOILogic,"ANOIP",fMyLogic,false,i);
+   
+  
+ } 
+
+
+//Place outer chamber into mother volume
+  fCHA2Physi=new G4PVPlacement(0,G4ThreeVector(0,0,0),fCHA2Logic,"CHA2P",fMyLogic,false,0); 
+  fCHF2Physi=new G4PVPlacement(0,G4ThreeVector(0,0,0),fCHF2Logic,"CHF2P",fMyLogic,false,0);
+  //Positioning Wire Chamber outer anodes
+  for(G4int i=0;i<fNOWires;i++){
+    G4double fanoo_R = (fchf2_rmin+fchf2_rmax)/2;  //9.6*cm
+    G4double anoo_angle=fanoo_theta*i;  //angle between adjacent wires=1.875*deg
+    G4double xpos2 = fanoo_R*cos(anoo_angle);
+    G4double ypos2 = fanoo_R*sin(anoo_angle);
+    G4ThreeVector dpos2(xpos2,ypos2,0);
+   
+    fANOOPhysi[i] = new G4PVPlacement(0,dpos2,fANOOLogic,"ANOOP",fMyLogic,false,i);
+
+  }
+
+
+
+
+ 
+  //Place supports into mother volume
+ fWS1DPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,22.475*cm),fWS1DLogic,"WS1DP",fMyLogic,false,1);
+ 
+ fWS1UPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-22.475*cm),fWS1ULogic,"WS1UP",fMyLogic,false,1);
+
+ fSC1UPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-20.225*cm),fSC1ULogic,"SC1UP",fMyLogic,false,1);
+
+ fSC1DPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,20.225*cm),fSC1DLogic,"SC1DP",fMyLogic,false,1);
+ 
+ fWS2DPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,31.025*cm),fWS2DLogic,"WS2DP",fMyLogic,false,1);
+
+ fWS2UPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-31.025*cm),fWS2ULogic,"WS2UP",fMyLogic,false,1);
+
+ fALTUPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-27.5375*cm),fALTULogic,"ALTUP1",fMyLogic,false,1);
+
+ fALTUPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,27.5375*cm),fALTULogic,"ALTUP2",fMyLogic,false,2);
+
+ //Place electronics into mother volume
+ fWE1UPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-26.15*cm),fWE1ULogic,"WE1UP",fMyLogic,false,1);
+ fWE1DPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,26.625*cm),fWE1DLogic,"WE1DP",fMyLogic,false,1);
+ fWE2UPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,-36.25*cm),fWE2ULogic,"WE2UP",fMyLogic,false,1);
+ fWE2DPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,36.725*cm),fWE2DLogic,"WE2DP",fMyLogic,false,1);
+
+}
+
+void A2DetMWPC::MakeInnerWire(){
+  //Make a single wire for inner chamber
+  G4double anoi_rmin=0*cm;
+  G4double anoi_rmax=0.001*cm;
+  G4double anoi_z=19*cm; //half length
+
+  fANOI=new G4Tubs ("Inner Wire",anoi_rmin,anoi_rmax,anoi_z, 0*deg,360*deg);
+  fANOILogic=new G4LogicalVolume(fANOI,fNistManager->FindOrBuildMaterial("G4_W"),"ANOIL");
+  
+}
+
+void A2DetMWPC::MakeOuterWire(){
+  //Make a single wire for outer chamber
+  G4double anoo_rmin=0*cm;
+  G4double anoo_rmax=0.001*cm;
+  G4double anoo_z=28.5*cm; //half length
+
+  fANOO=new G4Tubs ("Outer Wire",anoo_rmin,anoo_rmax,anoo_z,0*deg,360*deg);
+  fANOOLogic=new G4LogicalVolume(fANOI,fNistManager->FindOrBuildMaterial("G4_W"),"ANOOL"); 
+
+}
+
+void A2DetMWPC::MakeChambers(){
+ 
+//Function creates both inner and outer wire chambers and their Rohacell walls. Rohacell wall is a solid cylinder of material Rohacell. The Wire Chameber will be placed inside the cylinder in Make Detector.
+
+  fCHA1=new G4Tubs("Inner Rohacell",fcha1_rmin,fcha1_rmax,fcha1_dz,0*deg,360*deg);
+  fCHA1Logic=new G4LogicalVolume(fCHA1, fNistManager->FindOrBuildMaterial("A2_ROHACELL"),"CHA1L");
+
+  G4VisAttributes* iw_visatt = new G4VisAttributes();
+  iw_visatt->SetColor(G4Color(1,0,1));
+  fCHA1Logic->SetVisAttributes(iw_visatt);
+  
+  fCHF1=new G4Tubs ("Inner Chamber",fchf1_rmin, fchf1_rmax,fchf1_dz,0*deg,360*deg);
+  fCHF1Logic=new G4LogicalVolume(fCHF1,fNistManager->FindOrBuildMaterial("A2_WCMAT"),"CHF1L");
+
+  G4VisAttributes* ic_visatt = new G4VisAttributes();
+  ic_visatt->SetColor(G4Color(0,1,0));
+  fCHF1Logic->SetVisAttributes(ic_visatt);
+  
+  //Creating Sensitive Detector
+  //if(!fCHF1SD){
+  //  G4SDManager* SDman1 = G4SDManager::GetSDMpointer();
+  //  fCHF1SD = new A2SD("CHF1SD",1);
+  //  SDman1->AddNewDetector(fCHF1SD);
+  //}
+  //fCHF1ILogic->SetSensitiveDetector(fCHF1SD);
+
+  fCHA2=new G4Tubs("Outer Rohacell",fcha2_rmin,fcha2_rmax,fcha2_dz,0*deg,360*deg);
+  fCHA2Logic=new G4LogicalVolume(fCHA2, fNistManager->FindOrBuildMaterial("A2_ROHACELL"),"CHAL2");
+
+  G4VisAttributes* ow_visatt = new G4VisAttributes();
+  ow_visatt->SetColor(G4Color(1,0,1));
+  ow_visatt->SetForceWireframe(true);	
+  fCHA2Logic->SetVisAttributes(ow_visatt);
+
+  fCHF2=new G4Tubs ("Outer Chamber",fchf2_rmin, fchf2_rmax,fchf2_dz,0*deg,360*deg);
+  fCHF2Logic=new G4LogicalVolume(fCHF2,fNistManager->FindOrBuildMaterial("A2_WCMAT"),"CHF2L");
+ 
+  G4VisAttributes* oc_visatt = new G4VisAttributes();
+  oc_visatt->SetColor(G4Color(0,1,0));
+  oc_visatt->SetForceWireframe(true);	
+  fCHF2Logic->SetVisAttributes(oc_visatt);
+  
+//Creating Sensitive Detector
+  //if(!fCHF2SD){
+  // G4SDManager* SDman2 = G4SDManager::GetSDMpointer();
+  // fCHF2SD = new A2SD("CHF2SD",2);
+  // SDman2->AddNewDetector(fCHF2SD);
+  //}
+  // fCHF2Logic->SetSensitiveDetector(fCHF2SD);
+  //}
+
+
+
+
+}
+
+
+void A2DetMWPC::MakeElectronics(){
+  //Electronics approximated to 2mm thick cardboard cylinders
+  G4double fwe1_rmin=6.5*cm;
+  G4double fwe1_rmax=6.7*cm;
+  G4double fwe1u_dz=2.7*cm;
+  G4double fwe1d_dz=3.175*cm;
+ 
+  fWE1U=new G4Tubs("WE1U",fwe1_rmin,fwe1_rmax,fwe1u_dz,0*deg,360*deg);
+  fWE1ULogic=new G4LogicalVolume(fWE1U,fNistManager->FindOrBuildMaterial("A2_CBOARD"),"WE1UL");
+
+ fWE1D=new G4Tubs("WE1D",fwe1_rmin,fwe1_rmax,fwe1d_dz,0*deg,360*deg);
+ fWE1DLogic=new G4LogicalVolume(fWE1D,fNistManager->FindOrBuildMaterial("A2_CBOARD"),"WE1DL");
+
+  G4double fwe2_rmin=9.7*cm;
+  G4double fwe2_rmax=9.9*cm;
+  G4double fwe2u_dz=2.7*cm;
+  G4double fwe2d_dz=3.175*cm;
+
+  fWE2U=new G4Tubs("WE2U",fwe2_rmin,fwe2_rmax,fwe2u_dz,0*deg,360*deg);
+  fWE2ULogic=new G4LogicalVolume(fWE2U,fNistManager->FindOrBuildMaterial("A2_CBOARD"),"WE2UL");
+
+ fWE2D=new G4Tubs("WE2D",fwe2_rmin,fwe2_rmax,fwe2d_dz,0*deg,360*deg);
+ fWE2DLogic=new G4LogicalVolume(fWE2D,fNistManager->FindOrBuildMaterial("A2_CBOARD"),"WE2DL");
+
+
+}
+
+//Fiberglass Supports for the WireChambers
+
+void A2DetMWPC::MakeSupports(){
+  //Fiberglass support at the upstream end
+
+  G4Tubs* fWS1U=new G4Tubs("fWS1U",5.56*cm,8.16*cm,0.95*cm,0*deg,360*deg);
+  fWS1ULogic = new G4LogicalVolume(fWS1U,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"WS1UL");
+
+//Fiberglass support at the downstream end
+
+  G4Tubs* fWS1D=new G4Tubs("fWS1D",5.56*cm,8.16*cm,0.95*cm,0*deg,360*deg);
+  fWS1DLogic = new G4LogicalVolume(fWS1D,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"WS1DL");
+
+  G4Cons* fSC1U = new G4Cons("fSC1U",5.56*cm,8.16*cm,5.56*cm,7.16*cm,1.275*cm,0*deg,360*cm);
+  fSC1ULogic = new G4LogicalVolume(fSC1U,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"SC1UL");
+
+  G4Cons* fSC1D= new G4Cons("fSC1D",5.56*cm,7.16*cm,5.56*cm,8.16*cm,1.275*cm,0*deg,360*cm);
+  fSC1DLogic = new G4LogicalVolume(fSC1D,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"SC1DL");
+				   
+  G4Tubs *fWS2U = new G4Tubs("fWS2U", 8.45*cm,10.00*cm,2.525*cm,0*deg,360*deg);
+  fWS2ULogic = new G4LogicalVolume(fWS2U,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"WS2UL");
+ 
+  G4Tubs *fWS2D = new G4Tubs("fWS2D", 8.45*cm,10.00*cm,2.525*cm,0*deg,360*deg);
+  fWS2DLogic = new G4LogicalVolume(fWS2D,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"WS2DL");
+
+  //aluminium tube linking MWPCs
+
+  G4Tubs *fALTU = new G4Tubs("ALTU",8.2*cm,8.4*cm,6.05*cm,0*deg,360*deg);
+  fALTULogic = new G4LogicalVolume(fALTU,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"ALTUL");
+
+ G4VisAttributes* SupVisAtt= new G4VisAttributes(G4Colour(0.7,0.4,0.6));
+ fWS1ULogic->SetVisAttributes(SupVisAtt);
+ fWS1DLogic->SetVisAttributes(SupVisAtt);
+ fSC1ULogic->SetVisAttributes(SupVisAtt);
+ fSC1DLogic->SetVisAttributes(SupVisAtt); 
+ fWS2ULogic->SetVisAttributes(SupVisAtt);
+ fWS2DLogic->SetVisAttributes(SupVisAtt);
+ fALTULogic->SetVisAttributes(SupVisAtt);
+
+}

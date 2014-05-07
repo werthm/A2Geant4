@@ -1,0 +1,933 @@
+#include "A2DetCrystalBall.hh"
+
+#include "G4SubtractionSolid.hh"
+#include "G4UnionSolid.hh"
+#include "G4Box.hh"
+#include "G4RotationMatrix.hh"
+#include "G4String.hh"
+#include "G4SDManager.hh"
+#include "TGeoMatrix.h"
+
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+#include "G4ios.hh"
+
+
+//the MAJS and MAJB volumes from top and bottom hemisphere overlap!!!! Need to sort, should only have one maj volume instead of two exactly overlapping....
+ 
+A2DetCrystalBall::A2DetCrystalBall()
+{
+  fVerbose=1;
+  G4cout<<"Construct the crystal ball!!!!!!"<<G4endl;
+  fIsInteractive=1;
+  fNcrystals=720;
+  //Make array for different crystal types
+  fNCrystTypes=11; //Add 1 as 0 is ignmored to keep connection with cbsim
+  fCrystal=new G4Trap*[fNCrystTypes+1];   //Crystal shapes
+  for(G4int i=0;i<=fNCrystTypes;i++) fCrystal[i]=NULL;
+  if(fIsInteractive==0){
+    fCrystLogic=new G4LogicalVolume*[fNCrystTypes+1];   //Crystal logical volumes
+    for(G4int i=0;i<=fNCrystTypes;i++) fCrystLogic[i]=NULL;
+  }
+  if(fIsInteractive==1){
+    fCrystLogic=new G4LogicalVolume*[fNcrystals];   //Crystal logical volumes
+    for(G4int i=0;i<fNcrystals;i++) fCrystLogic[i]=NULL;
+  }
+  fCrystPhysi=new G4VPhysicalVolume*[fNcrystals];   //Crystal physical volumes
+  for(G4int i=0;i<fNcrystals;i++) fCrystPhysi[i]=NULL;
+
+  //Make arrays for different Minor triangle types
+  // fNMinorTypes=12; //Add 1 as 0 is ignmored to keep connection with cbsim
+  // fMinorLogic=new G4LogicalVolume*[fNMinorTypes];   //Crystal logical volumes
+  //for(G4int i=0;i<fNMinorTypes;i++) fMinorLogic[i]=NULL;
+
+  //Make arrays for different Major Triangle types
+  //fNMajorTypes=7;
+  //fMajorLogic=new G4LogicalVolume*[fNMajorTypes];
+  //for(G4int i=0;i<fNMajorTypes;i++) fMajorLogic[i]=NULL;
+
+  //Make arrays for both hemispheres
+//   fHemiLogic=new G4LogicalVolume*[2];
+//   for(G4int i=0;i<2;i++) fHemiLogic[i]=NULL;
+
+
+  //There will be 9 placed crystals for each type of minor triangle (less a few that are not placed)
+  //There will be 720 possible crystal positions. some will be missing due to entry/exit holes
+
+  //There will be 4 placed minors for each type of major triangle (less a few that are not placed)
+  //fMinorPhysi=new G4VPhysicalVolume*[fNMajorTypes*4];   //Crystal logical volumes
+  //for(G4int i=0;i<fNMajorTypes*4;i++) fMinorPhysi[i]=NULL;
+
+  //There will be 15 placed majors for both hemispheres
+  //fMajorPhysi=new G4VPhysicalVolume*[30];   //Crystal logical volumes
+  // for(G4int i=0;i<30;i++) fMajorPhysi[i]=NULL;
+
+  //The two hemisphere physical volumes
+//   fHemiPhysi=new G4VPhysicalVolume*[2];   //Crystal logical volumes
+//   for(G4int i=0;i<2;i++) fHemiPhysi[i]=NULL;
+
+  //MAke the rotational Matrices and translational vectors stolen from 
+  //the G3 sim via ROOT
+  MakeRotationMatrices();
+  MakeTransformVectors();
+ 
+  fCBSD=NULL;
+  fVisCBSD=NULL;
+
+  fCrystalConvert=new G4int[fNcrystals];
+  //Read in the AcquRoot id map
+  FILE* CCfile=fopen("CrystalConvert.in","r");
+  if(!CCfile){
+    G4cerr<<"Couldn't open CrystalConvert.in in A2SD::A2SD(G4String name)"<<G4endl;
+    exit(1);
+  }
+  G4int cc=0;
+  for(G4int i=0;i<20;i++){//major loop
+    char major[100];
+    fscanf(CCfile,"%*s%*s%s",major);//take out Major string
+    int id=0;
+    for(G4int j=0;j<4;j++) //minor loop
+      for(G4int k=0;k<9;k++){//crystal loop	
+	fscanf(CCfile,"%d",&id);
+	fCrystalConvert[cc++]=id;
+      }
+  }
+  if(fCrystalConvert[719]!=621) {G4cerr<<"A2SD::A2SD Might have a problem with crystal convert array!!!"<<G4endl;exit(0);}
+  fclose(CCfile);
+}
+A2DetCrystalBall::~A2DetCrystalBall()
+{
+  G4cout<<"Deleting CrystalBall"<<G4endl;
+ 
+}
+G4VPhysicalVolume* A2DetCrystalBall::Construct(G4LogicalVolume* MotherLogical)
+{
+
+  fMotherLogic=MotherLogical;
+  //Make the Trap and Polygon Minor Traingle solids
+  //Make the Minor logical volumes
+  //Place the crystals in the minor logical volumes
+  //MakeMinor();
+  //Make the Major solids
+  //Make the Major logical volumes
+  //Place the minors in the Major logical volumes
+  //MakeMajor();
+  //Make the hemisphres
+  //Make the hemisphere logical volumes
+  //Place the majors in the hemispheres
+  //MakeHemi();
+  //Make the differnet crystal solids and logical volumes
+  MakeCrystals();
+ //MAke the overall ball volume
+
+  //Make the other non-sensitve materials
+  MakeOther();
+  //Place the hemispheres in the ball
+  //Place the ball in the lab 
+  MakeBall();
+
+  return fMyPhysi;
+}
+void A2DetCrystalBall::MakeOther(){
+  //define an inch!
+  const G4double inch=1.0/0.393700787*cm;
+  G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(.0,.0,1.0));
+  CBVisAtt->SetVisibility(true);
+
+
+
+  //  The cylindrical cut in the Crystal Ball. This is 10 cm in radius -
+  //  actually, make that 10.3 cm plus 1/16". The 10.3 cm are from A.
+  //  Efendiev's measurement of the tunnel diameter on March 6, 96; the
+  //  1/16" is the steel thickness specified in the SLAC CB reports. Make
+  //  this volume long enough to contain anything that fits in diameter -
+  //  i.e., as long as the lab box
+  //  Starostin changed thickness to 3/16" prior to G4
+
+  //Actually not needed as it is only used to hold the exit tunnel
+  G4double ccut_rin=0;
+  G4double ccut_rout=10.3*cm+3.0/16*inch;
+  G4double ccut_z=44*cm; //half lenght in z
+  G4double ccut_phlow=0;
+  G4double ccut_phdelta=360*deg;
+  fCCUT=new G4Tubs("CCUT",ccut_rin,ccut_rout,ccut_z,ccut_phlow,ccut_phdelta);
+  fCCUTLogic=new G4LogicalVolume(fCCUT,fNistManager->FindOrBuildMaterial("G4_AIR"),"CCUT");
+  fCCUTLogic->SetVisAttributes(CBVisAtt);
+  //  fCCUTPhysi=new G4PVPlacement(0,G4ThreeVector(),fCCUTLogic,"CCUT",fMotherLogic,false,1,true);
+
+  //  The actual beam entrance and exit tunnels - a pair of cylindrical
+  //  steel tubes, 10.3 cm in inner diameter, 1/16" thick, and 11.5 cm
+  //  wide, one around each beam opening.
+  // A.S version of TUNL
+  G4double tunl_rin=10.3*cm;
+  G4double tunl_rout = tunl_rin + 3.0/16*inch;
+  G4double tunl_z = 5.75*cm; //half length in z
+  G4double tunl_phlow=0*deg;
+  G4double tunl_phdelta=180*deg;
+  fTUNL=new G4Tubs("TUNL",tunl_rin,tunl_rout,tunl_z,tunl_phlow,tunl_phdelta);
+  fTUNLLogic=new G4LogicalVolume(fTUNL,fNistManager->FindOrBuildMaterial("G4_Fe"),"TUNL");
+  CBVisAtt->SetForceSolid(true);
+  fTUNLLogic->SetVisAttributes(CBVisAtt);
+  fTUNLPhysi[0]=new G4PVPlacement(0,fTrans[96],fTUNLLogic,"TUNL",fMotherLogic,false,1);
+  fTUNLPhysi[1]=new G4PVPlacement(0,-fTrans[96],fTUNLLogic,"TUNL",fMotherLogic,false,1);
+  fTUNLPhysi[2]=new G4PVPlacement(fRot[96],fTrans[96],fTUNLLogic,"TUNL",fMotherLogic,false,1);
+  fTUNLPhysi[3]=new G4PVPlacement(fRot[96],-fTrans[96],fTUNLLogic,"TUNL",fMotherLogic,false,1);
+  //A.S version of CNIN
+  //  The inner 'can' around the Crystal Ball. This is a steel sphere ~20
+  //  cm in radius, 1/16" thick, with beam openings at both ends covering a
+  //  half angle of about 30 degrees each. The actual numbers used are from
+  //  measurements made by A. Efendiev on the lower hemisphere on March 6,
+  //  1996.
+  //  Starostin changed thickness to 3/16" prior to G4
+  G4double cnin_rin=9.8*inch;
+  G4double cnin_rout=cnin_rin+3.0/16*inch;
+  G4double cnin_thlow=asin(tunl_rout/cnin_rin)*rad;
+  G4double cnin_thdelta=180*deg-2*cnin_thlow;
+  G4double cnin_phlow=0*deg;
+  G4double cnin_phdelta=180*deg;
+  //Note G4Sphere sets phi limits first then theta, ROOT+G3 are vice versa
+  fCNIN=new G4Sphere("CNIN",cnin_rin,cnin_rout,cnin_phlow,cnin_phdelta,cnin_thlow,cnin_thdelta);
+  fCNINLogic=new G4LogicalVolume(fCNIN,fNistManager->FindOrBuildMaterial("G4_AIR"),"CNIN");
+  CBVisAtt->SetColor(G4Color(.0,0,1.0));
+  CBVisAtt->SetForceSolid(true);
+  fCNINLogic->SetVisAttributes(CBVisAtt);
+
+  //Place upper hemisphere first
+  G4Transform3D trans=G4Transform3D(fRot[26]->inverse(),G4ThreeVector());//place in hemisphere
+  trans=G4Transform3D(fRot[25]->inverse(),G4ThreeVector())*trans;//place in lab
+  fCNINPhysi[0]=new G4PVPlacement(trans,fCNINLogic,fCNINLogic->GetName(),fMotherLogic,false,1);
+  //Now lower
+  trans=G4Transform3D(fRot[95]->inverse(),G4ThreeVector());//place in hemisphere
+  trans=G4Transform3D(fRot[25]->inverse(),G4ThreeVector())*trans;//place in lab
+  fCNINPhysi[1]=new G4PVPlacement(trans,fCNINLogic,fCNINLogic->GetName(),fMotherLogic,false,2);
+  
+  //  The "bottom" of the hemispheres. According CB`s draw the thickness of the
+  //  plane from stainless steel is 0.030" (0.076 cm). This is a segment of a disk
+  //  with the inner radius equal inner radius of the inner `can` around the CB and
+  //  with out radius equal outer radius of the outer shell of the CB.
+
+ 
+  G4double btmthnss= 0.076*cm;
+  G4double gap1  = 0.05*cm + btmthnss;
+  G4double gap2  = 0.05*cm + btmthnss;
+  G4double btm_rin = sqrt(34.7*34.7 + 20.6*20.6)/2*cm;    // inner radius
+  G4double cnou_radius = (26. + 11./16.) * inch;  // inner radius of Al sphere
+  G4double btm_rout = cnou_radius + 7./8. * inch;  // outer radius
+  G4double btm_phlow=23.9*deg;
+  G4double btm_phdelta=(180-2*23.9)*deg;
+  fBTMM=new G4Tubs("BTMM",btm_rin,btm_rout,btmthnss/2,btm_phlow,btm_phdelta);
+  fBTMMLogic=new G4LogicalVolume(fBTMM,fNistManager->FindOrBuildMaterial("G4_Fe"),"BTMM");
+  fBTMMLogic->SetVisAttributes(CBVisAtt);
+  fBTMMPhysi[0]=new G4PVPlacement(fRot[25],G4ThreeVector(0,gap1-btmthnss/2,0),fBTMMLogic,"BTMM",fMotherLogic,false,1);
+  fBTMMPhysi[1]=new G4PVPlacement(fRot[25],G4ThreeVector(0,-gap2+btmthnss,0),fBTMMLogic,"BTMM",fMotherLogic,false,2);
+  fBTMMPhysi[2]=new G4PVPlacement(fRot[98],G4ThreeVector(0,gap1-btmthnss/2,0),fBTMMLogic,"BTMM",fMotherLogic,false,3);
+  fBTMMPhysi[3]=new G4PVPlacement(fRot[98],G4ThreeVector(0,-gap2+btmthnss,0),fBTMMLogic,"BTMM",fMotherLogic,false,4);
+  //The skirting as designed by Viktor Kashevarov
+  //Numbers copied straight from crystalball.C file
+  //note arguemnts for ROOT trd1 are dx1, dx2, dy and dz
+  //for g4 they are dx1,dx2 dy1=dy,dy2=dy,dz, dy=half thickness =inch/32
+  fSKI[0]=new G4Trd("SKI1",6.75*cm,21.7*cm,0.7937500E-01*cm,0.7937500E-01*cm,34.075*cm);
+  fSKI[1]=new G4Trd("SKI2",5.85*cm,19*cm,0.7937500E-01*cm,0.7937500E-01*cm,34.075*cm);
+  fSKI[2]=new G4Trd("SKI3",5.85*cm,19*cm,0.7937500E-01*cm,0.7937500E-01*cm,34.075*cm);
+
+  fSKILogic[0]=new G4LogicalVolume(fSKI[0],fNistManager->FindOrBuildMaterial("G4_Fe"),"SKI1");
+  fSKILogic[1]=new G4LogicalVolume(fSKI[1],fNistManager->FindOrBuildMaterial("G4_Fe"),"SKI2");
+  fSKILogic[2]=new G4LogicalVolume(fSKI[2],fNistManager->FindOrBuildMaterial("G4_Fe"),"SKI3");
+  CBVisAtt->SetColor(G4Color(1.0,.0,0));
+  fSKILogic[0]->SetVisAttributes(CBVisAtt);
+  fSKILogic[1]->SetVisAttributes(CBVisAtt);
+  fSKILogic[2]->SetVisAttributes(CBVisAtt);
+
+  fSKIPhysi[0]=new G4PVPlacement(fRot[51],fTrans[51],fSKILogic[0],"SKIRT",fMotherLogic,false,1);
+  fSKIPhysi[1]=new G4PVPlacement(fRot[52],fTrans[52],fSKILogic[0],"SKIRT",fMotherLogic,false,2);
+  fSKIPhysi[2]=new G4PVPlacement(fRot[53],fTrans[53],fSKILogic[0],"SKIRT",fMotherLogic,false,3);
+  fSKIPhysi[3]=new G4PVPlacement(fRot[54],fTrans[54],fSKILogic[0],"SKIRT",fMotherLogic,false,4);
+
+  fSKIPhysi[4]=new G4PVPlacement(fRot[61],fTrans[61],fSKILogic[1],"SKIRT",fMotherLogic,false,1);
+  fSKIPhysi[5]=new G4PVPlacement(fRot[62],fTrans[62],fSKILogic[1],"SKIRT",fMotherLogic,false,2);
+  fSKIPhysi[6]=new G4PVPlacement(fRot[63],fTrans[63],fSKILogic[1],"SKIRT",fMotherLogic,false,3);
+  fSKIPhysi[7]=new G4PVPlacement(fRot[64],fTrans[64],fSKILogic[1],"SKIRT",fMotherLogic,false,4);
+
+  fSKIPhysi[8]=new G4PVPlacement(fRot[71],fTrans[71],fSKILogic[2],"SKIRT",fMotherLogic,false,1);
+  fSKIPhysi[9]=new G4PVPlacement(fRot[72],fTrans[72],fSKILogic[2],"SKIRT",fMotherLogic,false,2);
+  fSKIPhysi[10]=new G4PVPlacement(fRot[73],fTrans[73],fSKILogic[2],"SKIRT",fMotherLogic,false,3);
+  fSKIPhysi[11]=new G4PVPlacement(fRot[74],fTrans[74],fSKILogic[2],"SKIRT",fMotherLogic,false,4);
+
+  //  Rims right after the beam tunnel and inside the CB tunnel. Simulated by placing a 4 mm
+  //  steel ring after the Ball. The ring is shadowing 19.93 degree cone. 
+
+ G4double rims_rin = 34.43*cm;
+ G4double rims_rout = 65*cm;
+ G4double rims_z  = 2*mm;       // half length
+ G4double rims_phlow=0*deg;
+ G4double rims_phdelta = 180*deg;
+ G4double rims_zpos=1.01*m;
+ fRIMS=new G4Tubs("RIMS",rims_rin,rims_rout,rims_z,rims_phlow,rims_phdelta);
+ fRIMSLogic=new G4LogicalVolume(fRIMS,fNistManager->FindOrBuildMaterial("G4_Fe"),"RIMS");
+ fRIMSLogic->SetVisAttributes(CBVisAtt);
+ fRIMSPhysi[0]=new G4PVPlacement(0,G4ThreeVector(0,gap1,rims_zpos),fRIMSLogic,"RIMS",fMotherLogic,false,1);
+ fRIMSPhysi[1]=new G4PVPlacement(fRot[96],G4ThreeVector(0,-gap2,rims_zpos),fRIMSLogic,"RIMS",fMotherLogic,false,2);
+
+ // Approximation for all the cables which are comming from the PID and the 
+ // wire chamber. The cables are located in the cone between 12 and 21 degrees.
+
+ G4double pidw_dz=1.0*cm;
+ G4double pidw_rmax1=16.13*cm;
+ G4double pidw_rmin1=7.04*cm;
+ G4double pidw_rmax2=16.84*cm;
+ G4double pidw_rmin2=7.35*cm;
+ G4double pidw_zpos=46.0*cm;
+ fPIDW=new G4Cons("PIDW",pidw_rmin1,pidw_rmax1,pidw_rmin1,pidw_rmax2,pidw_dz,0,360*deg);
+ fPIDWLogic=new G4LogicalVolume(fPIDW,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"PIDW");
+ fPIDWPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,pidw_zpos),fPIDWLogic,"PIDW",fMotherLogic,false,1);
+ G4double mwpw_dz=2.0*cm;
+ G4double mwpw_rmax1=16.84*cm;
+ G4double mwpw_rmin1=8.81*cm;
+ G4double mwpw_rmax2=18.28*cm;
+ G4double mwpw_rmin2=9.56*cm;
+ G4double mwpw_zpos=49.*cm;
+ fMWPW=new G4Cons("MWPW",mwpw_rmin1,mwpw_rmax1,mwpw_rmin1,mwpw_rmax2,mwpw_dz,0,360*deg);
+ fMWPWLogic=new G4LogicalVolume(fMWPW,fNistManager->FindOrBuildMaterial("A2_FGLASS"),"MWPW");
+ fMWPWPhysi=new G4PVPlacement(0,G4ThreeVector(0,0,mwpw_zpos),fMWPWLogic,"MWPW",fMotherLogic,false,1);
+}
+void A2DetCrystalBall::MakeBall(){
+  G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  CBVisAtt->SetVisibility(true);
+
+  //Create ball detector logic volume
+  fMyLogic=new G4LogicalVolume(new G4Box("ball",5*m,5*m,5*m),fNistManager->FindOrBuildMaterial("G4_AIR"),"ball");
+  // G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  CBVisAtt->SetVisibility(false);
+  fMyLogic->SetVisAttributes(CBVisAtt);
+   CBVisAtt->SetVisibility(true);
+ 
+  //In GEANT3 the ball was constructed in two hemispheres CBLU and CBLD
+  //However these hemispheres were actually spheres and therefore gave
+  //an overlap when placed in the ball. GEANT4 does not like overlaps!!
+  //Solution just make one sphere and place all Major triangles in it
+  //Upper and Lower hemispheres are split by vector fTrans[26] which
+  //is along the z axis in the frame of the sphere. The sphere is then 
+  //rotated when it is placed in the ball so it's  axis is along the 
+  //Lab y axis.
+
+  //Each hemisphere has 15 Major triangles giving a total of 30
+  //Each hemisphere has 40 Minor triangles giving a total of 80
+  //Each hemisphre has 336 crystals giving a total of 672
+ 
+  //CBLU
+  //fTrans[25]=G4ThreeVector(0,10*cm,0);
+//   fBallPhysi=new G4PVPlacement(fRot[25],G4ThreeVector(),fBallLogic,fBallLogic->GetName(),fMyLogic,false,0);
+//   //CBLD
+//   //fHemiPhysi[1]=new G4PVPlacement(fRot[25],-fTrans[25],fHemiLogic[1],fHemiLogic[1]->GetName(),fMyLogic,false,0);
+//   //Place ball in lab 
+//   fMyPhysi = new G4PVPlacement(0,G4ThreeVector(),fMyLogic,fMyLogic->GetName(),fMotherLogic,false,0);
+
+
+
+
+//Unfortuanetly the top ad bottom hemisphere contain Majot triangles
+//tthat overlap. Hence will now place crystals directly in the lab
+//this will also prevent problems when including other detectors
+//and shielding.
+
+//Major indexes
+  G4int MajType[2][15]={{0,3,4,0,1,2,0,1,6,0,5,2,0,1,2},   //36+19+5+36+27+9+36+27+5+36+19+9+36+27+9=336
+			{4,3,0,2,1,0,2,5,0,6,1,0,2,1,0}};  //5+19+36+9+27+36+9+19+36+5+27+36+9+27+36=336
+  G4int MajRTindex[2][15]={{1,2,3,5,6,7,9, 10,11,13,14,15,17,18,19},  
+			{2,3,4,6,7,8,10,11,12,14,15,16,18,19,20}};
+  G4int MajCopy[2][15]={ {1,2,3,5,6,7,9,10,11,13,14,15,17,18,19},  //Equivalent to mtnum in ugeom.F
+			 {2,3,4,6,7,8,10,11,12,14,15,16,18,19,20}};
+  //Minor indices
+  G4int MinType[7][4]={{0,1,2,3},        //9+9+9+9=36        4
+		       {1,2,3,20},       //9+9+9  =27        3
+		       {0,20,20,20},     //9      =9         1
+		       {4,5,6,20},       //5+9+5  =19        3
+		       {7,20,20,20},     //5      =5         1
+		       {9,10,11,20},     //9+5+5  =19        3
+		       {8,20,20,20}};    //5      =5         1
+  G4int MinRTindex[7][4]={{21,22,24,27},
+		     {22,24,27,0},
+		     {21,0,0,0},
+		     {22,24,27,0},
+		     {21,0,0,0},
+		     {22,24,27,0},
+		     {21,0,0,0}};
+  G4int MinCopy[7][4]={{1,2,4,3},
+		  {2,4,3,0},
+		  {1,0,0,0},
+		  {2,4,3,0},
+		  {1,0,0,0},
+		  {2,4,3,0},
+		  {1,0,0,0}};
+  //Crystal indices
+  G4int CrystType[12][9]={{1,2,3,4,5,6,7,8,9},
+		      {1,2,3,4,5,6,7,8,9},
+		      {1,2,3,4,5,6,7,8,9},
+		      {10,10,10,11,11,11,11,11,11},
+		      {1,2,3,5,6,0,0,0,0},
+		      {1,2,3,4,5,6,7,8,9},
+		      {10,10,11,11,11,0,0,0,0},
+		      {1,3,4,8,9,0,0,0,0},
+		      {1,2,3,5,6,0,0,0,0},
+		      {1,2,3,4,5,6,7,8,9},
+		      {1,3,4,8,9,0,0,0,0},
+		      {10,10,11,11,11,0,0,0,0}};
+  G4int CrystRTindex[12][9]={{31,32,33,34,35,36,37,38,39},
+			{31,32,33,34,35,36,37,38,39},
+			{31,32,33,34,35,36,37,38,39},
+			{41,42,43,44,45,46,47,48,49},
+			{31,32,33,35,36,0,0,0,0},
+			{31,32,33,34,35,36,37,38,39},
+			{42,43,45,46,48,0,0,0,0},
+			{31,33,34,38,39,0,0,0,0},
+			{31,32,33,35,36,0,0,0,0},
+			{31,32,33,34,35,36,37,38,39},
+			{31,33,34,38,39,0,0,0,0},
+			{41,42,44,45,47,0,0,0,0}}; //the order of the rotation and transformation index
+  G4int CrystCopy[12][9]={{1,2,3,4,5,6,7,8,9},
+		     {5,7,6,2,9,8,4,3,1},
+		     {9,4,8,7,1,3,2,6,5},
+		     {9,1,5,8,3,6,4,2,7},
+		     {5,7,6,9,8,0,0,0,0},
+		     {9,4,8,7,1,3,2,6,5},
+		     {1,5,3,6,2,0,0,0,0},
+		     {1,3,4,8,9,0,0,0,0},
+		     {1,2,3,5,6,0,0,0,0},
+		     {5,7,6,2,9,8,4,3,1},
+		     {9,8,7,6,5,0,0,0,0},
+		     {9,1,8,3,4,0,0,0,0}};  //the copy number of the crystal in the minor (has to be right to get correct hit id!
+
+  if(fIsInteractive==1){
+    //set up sensitive detectors
+    if(!fVisCBSD){
+      G4SDManager* SDman = G4SDManager::GetSDMpointer();
+      fVisCBSD = new A2VisSD("VisCBSD",fNcrystals);
+      SDman->AddNewDetector( fVisCBSD );		
+    }
+  }
+  char crystname[20];
+  G4int ihemi,imaj,imin,majt,mint,icryst,cryt,copy;
+  for(ihemi=0;ihemi<2;ihemi++){//loop over hemispheres
+    for(imaj=0;imaj<15;imaj++){//loop over major triangles
+      //  for(ihemi=0;ihemi<1;ihemi++){//loop over hemispheres
+      //    for(imaj=9;imaj==9;imaj++){//loop over major triangles
+      imin=0;
+      majt=MajType[ihemi][imaj];
+      while(MinCopy[majt][imin]!=0&&imin<4){//loop over minor traingle
+	mint=MinType[majt][imin];
+	icryst=0;
+	while(CrystCopy[mint][icryst]!=0&&icryst<9){//loop over crystals
+	  cryt=CrystType[mint][icryst];
+	  G4Transform3D trans=G4Transform3D(fRot[CrystRTindex[mint][icryst]]->inverse(),fTrans[CrystRTindex[mint][icryst]]); //position in minor
+	  trans=G4Transform3D(fRot[MinRTindex[majt][imin]]->inverse(),fTrans[MinRTindex[majt][imin]])*trans;//position in major
+	  trans=G4Transform3D(fRot[MajRTindex[ihemi][imaj]]->inverse(),fTrans[MajRTindex[ihemi][imaj]])*trans;//position in hemisphere
+	  if(ihemi==0)trans=G4Transform3D(fRot[25]->inverse(),fTrans[25])*trans;//position in lab
+	  if(ihemi==1)trans=G4Transform3D(fRot[25]->inverse(),-fTrans[25])*trans;//position in lab
+	  copy=36*(MajCopy[ihemi][imaj]-1)+9*(MinCopy[majt][imin]-1)+CrystCopy[mint][icryst]-1;//calculate copy number so can convert to AcquRoot number in sensitive detector
+	  sprintf(crystname,"CRYSTAL_%d",copy);
+	  //Place the crystal
+	  //G4cout<<ihemi<<" "<<imaj<<" "<<imin<<" "<<icryst<<G4endl;
+	  //Make the crystals sensitive detectors
+	  if(fIsInteractive==1){
+	    //	    if(copy==((2-1)*36+(2-1)*9+(7-1))){//fire particle test crystal
+	    //Cut crystals on minor traingles at the beam ntrance and exit
+	    if((MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==2)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==2)||
+	       (MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==4)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==4)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==1)){
+	      //Need to subtract off the CCUT volume
+	      //First rotate it into the frame of the crystal  
+	      //	      G4cout<<"Translate "<<trans.getTranslation().x()/cm<<" "<<trans.getTranslation().y()/cm<<" "<<trans.getTranslation().z()/cm<<G4endl;
+	      G4SubtractionSolid* subtract=new G4SubtractionSolid("Subtract",fCrystal[cryt],fCCUT,trans.inverse());
+	      //union used to check positioning of CCUT to be subtracted, need to change z half length to 20*cm or visualisation won't work
+	      //G4UnionSolid* subtract=new G4UnionSolid("Subtract",fCrystal[cryt],fCCUT,trans.inverse());
+	      fCrystLogic[copy]=new G4LogicalVolume(subtract,fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[cryt]->GetName());
+	      //fCrystLogic[copy]=new G4LogicalVolume(fCrystal[cryt],fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[cryt]->GetName());
+	  
+	      fCrystLogic[copy]->SetSensitiveDetector(fVisCBSD);
+	      fCrystPhysi[copy]=new G4PVPlacement(trans,fCrystLogic[copy],crystname,fMotherLogic,false,fCrystalConvert[copy],false);
+	      
+	      CBVisAtt->SetForceWireframe(false);
+	      //fCrystLogic[copy]->SetVisAttributes(CBVisAtt);
+	      
+	    }
+	    else {
+	      fCrystLogic[copy]=new G4LogicalVolume(fCrystal[cryt],fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[cryt]->GetName());
+	      
+	      fCrystLogic[copy]->SetSensitiveDetector(fVisCBSD);
+	      fCrystPhysi[copy]=new G4PVPlacement(trans,fCrystLogic[copy],crystname,fMotherLogic,false,fCrystalConvert[copy],false);
+	      
+	      CBVisAtt->SetForceWireframe(false);
+	      //fCrystLogic[copy]->SetVisAttributes(CBVisAtt);
+	      
+	    }
+	    
+	  }
+	  else  {
+	    //only make logic volumes for the cut crystals the others can share!
+	    //Cut crystals on minor traingles at the beam ntrance and exit
+	    if((MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==2)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==3&&MinCopy[majt][imin]==2)||
+	       (MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==2&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==4)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==14&&MinCopy[majt][imin]==1)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==4)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==3)||
+	       (MajCopy[ihemi][imaj]==11&&MinCopy[majt][imin]==1)){
+	      //Need to subtract off the CCUT volume
+	      //First rotate it into the frame of the crystal  
+	      //	      G4cout<<"Translate "<<trans.getTranslation().x()/cm<<" "<<trans.getTranslation().y()/cm<<" "<<trans.getTranslation().z()/cm<<G4endl;
+	      G4SubtractionSolid* subtract=new G4SubtractionSolid("Subtract",fCrystal[cryt],fCCUT,trans.inverse());
+	      //union used to check positioning of CCUT to be subtracted, need to change z half length to 20*cm or visualisation won't work
+	      //G4UnionSolid* subtract=new G4UnionSolid("Subtract",fCrystal[cryt],fCCUT,trans.inverse());
+	      fCrystLogic[copy]=new G4LogicalVolume(subtract,fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[cryt]->GetName());
+	      //fCrystLogic[copy]=new G4LogicalVolume(fCrystal[cryt],fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[cryt]->GetName());
+	  
+	      fCrystLogic[copy]->SetSensitiveDetector(fVisCBSD);
+	      fCrystPhysi[copy]=new G4PVPlacement(trans,fCrystLogic[copy],crystname,fMotherLogic,false,fCrystalConvert[copy],false);
+	    }
+	    else fCrystPhysi[copy]=new G4PVPlacement(trans,fCrystLogic[cryt],crystname,fMotherLogic,false,fCrystalConvert[copy],false);
+	  }
+	  icryst++;
+	}
+	imin++;
+
+      }
+    }
+  }
+
+
+
+ //  for(G4int i=0;i<2;i++){//loop over hemispheres
+//     G4LogicalVolume* hemi=fHemiLogic[i];
+//     for(G4int j=0;j<hemi->GetNoDaughters();j++){//loop over major triangles
+//       G4VPhysicalVolume* major_phys=hemi->GetDaughter(j);
+//       G4LogicalVolume* major_logic=major_phys->GetLogicalVolume();
+//       for(G4int k=0;k<major_logic->GetNoDaughters();k++){//loop over minors
+// 	G4VPhysicalVolume* minor_phys=major_logic->GetDaughter(k);
+// 	G4LogicalVolume* minor_logic=minor_phys->GetLogicalVolume();
+// 	for(G4int l=0;l<minor_logic->GetNoDaughters();l++){//loop over crystals
+// 	G4VPhysicalVolume* cryst_phys=minor_logic->GetDaughter(l);
+// 	G4RotationMatrix  cryst_rot=cryst_phys->GetObjectRotationValue();
+// 	G4ThreeVector cryst_trans= cryst_phys->GetObjectTranslation();
+// 	}
+//       }
+//     }
+//  }
+
+}
+void A2DetCrystalBall::MakeHemi(){
+  //Upper and Lower hemispheres of the ball
+  //parameters are taken from CrystalBall.C
+  //There are 2 hemispheres(!) each containing 15 Major triangles
+  //In g3 both hemispheres have sphere shapes
+
+  //Make hemi sphere shape
+  //    fHemisphere=new G4Sphere("HEMI",0.*cm,100.*cm,0.*deg,180.*deg,0.*deg,360.*deg);//Note G4 and G3 have theta and phi arguements switched!
+  // fHemisphere=new G4Sphere("HEMI",0.*cm,100.*cm,0.*deg,360.*deg,0.*deg,180.*deg);
+
+  //Make Logical Volumes
+  //fBallLogic=new G4LogicalVolume(fBall,fNistManager->FindOrBuildMaterial("G4_AIR"),"BALL");
+  //fHemiLogic[0]=new G4LogicalVolume(fHemisphere,fNistManager->FindOrBuildMaterial("G4_AIR"),"CBLD");
+  //fHemiLogic[1]=new G4LogicalVolume(fHemisphere,fNistManager->FindOrBuildMaterial("G4_AIR"),"CBLD");
+
+  //G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  //CBVisAtt->SetVisibility(false);
+  //fBallLogic->SetVisAttributes(CBVisAtt);
+  //fHemiLogic[0]->SetVisAttributes(CBVisAtt);
+  //fHemiLogic[1]->SetVisAttributes(CBVisAtt);
+
+  //Place Major Triangles in hemispheres
+  //Need 3 arrays to identify major type, trans/rot and copy number for each of the hemispheres
+  //i.e the parameters for the ROOT AddNode function
+  //the first index i corresponds to the major names array MajName[i]
+  //The second index j is for the placed Major
+
+  //Major index and minor numbers (From MakeMajor())
+  //Log Vol. index      0      1      2      3      4      5      6   //for MajType in MakeHemi
+  //No. of minors       4      3      1      3      1      3      1
+  //Minor index and crystal numbers (From MakeMinor())
+  //logical volume index 0     1      2      3      4      5      6      7       8     9     10      11 for MinType[][]
+  //No. of crystals      9     9      9      9      5       9      5      5      5      9      5      5 
+  //Note 20 in Mintype =>No minor here                     # of crystals
+  G4int MajType[2][15]={{0,3,4,0,1,2,0,1,6,0,5,2,0,1,2},   //36+19+5+36+27+9+36+27+5+36+19+9+36+27+9=336
+			{4,3,0,2,1,0,2,5,0,6,1,0,2,1,0}};  //5+19+36+9+27+36+9+19+36+5+27+36+9+27+36=336
+  G4int RTindex[2][15]={{1,2,3,5,6,7,9, 10,11,13,14,15,17,18,19},  
+			{2,3,4,6,7,8,10,11,12,14,15,16,18,19,20}};
+  G4int Copy[2][15]={ {1,2,3,5,6,7,9,10,11,13,14,15,17,18,19},  //Equivalent to mtnum in ugeom.F
+		    {2,3,4,6,7,8,10,11,12,14,15,16,18,19,20}};
+  //Count the number of minors in each hemi from MajType
+  //4+3+1+4+3+1+4+3+1+4+3+1+4+3+1=40
+  //1+3+4+1+3+4+1+3+4+1+3+4+1+3+4=40
+
+  //now loop over hemis and place majors
+  for(G4int i=0;i<2;i++)//Hemi loop
+    for(G4int j=0;j<15;j++) //placed major loop
+      {
+	//if(MajType[i][j]==1||MajType[i][j]==2){
+	//Upper hemisphere was CBLU
+	//if(i==0) fMajorPhysi[i]=new G4PVPlacement(fRot[RTindex[i][j]],fTrans[RTindex[i][j]]+20*fTrans[26],fMajorLogic[MajType[i][j]],fHemiLogic[0]->GetName()+fMajorLogic[MajType[i][j]]->GetName(),fHemiLogic[0],false,Copy [i][j],false);
+ 	//Lower hemisphere was CBLD
+	//if(i==1) fMajorPhysi[i]=new G4PVPlacement(fRot[RTindex[i][j]],fTrans[RTindex[i][j]]-fTrans[26],fMajorLogic[MajType[i][j]],fHemiLogic[1]->GetName()+fMajorLogic[MajType[i][j]]->GetName(),fHemiLogic[1],false,Copy [i][j],false);
+	//}
+      }
+}
+void A2DetCrystalBall::MakeMajor(){
+  //Minor traingle parameters are taken from CrystalBall.C
+  //which is a root conversion of cbsim ugeom.F
+  //original parameters were calculated in the Prism.F file
+  //There are 7 types of Major triangle containing different Minor triangles
+  //All are identical Polygon shapes
+
+  //Make Major Polygon shape
+  G4double zPlane[]={-32.*cm,28.*cm};
+  G4double rInner[]={0.,0.};
+  G4double rOuter[]={6.875389*cm,29.79335*cm};
+  fMajorPolG=new G4Polyhedra("MAJ",90*deg,360*deg,3,2,zPlane,rInner,rOuter);
+
+  //Make Logical Volumes
+  //Log Vol. index      0      1      2      3      4      5      6   //for MajType in MakeHemi
+  //No. of minors       4      3      1      3      1      3      1
+  //No of crystals     36     27      9     19      5     19      5 
+  G4String MajName[]={"MAJO","MAJB","MAJS","MAJP","MJPS","MAJM","MJMS"};
+  for(G4int i=0;i<fNMajorTypes;i++){
+    fMajorLogic[i]=new G4LogicalVolume(fMajorPolG,fNistManager->FindOrBuildMaterial("G4_AIR"),MajName[i]);
+    G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+    CBVisAtt->SetVisibility(false);
+    // fMajorLogic[i]->SetVisAttributes(CBVisAtt);
+  }
+  //Place Minor Triangles in Major
+  //Need 3 arrays to identify minor type, trans/rot and copy number for each of the fNMajorTypes=7 types of minor
+  //i.e the parameters for the ROOT AddNode function
+  //the first index i corresponds to the major names array MajName[i]
+  //Note 20 in Mintype =>No minor here.   # of Crystal  #of minors
+  G4int MinType[7][4]={{0,1,2,3},        //9+9+9+9=36        4
+		       {1,2,3,20},       //9+9+9  =27        3
+		       {0,20,20,20},     //9      =9         1
+		       {4,5,6,20},       //5+9+5  =19        3
+		       {7,20,20,20},     //5      =5         1
+		       {9,10,11,20},     //9+5+5  =19        3
+		       {8,20,20,20}};    //5      =5         1
+  G4int RTindex[7][4]={{21,22,24,27},
+		     {22,24,27,0},
+		     {21,0,0,0},
+		     {22,24,27,0},
+		     {21,0,0,0},
+		     {22,24,27,0},
+		     {21,0,0,0}};
+  G4int Copy[7][4]={{1,2,4,3},
+		  {2,4,3,0},
+		  {1,0,0,0},
+		  {2,4,3,0},
+		  {1,0,0,0},
+		  {2,4,3,0},
+		  {1,0,0,0}};
+
+  //now loop over major triangles and place minors
+  for(G4int i=0;i<7;i++)//Major triangle loop
+    for(G4int j=0;j<4;j++) //placed minor loop
+      {
+	if(Copy[i][j]==0)continue;
+      fMinorPhysi[i]=new G4PVPlacement(fRot[RTindex[i][j]],fTrans[RTindex[i][j]],fMinorLogic[MinType[i][j]],fMajorLogic[i]->GetName()+fMinorLogic[MinType[i][j]]->GetName(),fMajorLogic[i],false,Copy[i][j]);
+      }
+}
+void A2DetCrystalBall::MakeMinor(){
+  //Minor traingle parameters are taken from CrystalBall.C
+  //which is a root conversion of cbsim ugeom.F
+  //original parameters were calculated in the Prism.F file
+  //There are 12 types of Minor triangle containing different crystal types
+  //Therefore we need 12 logical volumes
+  //9 are identical trapezium shapes
+  //3 are identical polygon shapes
+
+  G4double Vanish=1*nm;//small length to make G4Trap work with approx 3 sides
+
+  //Make trapezium Minor shape
+  fMinorTrap=new G4Trap("MINT",24.53158*cm,6.405024*deg,89.99998*deg,5.409417*cm,7.416409*cm,Vanish,0.*deg,17.12982*cm,23.48529*cm,Vanish,0.*deg);
+  //Make Polygon minor shape
+  G4double zPlane[]={-24.28848*cm,24.28848*cm};
+  G4double rInner[]={0.,0.};
+  G4double rOuter[]={4.281866*cm,13.55924*cm};
+  fMinorPolG=new G4Polyhedra("MINP",30*deg,360*deg,3,2,zPlane,rInner,rOuter);
+
+  //Make Logical Volumes
+  //logical volume index 0     1      2      3      4      5      6      7       8     9     10      11 for MinType[][]
+  //No. of crystals      9     9      9      9      5       9      5      5      5      9      5      5 
+  G4String MinName[]={"MIN1","MIN2","MIN4","MIN3","MN2P","MN4P","MN3P","MN1P","MN1M","MN2M","MN4M","MN3M"};
+  for (G4int i=0;i<fNMinorTypes;i++){
+    if(MinName[i].contains("3")) fMinorLogic[i]=new  G4LogicalVolume(fMinorPolG,fNistManager->FindOrBuildMaterial("G4_AIR"),MinName[i]);
+    else fMinorLogic[i]=new  G4LogicalVolume(fMinorTrap,fNistManager->FindOrBuildMaterial("G4_AIR"),MinName[i]);
+    //tmp set vis attributes
+    G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+    CBVisAtt->SetVisibility(false);
+     fMinorLogic[i]->SetVisAttributes(CBVisAtt);
+
+  }
+  //Place Crystals in logical volumes
+ 
+  //Need 3 arrays to identify crystal type, trans/rot and copy number for each of the fNMinorTypes=12 types of minor
+  //i.e the parameters for the ROOT add node function
+  //the first index i corresponds to the minor names array MinName[i]
+  //Note zeros in Ctype =>No crystal here
+  G4int Ctype[12][9]={{1,2,3,4,5,6,7,8,9},
+		      {1,2,3,4,5,6,7,8,9},
+		      {1,2,3,4,5,6,7,8,9},
+		      {10,10,10,11,11,11,11,11,11},
+		      {1,2,3,5,6,0,0,0,0},
+		      {1,2,3,4,5,6,7,8,9},
+		      {10,10,11,11,11,0,0,0,0},
+		      {1,3,4,8,9,0,0,0,0},
+		      {1,2,3,5,6,0,0,0,0},
+		      {1,2,3,4,5,6,7,8,9},
+		      {1,3,4,8,9,0,0,0,0},
+		      {10,10,11,11,11,0,0,0,0}};
+  G4int RTindex[12][9]={{31,32,33,34,35,36,37,38,39},
+			{31,32,33,34,35,36,37,38,39},
+			{31,32,33,34,35,36,37,38,39},
+			{41,42,43,44,45,46,47,48,49},
+			{31,32,33,35,36,0,0,0,0},
+			{31,32,33,34,35,36,37,38,39},
+			{42,43,45,46,48,0,0,0,0},
+			{31,33,34,38,39,0,0,0,0},
+			{31,32,33,35,36,0,0,0,0},
+			{31,32,33,34,35,36,37,38,39},
+			{31,33,34,38,39,0,0,0,0},
+			{41,42,44,45,47,0,0,0,0}}; //the order of the rotation and transformation index
+  G4int Copy[12][9]={{1,2,3,4,5,6,7,8,9},
+		     {5,7,6,2,9,8,4,3,1},
+		     {9,4,8,7,1,3,2,6,5},
+		     {9,1,5,8,3,6,4,2,7},
+		     {5,7,6,9,8,0,0,0,0},
+		     {9,4,8,7,1,3,2,6,5},
+		     {1,5,3,6,2,0,0,0,0},
+		     {1,3,4,8,9,0,0,0,0},
+		     {1,2,3,5,6,0,0,0,0},
+		     {5,7,6,2,9,8,4,3,1},
+		     {9,8,7,6,5,0,0,0,0},
+		     {9,1,8,3,4,0,0,0,0}};  //the copy number of the crystal in the minor (has to be right to get correct hit id!
+
+  //now loop over minor triangles and place crystals
+  for(G4int i=0;i<12;i++)//Minor triangle loop
+    for(G4int j=0;j<9;j++) //placed crystal loop
+      {
+	if(Ctype[i][j]==0)continue;
+	fCrystPhysi[i]=new G4PVPlacement(fRot[RTindex[i][j]],fTrans[RTindex[i][j]],fCrystLogic[Ctype[i][j]],fMinorLogic[i]->GetName()+fCrystLogic[Ctype[i][j]]->GetName(),fMinorLogic[i],false,Copy[i][j]);
+      }
+}
+void A2DetCrystalBall::MakeCrystals(){
+  //Crystal parameters are taken from CrystalBall.C
+  //which is a root conversion of cbsim ugeom.F
+  //original parameters were calculated in the Prism.F file
+  //There are 11 different shapes of crystal as defined below, each needs it's own logical volume
+  G4double Vanish=1*nm;//small length to make G4Trap work with approx 3 sides
+  G4double Shrink=1;
+  fCrystal[1]=new G4Trap("CR01", 20.19144*Shrink*cm,2.217791*deg,89.99987*deg,1.875317*Shrink*cm,2.707754*Shrink*cm,Vanish,    0.*deg,         4.875824*Shrink*cm, 7.04016*Shrink*cm,  Vanish,   0.*deg);
+  fCrystal[2]=new G4Trap("CR02", 20.18581*Shrink*cm,2.130379*deg,90.53368*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    -0.2537469*deg, 5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   -0.2537412*deg);
+  fCrystal[3]=new G4Trap("CR03", 20.18625*Shrink*cm,2.093683*deg,269.9998*deg,1.987023*Shrink*cm,Vanish,   2.7077546*Shrink*cm,0.*deg,         5.16626*Shrink*cm,  Vanish,    7.04016*Shrink*cm, 0.*deg);
+  fCrystal[4]=new G4Trap("CR04", 20.18581*Shrink*cm,2.130379*deg,89.46632*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    0.2537469*deg,  5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   0.2537412*deg);
+  fCrystal[5]=new G4Trap("CR05", 20.1931*Shrink*cm, 1.978827*deg,95.34957*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    -2.374402*deg,  5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   -2.374406*deg);
+  fCrystal[6]=new G4Trap("CR06", 20.18483*Shrink*cm,2.109143*deg,268.5951*deg,1.995582*Shrink*cm,Vanish,   2.723455*Shrink*cm, 0.6542568*deg,  5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,0.6542572*deg);
+  fCrystal[7]=new G4Trap("CR07", 20.18352*Shrink*cm,2.114796*deg,89.99928*deg,2.007283*Shrink*cm,2.734993*Shrink*cm,Vanish,    0.*deg,         5.218937*Shrink*cm, 7.110981*Shrink*cm, Vanish,   0.*deg);
+  fCrystal[8]=new G4Trap("CR08", 20.18483*Shrink*cm,2.109143*deg,271.4048*deg,1.995582*Shrink*cm,Vanish,   2.7234556*Shrink*cm,-0.6542568*deg, 5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,-0.6542572*deg);
+  fCrystal[9]=new G4Trap("CR09", 20.1931*Shrink*cm, 1.978827*deg,84.65044*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    2.374402*deg,   5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   2.374406*deg);
+  fCrystal[10]=new G4Trap("CR10",20.17123*Shrink*cm,1.674679*deg,260.4183*deg,2.331228*Shrink*cm,Vanish,   2.6150286*Shrink*cm,3.013278*deg,   6.061194*Shrink*cm, Vanish,    6.799075*Shrink*cm,3.013267*deg);
+  fCrystal[11]=new G4Trap("CR11",20.16107*Shrink*cm,1.812293*deg,91.16*deg,   2.3732*Shrink*cm,  2.751179*Shrink*cm,Vanish,    -0.3896213*deg, 6.17032*Shrink*cm,  7.153065*Shrink*cm, Vanish,   -0.3896199*deg);
+  if(fIsInteractive==1)return;
+  //set up sensitive detectors
+  if(!fCBSD){
+    G4SDManager* SDman = G4SDManager::GetSDMpointer();
+    fCBSD = new A2SD("CBSD",fNcrystals);
+    SDman->AddNewDetector( fCBSD );		
+  }
+  //Use the shapes to make the different Logical volumes
+  for(G4int i=1;i<=fNCrystTypes;i++){
+    fCrystLogic[i]=new G4LogicalVolume(fCrystal[i],fNistManager->FindOrBuildMaterial("G4_SODIUM_IODIDE"),fCrystal[i]->GetName());
+    G4VisAttributes* CBVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+    CBVisAtt->SetVisibility(false);
+    // fCrystLogic[i]->SetVisAttributes(CBVisAtt);
+  //Make the crystals sensitive detectors
+    fCrystLogic[i]->SetSensitiveDetector(fCBSD);
+  }
+}
+void A2DetCrystalBall::MakeTransformVectors(){
+  //Try assuming each rotation matrix has a corresponding transf. matrix
+  //therefore use the same numbering
+  //These transforms come from the same AddNode(Vol,N,Trans,Rot) line
+  //as the correspondingly numbered rotations
+  //
+  fTrans=new G4ThreeVector[100];
+
+  // fTrans[]=G4ThreeVector();
+  fTrans[1]=G4ThreeVector(28.86752*cm,-9.379624*cm,39.73272*cm);
+  fTrans[2]=G4ThreeVector(46.70862*cm,-15.17655*cm,9.379623*cm);
+  fTrans[3]=G4ThreeVector(46.70862*cm,15.17655*cm,-9.379623*cm);
+  fTrans[4]=G4ThreeVector(28.86752*cm,9.379626*cm,-39.73272*cm);  
+  fTrans[5]=G4ThreeVector(17.8411*cm,24.55618*cm,39.73272*cm);
+  fTrans[6]=G4ThreeVector(28.86751*cm,39.73272*cm,9.379623*cm);
+  fTrans[7]=G4ThreeVector(0.5975973E-06*cm,49.11235*cm,-9.379623*cm);
+  fTrans[8]=G4ThreeVector(0.3693355E-06*cm,30.35311*cm,-39.73272*cm);
+  fTrans[9]=G4ThreeVector(-17.8411*cm,24.55618*cm,39.73272*cm);
+  fTrans[10]=G4ThreeVector(-28.86751*cm,39.73272*cm,9.379623*cm);
+  fTrans[11]=G4ThreeVector(-46.70861*cm,15.17655*cm,-9.379623*cm);
+  fTrans[12]=G4ThreeVector(-28.86752*cm,9.379626*cm,-39.73272*cm);
+  fTrans[13]=G4ThreeVector(-28.86752*cm,-9.379623*cm,39.73272*cm);
+  fTrans[14]=G4ThreeVector(-46.70862*cm,-15.17655*cm,9.379623*cm);
+  fTrans[15]=G4ThreeVector(-28.86752*cm,-39.73272*cm,-9.379623*cm);
+  fTrans[16]=G4ThreeVector(-17.84111*cm,-24.55618*cm,-39.73272*cm);
+  fTrans[17]=G4ThreeVector(-0.1108006E-05*cm,-30.3531*cm,39.73272*cm);
+  fTrans[18]=G4ThreeVector(-0.1792792E-05*cm,-49.11235*cm,9.379623*cm);
+  fTrans[19]=G4ThreeVector(28.86751*cm,-39.73272*cm,-9.379623*cm);
+  fTrans[20]=G4ThreeVector(17.84111*cm,-24.55618*cm,-39.73272*cm); 
+  fTrans[21]=G4ThreeVector(0.*cm,19.63683*cm,-6.779331*cm);
+  fTrans[22]=G4ThreeVector(-17.00599*cm,-9.818414*cm,-6.779331*cm);
+  fTrans[23]=G4ThreeVector();
+  fTrans[24]=G4ThreeVector(17.00599*cm,-9.818414*cm,-6.779331*cm);
+  fTrans[25]=G4ThreeVector(0.,0.126*cm,0.);//split 2 hemi in the LABB frame
+  fTrans[26]=G4ThreeVector(0.,0,0.126*cm);//or split 2 hemi in one sphere frame 
+  fTrans[27]=G4ThreeVector(0.*cm,0.*cm,-3.291383*cm);  //added in for central minor placement with no rotation
+  fTrans[28]=G4ThreeVector(0.*cm,19.63683*cm,-6.779331*cm);//fix for 21
+  fTrans[29]=G4ThreeVector();
+  fTrans[30]=G4ThreeVector();
+  fTrans[31]=G4ThreeVector(0.*cm,6.561235*cm,-3.284699*cm);
+  fTrans[32]=G4ThreeVector(-4.873957*cm,-0.2755656*cm,-2.268451*cm);
+  fTrans[33]=G4ThreeVector(0.*cm,-0.2669953*cm,-2.005777*cm);
+  fTrans[34]=G4ThreeVector(4.873957*cm,-0.2755656*cm,-2.268451*cm);
+  fTrans[35]=G4ThreeVector(-9.636768*cm,-7.360624*cm,-2.795638*cm);
+  fTrans[36]=G4ThreeVector(-4.898472*cm,-7.413983*cm,-2.043895*cm);
+  fTrans[37]=G4ThreeVector(0.*cm,-7.405412*cm,-1.781221*cm);
+  fTrans[38]=G4ThreeVector(4.898472*cm,-7.413983*cm,-2.043895*cm);
+  fTrans[39]=G4ThreeVector(9.636768*cm,-7.360624*cm,-2.795638*cm);
+  fTrans[40]=G4ThreeVector();
+  fTrans[41]=G4ThreeVector(-9.685799*cm,4.170954*cm,-2.545603*cm);
+  fTrans[42]=G4ThreeVector(1.230747*cm,-10.47362*cm,-2.545603*cm);
+  fTrans[43]=G4ThreeVector(8.455051*cm,6.30267*cm,-2.545603*cm);
+  fTrans[44]=G4ThreeVector(-4.922987*cm,4.263432*cm,-1.793192*cm);
+  fTrans[45]=G4ThreeVector(-1.230747*cm,-6.395147*cm,-1.793192*cm);
+  fTrans[46]=G4ThreeVector(6.153733*cm,2.131716*cm,-1.793192*cm);
+  fTrans[47]=G4ThreeVector(-6.153733*cm,-2.131716*cm,-1.793192*cm);
+  fTrans[48]=G4ThreeVector(4.922987*cm,-4.263432*cm,-1.793192*cm);
+  fTrans[49]=G4ThreeVector(1.230747*cm,6.395147*cm,-1.793192*cm);
+  fTrans[51]=G4ThreeVector(-19.60074*cm,12.32638*cm,60.68302*cm);
+  fTrans[52]=G4ThreeVector(19.60074*cm,-12.32638*cm,60.68302*cm);
+  fTrans[53]=G4ThreeVector(-19.60074*cm,12.32638*cm,-60.68302*cm);
+  fTrans[54]=G4ThreeVector(19.60074*cm,-12.32638*cm,-60.68302*cm);
+  fTrans[61]=G4ThreeVector(0.3097284*cm,22.30712*cm,60.84964*cm);
+  fTrans[62]=G4ThreeVector(-0.3097284*cm,-22.30712*cm,60.84964*cm);
+  fTrans[63]=G4ThreeVector(0.3097284*cm,22.30712*cm,-60.84964*cm);
+  fTrans[64]=G4ThreeVector(-0.3097284*cm,-22.30712*cm,-60.84964*cm);
+  fTrans[71]=G4ThreeVector(19.73018*cm,10.26593*cm,60.84964*cm);
+  fTrans[72]=G4ThreeVector(-19.73018*cm,-10.26593*cm,60.84964*cm);
+  fTrans[73]=G4ThreeVector(19.73018*cm,10.26593*cm,-60.84964*cm);
+  fTrans[74]=G4ThreeVector(-19.73018*cm,-10.26593*cm,-60.84964*cm);
+  fTrans[96]=G4ThreeVector(0*cm,0*cm,28.4*cm);
+
+}
+void A2DetCrystalBall::MakeRotationMatrices(){
+  //Create G4Rotation Matrices from TGeoRotation defined in ROOT geometry file crystalball.C
+  //Numbering is as fot the fortran geometry ugeom.F
+  TGeoRotation* rot[100];
+  for (G4int i=0;i<100;i++)
+    rot[i]=NULL;
+
+
+  rot[1] = new TGeoRotation("rot1",90,72,52.62263,162,37.37737,-18);
+  rot[2] = new TGeoRotation("rot2",90,-108,169.1877,-18,79.18768,-18);
+  rot[3] = new TGeoRotation("rot3",90,108,10.81232,18,100.8123,18);
+  rot[4] = new TGeoRotation("rot4",90,-72,127.3774,198,142.6226,18);
+  rot[5] = new TGeoRotation("rot5",90,144,52.62263,234,37.37737,54);
+  rot[6] = new TGeoRotation("rot6",90,-36,169.1877,54,79.18768,54);
+  rot[7] = new TGeoRotation("rot7",90,180,10.81232,90,100.8123,90);
+  rot[8] = new TGeoRotation("rot8",90,0,127.3774,270,142.6226,90);
+  rot[9] = new TGeoRotation("rot9",90,216,52.62263,306,37.37737,126);
+  rot[10] = new TGeoRotation("rot10",90,36,169.1877,126,79.18768,126);
+  rot[11] = new TGeoRotation("rot11",90,252,10.81232,162,100.8123,162);
+  rot[12] = new TGeoRotation("rot12",90,72,127.3774,342,142.6226,162);
+  rot[13] = new TGeoRotation("rot13",90,288,52.62263,378,37.37737,198);
+  rot[14] = new TGeoRotation("rot14",90,108,169.1877,198,79.18768,198);
+  rot[15] = new TGeoRotation("rot15",90,324,10.81232,234,100.8123,234);
+  rot[16] = new TGeoRotation("rot16",90,144,127.3774,414,142.6226,234);
+  rot[17] = new TGeoRotation("rot17",90,360,52.62263,450,37.37737,270);
+  rot[18] = new TGeoRotation("rot18",90,180,169.1877,270,79.18768,270);
+  rot[19] = new TGeoRotation("rot19",90,396,10.81232,306,100.8123,306);
+  rot[20] = new TGeoRotation("rot20",90,216,127.3774,486,142.6226,306);
+  rot[21] = new TGeoRotation("rot21",90,0,  108.0291,90 ,18.0291,90);
+  rot[22] = new TGeoRotation("rot22",90,120,108.0291,210,18.0291,210);
+  rot[24] = new TGeoRotation("rot24",90,240,108.0291,330,18.0291,330);
+  rot[23] = new TGeoRotation("rot23",90,180,90,90,180,0);
+  rot[25] = new TGeoRotation("rot25",0,0,90,0,90,90);
+  rot[26] = new TGeoRotation("rot26",90,90,0,0,90,0);
+  rot[27] = new TGeoRotation("rot27"); //added in for central minor placement with no rotation
+  rot[31] = new TGeoRotation("rot31",90,360,102.8996,90,12.89964,90);
+  rot[32] = new TGeoRotation("rot32",83.84803,0.2015059,94.2088,89.74704,7.463124,145.5692);
+  rot[33] = new TGeoRotation("rot33",90,360,98.44637,90,8.446371,90.00005);
+  rot[34] = new TGeoRotation("rot34",96.15197,359.7985,94.2088,90.25296,7.463124,34.43079);
+  rot[35] = new TGeoRotation("rot35",78.00652,358.4585,85.20763,89.47906,12.9421,200.8759);
+  rot[36] = new TGeoRotation("rot36",83.84803,0.2015059,89.46205,90.25949,6.175653,185.2375);
+  rot[37] = new TGeoRotation("rot37",90,360,85.22453,90,4.775468,269.9999);
+  rot[38] = new TGeoRotation("rot38",96.15197,359.7985,89.46205,89.74051,6.175653,354.7625);
+  rot[39] = new TGeoRotation("rot39",101.9935,1.541459,85.20763,90.52094,12.9421,339.1241);
+  rot[41] = new TGeoRotation("rot41",78.12711,2.301167,97.25146,90.76825,13.96771,150);
+  rot[42] = new TGeoRotation("rot42",78.12711,122.3012,97.25146,210.7682,13.96771,270);
+  rot[43] = new TGeoRotation("rot43",78.12711,242.3012,97.25146,330.7682,13.96771,390);
+  rot[44] = new TGeoRotation("rot44",83.78185,0,93.55728,89.61192,7.170748,149.9998);
+  rot[45] = new TGeoRotation("rot45",83.78185,120,93.55728,209.6119,7.170748,269.9998);
+  rot[46] = new TGeoRotation("rot46",83.78185,240,93.55728,329.6119,7.170748,389.9998);
+  rot[47] = new TGeoRotation("rot47",83.78185,60,93.55728,149.6119,7.170748,209.9998);
+  rot[48] = new TGeoRotation("rot48",83.78185,180,93.55728,269.6119,7.170748,329.9998);
+  rot[49] = new TGeoRotation("rot49",83.78185,300,93.55728,389.6119,7.170748,449.9998);
+  rot[51] = new TGeoRotation("rot51",90.04582,58.22001,110.8999,148.2375,20.9,148.1);
+  rot[52] = new TGeoRotation("rot52",90.04582,238.22,110.8999,328.2375,20.9,328.1);
+  rot[53] = new TGeoRotation("rot53",90.04582,238.22,69.10005,148.2375,159.1,148.1);
+  rot[54] = new TGeoRotation("rot54",90.04582,58.22001,69.10005,328.2375,159.1,328.1);
+  rot[61] = new TGeoRotation("rot61",87.12058,351.3,109.8749,80.25814,20.1,89.2);
+  rot[62] = new TGeoRotation("rot62",87.12058,171.3,109.8749,260.2581,20.1,269.2);
+  rot[63] = new TGeoRotation("rot63",87.12058,171.3,70.12505,80.25814,159.9,89.2);
+  rot[64] = new TGeoRotation("rot64",87.12058,351.3,70.12505,260.2581,159.9,269.2);
+  rot[71] = new TGeoRotation("rot71",92.95169,305.3,109.8635,36.36736,20.1,27.2);
+  rot[72] = new TGeoRotation("rot72",92.95169,125.3,109.8635,216.3674,20.1,207.2);
+  rot[73] = new TGeoRotation("rot73",92.95169,125.3,70.13654,36.36736,159.9,27.2);
+  rot[74] = new TGeoRotation("rot74",92.95169,305.3,70.13654,216.3674,159.9,207.2);
+  rot[80] = new TGeoRotation("rot80",90,1.2,90,91.2,0,0);
+  //  rot[95] = new TGeoRotation("rot95",90,90,180,0,90,0);//Gives imroper rotation
+  rot[95] = new TGeoRotation("rot95",90,90,180,0,90,0);//Gives imroper rotation
+
+  rot[96] = new TGeoRotation("rot96",90,0,90,270,0,0);//Gives imroper rotation
+  rot[98] = new TGeoRotation("rot98",0,0,90,180,90,90);//Gives imroper rotation
+
+  fRot=new G4RotationMatrix*[100];
+
+  for(G4int i=0;i<100;i++)
+    if(rot[i]){
+      //G4cout<<"Rotation Matrix "<<i<<G4endl;
+      if(i==95){
+// 	const Double_t *m = rot[26]->Inverse().GetRotationMatrix();
+// 	fRot[i]=new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+// 	G4cout<<"MAde 95"<<G4endl;
+	fRot[i]=new G4RotationMatrix();
+	fRot[i]->rotateX(90*deg);
+	fRot[i]->rotateY(90*deg);
+      }
+      else{
+	const Double_t *m = rot[i]->GetRotationMatrix();
+	fRot[i]=new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+      }
+//       if(i==27) fRot[i]=new G4RotationMatrix();
+ 
+    }
+    else fRot[i]=NULL;
+  
+  //if(rot[i]) delete rot[i];
+}
+
