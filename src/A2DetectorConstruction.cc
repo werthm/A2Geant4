@@ -280,7 +280,7 @@ void A2DetectorConstruction::DefineMaterials()
 
  //Liquid deuterium. From cbsim.
  // NistManager->RegisterMaterial(new G4Material("A2_LD2", z=1., a= 2.014*g/mole, density= 0.162*g/cm3));
- new G4Material("A2_lD2", z=1., a= 2.014*g/mole, density= 0.162*g/cm3);
+ G4Material* A2_lD2 = new G4Material("A2_lD2", z=1., a= 2.014*g/mole, density= 0.162*g/cm3);
  new G4Material("A2_lHe3", z=2., a= 3.0160*g/mole, density= 0.059*g/cm3);
 
 
@@ -305,22 +305,37 @@ void A2DetectorConstruction::DefineMaterials()
   G4Material* A2_HeMix=new G4Material("A2_HeMix", density=0.14*g/cm3, ncomponents=1);
   A2_HeMix->AddElement(A2_Hemix, natoms=1);
 
-//Butanol (C4H9OH):
-  G4Material* A2_Butanol=new G4Material("A2_Butanol", density=0.8*g/cm3, ncomponents=3);
+//Butanol (C4H9OH): (changed density from 0.8 to 0.94. 0.8 probably from normal temp. calculations not reasonable with this value.)
+  G4Material* A2_Butanol=new G4Material("A2_Butanol", density=0.94*g/cm3, ncomponents=3);
   A2_Butanol->AddElement(NistManager->FindOrBuildElement(6),4);
   A2_Butanol->AddElement(NistManager->FindOrBuildElement(1),10);
   A2_Butanol->AddElement(NistManager->FindOrBuildElement(8),1);
 
-//60% butanol, 40% helium polarized target material:
-  G4Material* A2_HeButanol=new G4Material("A2_HeButanol", density=0.6*g/cm3, ncomponents=2);
+//dButanol (C4D9OD):
+  G4Material* A2_DButanol=new G4Material("A2_DButanol", density=1.1*g/cm3, ncomponents=3);
+  A2_DButanol->AddElement(NistManager->FindOrBuildElement(6),fractionmass=0.571);
+  A2_DButanol->AddMaterial(A2_lD2, fractionmass=0.239);
+  A2_DButanol->AddElement(NistManager->FindOrBuildElement(8),fractionmass=0.190);
+
+//60% butanol, 40% helium polarized target material: (changed density from 0.6 to 0.62 due to above mentioned problem.)
+  G4Material* A2_HeButanol=new G4Material("A2_HeButanol", density=0.62*g/cm3, ncomponents=2);
   A2_HeButanol->AddMaterial(A2_HeMix, fractionmass=0.094);
   A2_HeButanol->AddMaterial(A2_Butanol, fractionmass=0.906);
-  
+
+//60% dbutanol, 40% helium polarized target material:
+  G4Material* A2_HeDButanol=new G4Material("A2_HeDButanol", density=0.716*g/cm3, ncomponents=2);
+  A2_HeDButanol->AddMaterial(A2_HeMix,    fractionmass=0.078);
+  A2_HeDButanol->AddMaterial(A2_DButanol, fractionmass=0.922);
+ 
+//Carbon Foam
+  G4Material* A2_CarbonFoam = new G4Material("A2_CarbonFoam", density=0.57*g/cm3, ncomponents=1);
+  A2_CarbonFoam->AddElement(NistManager->FindOrBuildElement(6), 1);
+
 //Stainless steel (18% Cr, 10% Ni, 72% Fe):
   G4Material* A2_SS=new G4Material("A2_SS", density=8000.*kg/m3, ncomponents=3);
   A2_SS->AddElement(NistManager->FindOrBuildElement(24), fractionmass=0.18);
   A2_SS->AddElement(NistManager->FindOrBuildElement(28), fractionmass=0.10);
-  A2_SS->AddElement(NistManager->FindOrBuildElement(25), fractionmass=0.72);
+  A2_SS->AddElement(NistManager->FindOrBuildElement(26), fractionmass=0.72);//was 25
 
 //NbTi ***don't know density at cold temperature***:
   G4Material* A2_NbTi=new G4Material("A2_NbTi", density=6.45*g/cm3, ncomponents=2);
