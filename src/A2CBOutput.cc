@@ -90,12 +90,17 @@ void A2CBOutput::SetBranches(){
   fTree->Branch("ivtaps",fivtaps,"fictaps[fnvtaps]/I",basket);
   fTree->Branch("idpart",fidpart,"fidpart[fnpart]/I",basket);
   fTree->Branch("iveto",fiveto,"fiveto[fvhits]/I",basket);
-  fTree->Branch("nmwpc",&fnmwpc,"fnmwpc/I",basket);
-  fTree->Branch("imwpc",fimwpc,"fimwpc[fnmwpc]/I",basket);
-  fTree->Branch("mposx",fmposx,"fmposx[fnmwpc]/F",basket);
-  fTree->Branch("mposy",fmposy,"fmposy[fnmwpc]/F",basket);
-  fTree->Branch("mposz",fmposz,"fmposz[fnmwpc]/F",basket);
-  fTree->Branch("emwpc",femwpc,"femwpc[fnmwpc]/F",basket);
+  if (fDET->GetUseMWPC() && fDET->GetUseMWPC() / 10 == 0)
+  {
+    fTree->Branch("nmwpc",&fnmwpc,"fnmwpc/I",basket);
+    fTree->Branch("imwpc",fimwpc,"fimwpc[fnmwpc]/I",basket);
+    fTree->Branch("mposx",fmposx,"fmposx[fnmwpc]/F",basket);
+    fTree->Branch("mposy",fmposy,"fmposy[fnmwpc]/F",basket);
+    fTree->Branch("mposz",fmposz,"fmposz[fnmwpc]/F",basket);
+    fTree->Branch("emwpc",femwpc,"femwpc[fnmwpc]/F",basket);
+  }
+  else
+    G4cout<<"A2CBOutput::SetBranches() Disabling MWPC readout"<<G4endl;
   //tof stuff
   if(fToFTot>0){
     fTree->Branch("ntof",&fntof,"fntof/I",basket);

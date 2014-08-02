@@ -46,6 +46,7 @@ class A2DetectorConstruction : public G4VUserDetectorConstruction
   void SetUseMWPC(G4int use){fUseMWPC=use;}
   void SetUseCherenkov(G4int use){fUseCherenkov=use;}
 
+  G4int GetUseMWPC() const { return fUseMWPC; }
 
   void SetUseTarget(G4String use){fUseTarget=use;}
   void SetTargetMaterial(G4String mat){fTargetMaterial=G4NistManager::Instance()->FindOrBuildMaterial(mat);}

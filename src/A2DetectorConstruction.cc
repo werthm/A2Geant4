@@ -147,9 +147,9 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
 
   if(fUseMWPC){
     G4cout<<"A2DetectorConstruction::Construct() Make the Wire Chambers"<<G4endl;
-    if(fUseMWPC==2)G4cout<<"With the anode wires created"<<G4endl;
+    if(fUseMWPC==2 || fUseMWPC==20)G4cout<<"With the anode wires created"<<G4endl;
     fMWPC = new A2DetMWPC();
-    if(fUseMWPC==2)fMWPC->UseAnodes(true);
+    if(fUseMWPC==2 || fUseMWPC==20)fMWPC->UseAnodes(true);
     fMWPC ->Construct(fWorldLogic); 
   }
   if(fUseTOF){
