@@ -128,19 +128,19 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       fThreeVector.setX(fGenPosition[0]*cm);
       fThreeVector.setY(fGenPosition[1]*cm);
       fThreeVector.setZ(fGenPosition[2]*cm);
-      while(!IsInTarget(fThreeVector)){
-	if(fTargetWarning==0){
-	G4cout<<"Warning vertex position from ROOT input file is not inside target cell"<<G4endl;
-	G4cout<<"I have taken the liberty of choosing a new one inside!! see void A2PrimaryGeneratorAction::GeneratePrimaries"<<G4endl<<"I will not print this warning again, but will continue to move the vertex inside the target, to stop this please modify A2PrimaryGeneratorAction.cc around line 130"<<G4endl;
-	}
-	fThreeVector.setZ(fDetCon->GetTarget()->GetCenter().z()+fDetCon->GetTarget()->GetLength()/2*(2*G4UniformRand()-1));
-	fThreeVector.setPerp(fDetCon->GetTarget()->GetRadius()*G4UniformRand());
-	if(fTargetWarning==0){G4cout<<fThreeVector<<" from "<<"("<<fGenPosition[0]*cm<<","<<fGenPosition[1]*cm<<","<<fGenPosition[2]*cm<<")*mm"<<G4endl;}
-	fGenPosition[0]=fThreeVector.x()/cm;
-	fGenPosition[1]=fThreeVector.y()/cm;
-	fGenPosition[2]=fThreeVector.z()/cm;
-	fTargetWarning=1;
-      };
+      //while(!IsInTarget(fThreeVector)){
+      //  if(fTargetWarning==0){
+      //  G4cout<<"Warning vertex position from ROOT input file is not inside target cell"<<G4endl;
+      //  G4cout<<"I have taken the liberty of choosing a new one inside!! see void A2PrimaryGeneratorAction::GeneratePrimaries"<<G4endl<<"I will not print this warning again, but will continue to move the vertex inside the target, to stop this please modify A2PrimaryGeneratorAction.cc around line 130"<<G4endl;
+      //  }
+      //  fThreeVector.setZ(fDetCon->GetTarget()->GetCenter().z()+fDetCon->GetTarget()->GetLength()/2*(2*G4UniformRand()-1));
+      //  fThreeVector.setPerp(fDetCon->GetTarget()->GetRadius()*G4UniformRand());
+      //  if(fTargetWarning==0){G4cout<<fThreeVector<<" from "<<"("<<fGenPosition[0]*cm<<","<<fGenPosition[1]*cm<<","<<fGenPosition[2]*cm<<")*mm"<<G4endl;}
+      //  fGenPosition[0]=fThreeVector.x()/cm;
+      //  fGenPosition[1]=fThreeVector.y()/cm;
+      //  fGenPosition[2]=fThreeVector.z()/cm;
+      //  fTargetWarning=1;
+      //};
        fParticleGun->SetParticlePosition(fThreeVector);
      //Loop over tracked particles, set particle gun and create vertex for each particle
       
