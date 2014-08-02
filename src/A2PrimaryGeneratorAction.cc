@@ -343,6 +343,10 @@ void A2PrimaryGeneratorAction::SetUpROOTInput(){
 	//	exit(1);
       }
 
+      // kaon0S bugfix
+      if (fGenPartType[index] == 16 && fParticleDefinition[index]->GetPDGEncoding() == 130)
+        fParticleDefinition[index] = fParticleTable->FindParticle(310);
+
       //G4cout<<"here2"<<fParticleDefinition[index]<<G4endl;
       if(fParticleDefinition[index]){
 	fGenMass[index]=fParticleDefinition[index]->GetPDGMass();
