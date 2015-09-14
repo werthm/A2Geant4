@@ -6,9 +6,10 @@
 #include "G4ThreeVector.hh"
 #include "G4VisAttributes.hh"
 
-A2CryoTarget::A2CryoTarget()
+A2CryoTarget::A2CryoTarget(G4bool isHe3)
 {
   fTargetLength=5*cm;
+  fIsHe3=isHe3;
 }
 A2CryoTarget::~A2CryoTarget()
 {
@@ -17,6 +18,10 @@ A2CryoTarget::~A2CryoTarget()
 
 
 G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
+
+  if (fIsHe3) G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long He3 target" <<G4endl;
+  else G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target" <<G4endl;
+
   fMotherLogic=MotherLogic;
   //c Target volume parameters
   //All parameters copied directly from ugeom_target.F
@@ -45,7 +50,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
   G4double r_lD2C = ((r_CU64-t_CU64)*(r_CU64-t_CU64)-t_lD2C*t_lD2C)/(2*t_lD2C)+t_lD2C;
   //c Parameters for the other cell parts
   G4double r_lD2B = 4.543*cm;   //! See target manual
-  G4double r_lD2A = 2.*cm;
+  G4double r_lD2A = fIsHe3 ? 1.5025*cm : 2.*cm;
   //G4double l_cell = 4.76*cm ;  // ! Length of cell at beam axis
   //G4double l_cell = 10.0*cm ;  // For 10-cm cell
   G4double l_cell = fTargetLength;
@@ -59,8 +64,8 @@ G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
   G4double l_lD2D = l_CU64;
   //c Parameters for the kapton exit window
   G4double r_kapd = r_lD2B;
-  G4double t_KAPT = 0.0125*cm;//   ! Valid for all kapton parts
-  
+  G4double t_KAPT = fIsHe3 ? 0.0175*cm : 0.0125*cm;//   ! Valid for all kapton parts
+
   G4double tm = -l_trgt/2. + l_CU64 + l_cell/2.;// ! Middle of target cell
       
   //Construct the volumes
@@ -94,26 +99,31 @@ G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
   G4LogicalVolume* FLA2Logic=new G4LogicalVolume(FLA2,fNistManager->FindOrBuildMaterial("G4_Al"),"FLA2");
   new G4PVPlacement(0,G4ThreeVector(0,0,l_trgt/2. - l_flangeo - l_flangei/2.),FLA2Logic,"FLA2",fMyLogic,false,3);
 
+  // Mylar instead of Kapton for He3 target
+  char foilMat[16];
+  if (fIsHe3) strcpy(foilMat, "G4_MYLAR");
+  else strcpy(foilMat, "G4_KAPTON");
+
   //Note sphere constructor, ("name"rmin,rmax,phimin,deltaphi,thetamin,deltatheta)
   G4Sphere* KAPD=new G4Sphere("KAPD",r_kapd,r_kapd+t_KAPT,0*deg,360*deg,180.*deg - asin((r_flangeo-t_flangeo)/r_kapd)*rad,asin((r_flangeo-t_flangeo)/r_kapd)*rad);
-  G4LogicalVolume* KAPDLogic=new G4LogicalVolume(KAPD,fNistManager->FindOrBuildMaterial("G4_KAPTON"),"KAPD");
+  G4LogicalVolume* KAPDLogic=new G4LogicalVolume(KAPD,fNistManager->FindOrBuildMaterial(foilMat),"KAPD");
   new G4PVPlacement(0,G4ThreeVector(0,0,l_trgt/2. + sqrt(r_kapd*r_kapd-(r_flangeo-t_flangeo)*(r_flangeo-t_flangeo))),KAPDLogic,"KAPD",fMyLogic,false,4);
 
   //////////////////////
   //Kapton tube+windows
   ////////////////////////
   G4Tubs* KAPA=new G4Tubs("KAPA",r_lD2A,r_lD2A + t_KAPT,(l_CU64 + l_lD2A)/2.,0*deg,360*deg);
-  G4LogicalVolume* KAPALogic=new G4LogicalVolume(KAPA,fNistManager->FindOrBuildMaterial("G4_KAPTON"),"KAPA");
+  G4LogicalVolume* KAPALogic=new G4LogicalVolume(KAPA,fNistManager->FindOrBuildMaterial(foilMat),"KAPA");
   new G4PVPlacement(0,G4ThreeVector(0,0,(l_CU64 + l_lD2A - l_trgt)/2.),KAPALogic,"KAPA",fMyLogic,false,5);
   KAPALogic->SetVisAttributes(TarVisAtt);
 
   G4Sphere* KAPB=new G4Sphere("KAPB",r_lD2B,r_lD2B + t_KAPT,0*deg,360*deg,0,asin((r_lD2A+t_KAPT)/(r_lD2B+t_KAPT))*rad);
-  G4LogicalVolume* KAPBLogic=new G4LogicalVolume(KAPB,fNistManager->FindOrBuildMaterial("G4_KAPTON"),"KAPB");
+  G4LogicalVolume* KAPBLogic=new G4LogicalVolume(KAPB,fNistManager->FindOrBuildMaterial(foilMat),"KAPB");
  new G4PVPlacement(0,G4ThreeVector(0,0, -l_trgt/2. + l_CU64 + l_lD2A + t_lD2B - r_lD2B),KAPBLogic,"KAPB",fMyLogic,false,6);
 
 
   G4Sphere* KAPC=new G4Sphere("KAPC",r_lD2C,r_lD2C + t_KAPT,0*deg,360*deg,180*deg-asin((r_CU64-t_CU64)/r_lD2C)*rad,asin((r_CU64-t_CU64)/r_lD2C)*rad);
-  G4LogicalVolume* KAPCLogic=new G4LogicalVolume(KAPC,fNistManager->FindOrBuildMaterial("G4_KAPTON"),"KAPC");
+  G4LogicalVolume* KAPCLogic=new G4LogicalVolume(KAPC,fNistManager->FindOrBuildMaterial(foilMat),"KAPC");
   new G4PVPlacement(0,G4ThreeVector(0,0,-l_trgt/2. + l_CU64 - t_lD2C + r_lD2C),KAPCLogic,"KAPC",fMyLogic,false,7);
 
   ////////////////////////////////
