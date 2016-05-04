@@ -68,6 +68,10 @@ G4bool A2SD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   if((mothervolume->GetName().contains("COVR"))&&(aStep->GetPreStepPoint()->GetGlobalTime()>2000*ns))return false;
   else if (aStep->GetPreStepPoint()->GetGlobalTime()>600*ns)return false; 
 
+  // energy correction for non-linearity
+  //if (aStep->GetTrack()->GetMaterial()->GetName().contains("G4_PLASTIC_SC_VINYLTOLUENE"))
+  //  edep = GetEffectiveEnergyDeposit(aStep);
+
   //if(volume->GetName().contains("Pb")) G4cout<<volume->GetName()<<" id "<<id <<" "<<mothervolume->GetCopyNo()<<" "<<volume->GetCopyNo()<<" edep "<<edep/MeV<<G4endl;
   if (fhitID[id]==-1){
     //if this crystal has already had a hit
@@ -120,17 +124,29 @@ void A2SD::DrawAll()
 void A2SD::PrintAll()
 {} 
 
+G4double A2SD::GetEffectiveEnergyDeposit(const G4Step* aStep)
+{
+  // Weight energy deposit by scintillation-light quenching effects
+  // Scintillation response is generally non-linear with energy
+  // According to Birks it depends on de/dx
+  //
 
+  // density of EJ-204
+  const Double_t den = 1.023; // [g/cm^3]
 
+  // NIM B 170 (2000) 523
+  G4double kB = 1.6e-2; // [g MeV^-1 cm^-2]
+  G4double C  = 5.0e-5; // [(g MeV^-1 cm^-2)^2]
+  kB /= den; // [cm MeV^-1]
+  C /= den;  // [(cm MeV^-1)^2]
 
+  G4double destep = aStep->GetTotalEnergyDeposit();
+  if ((!destep)) return destep;
+  G4double charge = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
+  if (!charge) return destep;
+  G4double stepl = aStep->GetStepLength()/cm;
+  if (!stepl) return destep;
 
-
-
-
-
-
-
-
-
-
+  return destep / (1. + kB*destep/stepl + C*destep*destep/stepl/stepl);
+}
 

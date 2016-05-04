@@ -34,7 +34,8 @@ private:
   G4int * fHits;
   G4int fNhits;
 
- 
+  G4double GetEffectiveEnergyDeposit(const G4Step* aStep);
+
 };
 
 #endif
