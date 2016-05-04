@@ -86,9 +86,21 @@ G4bool A2SD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
     fHits[fNhits++]=id;
   }
   else // This is not new
-    {
+  {
     (*fCollection)[fhitID[id]]->AddEnergy(edep);
+    // set more realistic hit times
+    G4double time = aStep->GetPreStepPoint()->GetGlobalTime();
+    if (volume->GetName().contains("TAPS"))
+    {
+      if (edep/MeV > 4. && time < (*fCollection)[fhitID[id]]->GetTime())
+        (*fCollection)[fhitID[id]]->SetTime(time);
     }
+    else if (volume->GetName().contains("CRYSTAL"))
+    {
+      if (edep/MeV > 2. && time < (*fCollection)[fhitID[id]]->GetTime())
+        (*fCollection)[fhitID[id]]->SetTime(time);
+    }
+  }
   //G4cout<<"done "<<fNhits<<G4endl;
   return true;
 }
