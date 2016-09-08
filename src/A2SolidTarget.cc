@@ -6,6 +6,9 @@
 #include "G4LogicalVolume.hh"
 #include "G4ThreeVector.hh"
 #include "G4VisAttributes.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 A2SolidTarget::A2SolidTarget()
 {

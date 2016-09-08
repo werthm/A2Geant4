@@ -11,7 +11,9 @@
 #include "G4Cons.hh"
 #include "G4SubtractionSolid.hh"
 #include <fstream>
+#include "CLHEP/Units/SystemOfUnits.h"
 //using namespace std;
+using namespace CLHEP;
 
 A2DetTOF::A2DetTOF(){
   

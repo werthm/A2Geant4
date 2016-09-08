@@ -2,6 +2,9 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 #include "G4SDManager.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 A2DetTAPS::A2DetTAPS(){
   fregionTAPS=NULL;

@@ -20,10 +20,13 @@
 #include "G4Colour.hh"
 #include "G4Point3D.hh"
 #include "G4Polyline.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "A2CryoTarget.hh"
 #include "A2SolidTarget.hh"
 #include "A2PolarizedTarget.hh"
+
+using namespace CLHEP;
 
 A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
 {

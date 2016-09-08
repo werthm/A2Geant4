@@ -10,6 +10,9 @@
 #include "A2MagneticField.hh"
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 A2PolarizedTarget::A2PolarizedTarget()
 {

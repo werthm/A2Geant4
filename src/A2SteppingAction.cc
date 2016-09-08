@@ -9,6 +9,9 @@
 #include "G4Gamma.hh"
 #include "G4Proton.hh"
 #include "G4SteppingManager.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 ////#include "G4RunManager.hh"
 

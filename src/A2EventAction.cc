@@ -13,12 +13,13 @@
 #include "G4UnitsTable.hh"
 #include "G4Trajectory.hh"
 #include "G4UImanager.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "Randomize.hh"
 #include "TString.h"
 #include <iomanip>
 
-
+using namespace CLHEP;
 
 A2EventAction::A2EventAction(A2RunAction* run)
 :frunAct(run),fdrawFlag("all"),fprintModulo(1),feventMessenger(0)

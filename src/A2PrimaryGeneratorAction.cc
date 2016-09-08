@@ -9,12 +9,15 @@
 #include "G4ParticleDefinition.hh"
 #include "G4IonTable.hh"
 #include "Randomize.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TObjArray.h"
 #include "TBranch.h"
 #include "TString.h"
 
 #include "MCNtuple.h"
+
+using namespace CLHEP;
 
 //String that converts g3 particle number into a G4 particle name
 //const G4String G3ParticleType[]={"nothing","gamma","e+","e-","nu_e","mu+","mu-","pi0","pi+","pi-","kaon0L","kaon+","kaon-","neutron","proton","anti_proton","kaon0S","eta","lambda","sigma+","sigma0","sigma-","xi0","xi-","omega","anti_neutron","anti_lambda","anti_sigma-","anti_sigma0","anti_sigma+","anti_xi0","anti_xi+","GenericIon","","","","","","","","","","","","","deuteron","triton","","","He3","","","","","","","","","","","","","deuteron","triton","","","He3","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","deuteron"};

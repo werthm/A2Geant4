@@ -10,8 +10,10 @@
 
 #include "G4Colour.hh"
 #include "G4ios.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
- 
+using namespace CLHEP;
+
 A2DetCrystalBall::A2DetCrystalBall()
 {
   fregionCB=NULL;

@@ -11,6 +11,9 @@
 #include "G4SDManager.hh"
 #include "G4EventManager.hh"
 #include "G4ios.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 #include "stdio.h"
 

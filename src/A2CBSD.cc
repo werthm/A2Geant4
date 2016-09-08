@@ -9,8 +9,11 @@
 #include "G4TouchableHistory.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "stdio.h"
+
+using namespace CLHEP;
 
 A2CBSD::A2CBSD(G4String name):G4VSensitiveDetector(name)
 {

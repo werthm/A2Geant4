@@ -1,5 +1,8 @@
 #include "A2CBOutput.hh"
 #include "G4RunManager.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 A2CBOutput::A2CBOutput(){
   fFile=NULL;

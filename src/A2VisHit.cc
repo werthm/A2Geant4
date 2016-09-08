@@ -2,6 +2,9 @@
 #include "A2VisHit.hh"
 #include "G4Color.hh"
 #include "G4VisAttributes.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 G4Allocator<A2VisHit> A2VisHitAllocator;
 

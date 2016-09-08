@@ -7,6 +7,9 @@
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
 #include "G4SubtractionSolid.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 A2DetMWPC::A2DetMWPC(){
 

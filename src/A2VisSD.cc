@@ -11,8 +11,11 @@
 #include "G4SDManager.hh"
 #include "G4EventManager.hh"
 #include "G4ios.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "stdio.h"
+
+using namespace CLHEP;
 
 A2VisSD::A2VisSD(G4String name,G4int Nelements):G4VSensitiveDetector(name)
 {
