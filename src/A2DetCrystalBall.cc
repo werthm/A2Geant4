@@ -163,11 +163,11 @@ void A2DetCrystalBall::MakeOther1(){//please read note above
   // additional material for the tunnel region
   // choose between 'one layer' or 'complete fill'
   // added by D.W.
-  G4double tunl_add_rin = tunl_rout;
-  G4double tunl_add_rout = tunl_rout+4*cm;
+  //G4double tunl_add_rin = tunl_rout;
+  //G4double tunl_add_rout = tunl_rout+4*cm;
   G4double tunl_add_phlow = 0*deg;
   G4double tunl_add_phdelta = 180*deg;
-  G4double tunl_add_z = 0.3*cm;
+  //G4double tunl_add_z = 0.3*cm;
   G4VisAttributes* tun_add_att = new G4VisAttributes(G4Colour(1,0,0));
   G4RotationMatrix* tunl_add_rmat = new G4RotationMatrix();
   tunl_add_rmat->rotateX(180*deg);
@@ -467,20 +467,20 @@ void A2DetCrystalBall::MakeOther2(){//Based on ugeom_mamic_apr09.F
   double th2=atan(-1./(tan(th3)*cos(ph2-ph3)))+180*deg;
 
   tempRot->SetAngles(th1/deg,ph1/deg,th2/deg,ph2/deg,th3/deg,ph3/deg);
-  const Double_t *m = tempRot->GetRotationMatrix();
-  fRot[51] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  const Double_t *mtx = tempRot->GetRotationMatrix();
+  fRot[51] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg+180,th2/deg,ph2/deg+180,th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[52] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[52] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg+180,180-th2/deg,ph2/deg,180-th3/deg,ph3/deg);
-  m = tempRot->GetRotationMatrix();
-  fRot[53] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[53] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg,180-th2/deg,ph2/deg+180,180-th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[54] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[54] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   //Now translations
   G4double z=tunl_zpos + skrl*cos(th3);
@@ -505,20 +505,20 @@ void A2DetCrystalBall::MakeOther2(){//Based on ugeom_mamic_apr09.F
   th2=atan(-1./(tan(th3)*cos(ph2-ph3)))+180*deg;
   
   tempRot->SetAngles(th1/deg,ph1/deg,th2/deg,ph2/deg,th3/deg,ph3/deg);
-  m = tempRot->GetRotationMatrix();
-  fRot[61] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[61] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg-180,th2/deg,ph2/deg+180,th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[62] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[62] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg-180,180-th2/deg,ph2/deg,180-th3/deg,ph3/deg);
-  m = tempRot->GetRotationMatrix();
-  fRot[63] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[63] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg,180-th2/deg,ph2/deg+180,180-th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[64] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[64] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   //Now translations
   z = tunl_zpos + skrl*cos(th3);
@@ -541,20 +541,20 @@ void A2DetCrystalBall::MakeOther2(){//Based on ugeom_mamic_apr09.F
   th2=atan(-1./(tan(th3)*cos(ph2-ph3)))+180*deg;
   
   tempRot->SetAngles(th1/deg,ph1/deg,th2/deg,ph2/deg,th3/deg,ph3/deg);
-  m = tempRot->GetRotationMatrix();
-  fRot[71] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[71] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg-180,th2/deg,ph2/deg+180,th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[72] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[72] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg-180,180-th2/deg,ph2/deg,180-th3/deg,ph3/deg);
-  m = tempRot->GetRotationMatrix();
-  fRot[73] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[73] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   tempRot->SetAngles(th1/deg,ph1/deg,180-th2/deg,ph2/deg+180,180-th3/deg,ph3/deg+180);
-  m = tempRot->GetRotationMatrix();
-  fRot[74] = new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+  mtx = tempRot->GetRotationMatrix();
+  fRot[74] = new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
 
   //Now translations
   z = tunl_zpos + skrl*cos(th3);
@@ -1021,8 +1021,8 @@ void A2DetCrystalBall::MakeRotationMatrices(){
 	fRot[i]->rotateY(90*deg);
       }
       else{
-	const Double_t *m = rot[i]->GetRotationMatrix();
-	fRot[i]=new G4RotationMatrix(G4ThreeVector(m[0],m[1],m[2]),G4ThreeVector(m[3],m[4],m[5]),G4ThreeVector(m[6],m[7],m[8]));
+	const Double_t *mtx = rot[i]->GetRotationMatrix();
+	fRot[i]=new G4RotationMatrix(G4ThreeVector(mtx[0],mtx[1],mtx[2]),G4ThreeVector(mtx[3],mtx[4],mtx[5]),G4ThreeVector(mtx[6],mtx[7],mtx[8]));
       }
 //       if(i==27) fRot[i]=new G4RotationMatrix();
  

@@ -120,7 +120,7 @@ private:
   G4float fTargetZ0;      //Target Z position
   G4float fTargetThick;   //Target thickness
   G4float fTargetRadius;   //Target radius (in x-y plane)
-  G4bool fdoPhaseSpace;
+  //G4bool fdoPhaseSpace;
   G4float fSplitTheta;  //angle between particles for overlap generator
 
 public:

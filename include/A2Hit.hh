@@ -19,7 +19,7 @@ public:
   A2Hit(const A2Hit&);
   const A2Hit& operator=(const
 						A2Hit&);
-  int operator==(const A2Hit&) const;
+  //int operator==(const A2Hit&) const;
   
   inline void* operator new(size_t);
   inline void  operator delete(void*);

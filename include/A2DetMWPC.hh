@@ -104,21 +104,21 @@ private:
   G4LogicalVolume *fCHCO2Logic;
   G4VPhysicalVolume *fCHCO2Physi;
   G4LogicalVolume *fWS1U2Logic;
-  G4VPhysicalVolume *fWS1U2Physi;
+  //G4VPhysicalVolume *fWS1U2Physi;
   G4LogicalVolume *fWS1ULogic;
-  G4VPhysicalVolume *fWS1UPhysi;
+  //G4VPhysicalVolume *fWS1UPhysi;
   G4LogicalVolume *fWS1DLogic;
-  G4VPhysicalVolume *fWS1DPhysi;
+  //G4VPhysicalVolume *fWS1DPhysi;
   G4LogicalVolume *fWS2ULogic;
-  G4VPhysicalVolume *fWS2UPhysi;
+  //G4VPhysicalVolume *fWS2UPhysi;
   G4LogicalVolume *fWS2DLogic;
-  G4VPhysicalVolume *fWS2DPhysi;
+  //G4VPhysicalVolume *fWS2DPhysi;
   G4LogicalVolume *fSC1DLogic;
-  G4VPhysicalVolume *fSC1DPhysi;
+  //G4VPhysicalVolume *fSC1DPhysi;
   G4LogicalVolume *fSC1ULogic;
-  G4VPhysicalVolume *fSC1UPhysi;
-  G4LogicalVolume *fALTULogic;
-  G4VPhysicalVolume *fALTUPhysi;
+  //G4VPhysicalVolume *fSC1UPhysi;
+  //G4LogicalVolume *fALTULogic;
+  //G4VPhysicalVolume *fALTUPhysi;
 
 //Anode Wires
   G4bool fuseAnodes;

@@ -19,8 +19,10 @@ using namespace CLHEP;
 
 A2SteppingAction::A2SteppingAction(A2DetectorConstruction* det,
                                          A2EventAction* evt)
-:detector(det), eventaction(evt)					 
-{ }
+{
+    detector = det;
+    eventaction = evt;
+}
 
 
 

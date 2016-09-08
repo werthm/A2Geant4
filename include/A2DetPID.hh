@@ -37,7 +37,7 @@ public:
 
 private:
   G4int fNPids;  //Number of Pid scintillators
-  G4double fZ0;
+  //G4double fZ0;
 
   A2SD* fPIDSD;
 

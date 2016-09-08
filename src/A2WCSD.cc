@@ -83,12 +83,12 @@ G4bool A2WCSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
     //if this crystal has already had a hit
     //don't make a new one, add on to old one.   
     //  G4cout<<"Make hit "<<fNhits<<" "<<vhit<<G4endl;    
-    A2Hit* Hit = new A2Hit;
-    Hit->AddEnergy(edep);
-    Hit->SetPos(aStep->GetPreStepPoint()->GetPosition());
-    Hit->SetID(id);
-    Hit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime());
-    fCollection->insert(Hit);
+    A2Hit* myHit = new A2Hit;
+    myHit->AddEnergy(edep);
+    myHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
+    myHit->SetID(id);
+    myHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime());
+    fCollection->insert(myHit);
     fNhits++;
   }
   else // This is not new

@@ -79,7 +79,7 @@ public:
   private:
   G4int fIsInteractive;   // batch(0) or interactive(1) mode
      
-  G4Material*        fMaterialDefault;
+  //G4Material*        fMaterialDefault;
            
   G4Box*             fWorldSolid;    //pointer to the solid World 
   G4LogicalVolume*   fWorldLogic;    //pointer to the logical World

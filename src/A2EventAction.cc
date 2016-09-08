@@ -22,8 +22,10 @@
 using namespace CLHEP;
 
 A2EventAction::A2EventAction(A2RunAction* run)
-:frunAct(run),fdrawFlag("all"),fprintModulo(1),feventMessenger(0)
 {
+  frunAct = run;
+  fdrawFlag = "all";
+  fprintModulo = 1;
   feventMessenger = new A2EventActionMessenger(this);
   fIsInteractive=1;
   // hits collections
@@ -91,8 +93,8 @@ void A2EventAction::EndOfEventAction(const G4Event* evt)
       //      if(hc->GetName()=="A2SDHitsVisCBSD"){
       if(hc->GetName().contains("Vis")){
 	//	G4cout<<hc_nhits <<" hits"<<G4endl;
-	for(G4int i=0;i<hc_nhits;i++){
-	  A2VisHit* hit=static_cast<A2VisHit*>(hc->GetHit(i));
+	for(G4int ii=0;ii<hc_nhits;ii++){
+	  A2VisHit* hit=static_cast<A2VisHit*>(hc->GetHit(ii));
 	  // G4cout<<"Got hit "<<hit<<G4endl;
 	  hit->Draw(1*MeV,fHitDrawOpt);
 	  

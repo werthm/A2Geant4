@@ -45,9 +45,9 @@ private:
 
   A2SD* fTOFSD;
 
-  G4Box *fBar;  //TOF scintillator shape
-  G4LogicalVolume *fBarLogic;
-  G4VPhysicalVolume* fBarPhysi;
+  //G4Box *fBar;  //TOF scintillator shape
+  //G4LogicalVolume *fBarLogic;
+  //G4VPhysicalVolume* fBarPhysi;
 
 public:
   G4int GetNToF(){return fTotBars;}

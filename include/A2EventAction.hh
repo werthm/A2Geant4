@@ -41,7 +41,7 @@ class A2EventAction : public G4UserEventAction
   G4int fIsInteractive;        
    G4String  fdrawFlag;
    G4int     fprintModulo;
-   G4int     fDrawMode;
+   //G4int     fDrawMode;
   G4String fHitDrawOpt;
   G4bool fOverwriteFile;
                             

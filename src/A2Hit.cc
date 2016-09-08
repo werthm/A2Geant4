@@ -40,10 +40,10 @@ const A2Hit& A2Hit::operator=(const A2Hit& right)
 }
 
 
-int A2Hit::operator==(const A2Hit& right) const
-{
-  return 0;
-}
+//int A2Hit::operator==(const A2Hit& right) const
+//{
+//  return 0;
+//}
 
 
 void A2Hit::Draw()

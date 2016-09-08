@@ -157,12 +157,12 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	//Set ROOT LorentzVector, first calculate momentum
 	//	if(!fParticleDefinition[i])continue;
 	//	Float_t P=sqrt( fGen4Vectors[i][3]*GeV*fGen4Vectors[i][3]*GeV-fGenMass[i]*fGenMass[i]);
-	Float_t P=fGen4Vectors[i][4]*GeV;
+	P=fGen4Vectors[i][4]*GeV;
 	if(fParticleDefinition[i])fGenLorentzVec[i]->SetXYZM(P*fGen4Vectors[i][0],P*fGen4Vectors[i][1],P*fGen4Vectors[i][2],fGenMass[i]);
 	else fGenLorentzVec[i]->SetXYZM(P*fGen4Vectors[i][0],P*fGen4Vectors[i][1],P*fGen4Vectors[i][2],sqrt(fGen4Vectors[i][3]*fGen4Vectors[i][3]*GeV*GeV-P*P));
       }	
       //Assume photon beam!
-      Float_t P=fGen4Vectors[0][3]*GeV;
+      P=fGen4Vectors[0][3]*GeV;
       fBeamLorentzVec->SetXYZM(fGen4Vectors[0][0]*P,fGen4Vectors[0][1]*P,fGen4Vectors[0][2]*P,0);
     }
     else{ G4cerr<<"ROOT input mode specidied but no input file given"<<G4endl; exit(1);}
