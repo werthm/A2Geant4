@@ -43,7 +43,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(A2 ${PROJECT_SOURCE_DIR}/A2.cc ${sources} ${headers})
+add_executable(A2 ${PROJECT_SOURCE_DIR}/src/A2.cc ${sources} ${headers})
 target_link_libraries(A2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
@@ -74,6 +74,5 @@ target_link_libraries(A2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS A2 DESTINATION bin)
-
+#install(TARGETS A2 DESTINATION bin)
 
