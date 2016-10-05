@@ -16,6 +16,7 @@
 #include "A2Target.hh"
 #include "A2DetMWPC.hh"
 #include "A2DetCherenkov.hh"
+#include "A2DetPizza.hh"
 
 class G4Box;
 class G4LogicalVolume;
@@ -45,6 +46,7 @@ class A2DetectorConstruction : public G4VUserDetectorConstruction
   void SetUsePID(G4int use){fUsePID=use;}
   void SetUseMWPC(G4int use){fUseMWPC=use;}
   void SetUseCherenkov(G4int use){fUseCherenkov=use;}
+  void SetUsePizza(G4int use){fUsePizza=use;}
 
   G4int GetUseMWPC() const { return fUseMWPC; }
 
@@ -61,6 +63,7 @@ class A2DetectorConstruction : public G4VUserDetectorConstruction
   void SetTAPSN(G4int nn){fTAPSN=nn;}
   void SetTAPSPbWO4Rings(G4int nn){fNPbWO4=nn;}
   void SetPIDZ(G4double zz){fPIDZ=zz;}
+  void SetPizzaZ(G4double zz){fPizzaZ=zz;}
 
   A2Target* GetTarget(){return fTarget;}
 
@@ -92,6 +95,7 @@ public:
   A2DetMWPC* fMWPC;   //MWPC detector
   A2DetTOF* fTOF;   //MWPC detector
   A2DetCherenkov* fCherenkov; //Cherenkov detector
+  A2DetPizza* fPizza; // Pizza detector
 
   G4ThreeVector fHemiGap;
   A2Target* fTarget;
@@ -111,6 +115,7 @@ public:
   G4int fUseMWPC;  //Build the Wire Chambers
   G4int fUseTOF;  //Build the TOF wall
   G4int fUseCherenkov; //Build the Cherenkov
+  G4int fUsePizza; //Build the Pizza detector
 
   G4String fTOFparFile; //TOF setup configuration
   
@@ -124,6 +129,10 @@ public:
 
   //PID setup
   G4double fPIDZ;
+
+  // Pizza setup
+  G4double fPizzaZ;
+
 private:
     
    

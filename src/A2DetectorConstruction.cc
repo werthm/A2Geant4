@@ -42,6 +42,7 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
   fUseMWPC=0;
   fUseTOF=0;
   fUseCherenkov=0;
+  fUsePizza=0;
 
   fCrystalBall=NULL;
   fTAPS=NULL;
@@ -65,6 +66,10 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
 
   //default settings for PID
   fPIDZ=0.;
+
+  // default settings for Pizza detector
+  fPizzaZ = A2DetPizza::fgDefaultZPos;
+
   //has to be done here in case use new material for target
   DefineMaterials();
 
@@ -87,13 +92,14 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
   fUseMWPC=0;
   fUseTOF=0;
   fUseCherenkov=0;
+  fUsePizza=0;
 
   // read the set up file DetectorSetup.mac
   // get the pointer to the User Interface manager 
   G4UImanager* UI = G4UImanager::GetUIpointer();
   G4String command = "/control/execute "+fDetectorSetup;//macros/DetectorSetup.mac";
   UI->ApplyCommand(command);
-  if(fUseCB==0&&fUseTAPS==0&&fUsePID==0&&fUseMWPC==0&&fUseTOF==0&&fUseCherenkov==0&&fUseTarget==G4String("NO")){
+  if(fUseCB==0&&fUseTAPS==0&&fUsePID==0&&fUseMWPC==0&&fUseTOF==0&&fUseCherenkov==0&&fUsePizza==0&&fUseTarget==G4String("NO")){
     G4cout<<"G4VPhysicalVolume* A2DetectorConstruction::Construct() Don't seem to be simulating any detectors, please check you are using an appopriate detector setup. I tried the file "<<fDetectorSetup<< " I will exit here before the computer explodes"<<G4endl;
     exit(0);
   }
@@ -161,12 +167,18 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
     fTOF->ReadParameters(fTOFparFile);
     fTOF->Construct(fWorldLogic);
   }
- if(fUseCherenkov){
+  if(fUseCherenkov){
     G4cout<<"A2DetectorConstruction::Construct() Make the Cherenkov"<<G4endl;
     fCherenkov=new A2DetCherenkov();
     fCherenkov->SetIsInteractive(fIsInteractive);
     fCherenkov->Construct(fWorldLogic);
- }
+  }
+  if(fUsePizza){
+    G4cout<<"A2DetectorConstruction::Construct() Make the Pizza detector "<<fPizzaZ/cm<<" cm from the target"<<G4endl;
+    fPizza=new A2DetPizza(fPizzaZ);
+    fPizza->SetIsInteractive(fIsInteractive);
+    fPizza->Construct(fWorldLogic);
+  }
   if(fUseTarget!=G4String("NO")){
     G4cout<<"A2DetectorConstruction::Construct() Fill the "<<fUseTarget<<" with "<<fTargetMaterial->GetName()<<G4endl;
     if(fUseTarget=="Cryo") fTarget=static_cast<A2Target*>(new A2CryoTarget());
