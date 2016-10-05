@@ -133,7 +133,16 @@ A2DetectorMessenger::A2DetectorMessenger(
   //fUseCherenkovCmd->SetRange("UseCherenkov=0 don't build Cherenkov or UseCherenkov!=0 build Cherenkov");
   fUseCherenkovCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
- 
+  fUsePizzaCmd = new G4UIcmdWithAnInteger("/A2/det/usePizza",this);
+  fUsePizzaCmd->SetGuidance("Construct Pizza detector");
+  fUsePizzaCmd->SetParameterName("UsePizza",false);
+  fUseCherenkovCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+  fPizzaZCmd = new G4UIcmdWithADoubleAndUnit("/A2/det/setPizzaZ",this);
+  fPizzaZCmd->SetGuidance("Set distance of Pizza detector from centre of ball");
+  fPizzaZCmd->SetParameterName("PizzaZ",false);
+  fPizzaZCmd->SetUnitCategory("Length");
+  fPizzaZCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 }
 
 
@@ -156,6 +165,8 @@ A2DetectorMessenger::~A2DetectorMessenger()
   delete fTOFFileCmd;
   delete fUseTOFCmd;
   delete fUseCherenkovCmd;
+  delete fUsePizzaCmd;
+  delete fPizzaZCmd;
   delete fTargetLengthCmd;
   delete fTargetMagneticFieldCmd;
   delete fHemiGapCmd;
@@ -183,7 +194,13 @@ void A2DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 
   if( command == fUseCherenkovCmd )
     { fA2Detector->SetUseCherenkov(fUseCherenkovCmd->GetNewIntValue(newValue));}
-  
+
+  if( command == fUsePizzaCmd )
+    { fA2Detector->SetUsePizza(fUsePizzaCmd->GetNewIntValue(newValue));}
+
+  if( command == fPizzaZCmd )
+    { fA2Detector->SetPizzaZ(fPizzaZCmd->GetNewDoubleValue(newValue));}
+
   if( command == fUpdateCmd )
     { fA2Detector->UpdateGeometry(); }
   
