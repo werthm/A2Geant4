@@ -60,7 +60,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     fMotherLogic = motherLogic;
 
     // construct the air box
-    G4Box* airBox = new G4Box("AirBox", 130.0*cm, 130.0*cm, 4.0*cm);
+    G4Box* airBox = new G4Box("AirBox", 130.0*cm, 130.0*cm, 36*mm);
     fMyLogic = new G4LogicalVolume(airBox, fNistManager->FindOrBuildMaterial("G4_AIR"), "AirBox");
     fMyLogic->SetVisAttributes(G4VisAttributes::Invisible);
     fMyPhysi = new G4PVPlacement(0, G4ThreeVector(0.0*cm, 0.0*cm, fZPos+0.5*scint_thick),
