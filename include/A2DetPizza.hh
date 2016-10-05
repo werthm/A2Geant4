@@ -36,13 +36,14 @@ protected:
     void CheckOverlapAndAbort(G4VPhysicalVolume* vol, const G4String& location);
 
 public:
-    A2DetPizza();
+    A2DetPizza(G4double zpos);
     virtual ~A2DetPizza();
 
-    void SetZPos(G4double z) { fZPos = z; }
     void SetCheckOverlap(G4bool b) { fIsCheckOverlap = b; }
 
     virtual G4VPhysicalVolume* Construct(G4LogicalVolume* motherLogic);
+
+    static const G4double fgDefaultZPos;
 };
 
 #endif

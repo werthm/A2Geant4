@@ -19,13 +19,16 @@
 
 using namespace CLHEP;
 
+// init static class members
+const G4double A2DetPizza::fgDefaultZPos = 138.*cm;
+
 //______________________________________________________________________________
-A2DetPizza::A2DetPizza()
+A2DetPizza::A2DetPizza(G4double zpos)
 {
     // Constructor.
 
     // init members
-    fZPos = 138*cm;
+    fZPos = zpos;
     fIsCheckOverlap = true;
     fRegionPizza = new G4Region("Pizza");
     fPizzaSD = 0;
