@@ -20,7 +20,7 @@
 using namespace CLHEP;
 
 // init static class members
-const G4double A2DetPizza::fgDefaultZPos = 138.*cm;
+const G4double A2DetPizza::fgDefaultZPos = 131.*cm;
 
 //______________________________________________________________________________
 A2DetPizza::A2DetPizza(G4double zpos)

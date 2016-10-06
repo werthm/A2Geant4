@@ -19,7 +19,7 @@ class A2DetPizza : public A2Detector
 {
 
 protected:
-    G4double fZPos;             // z-distance from target to scintillator face
+    G4double fZPos;             // z-distance from target center to scintillator face
     G4bool fIsCheckOverlap;     // flag for volume overlap check
     G4Region* fRegionPizza;     // region of pizza detector
     A2SD* fPizzaSD;             // sensitive detector
