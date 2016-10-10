@@ -283,7 +283,7 @@ void A2DetectorConstruction::DefineMaterials()
  // NistManager->RegisterMaterial(new G4Material("A2_LD2", z=1., a= 2.014*g/mole, density= 0.162*g/cm3));
  G4Material* A2_lD2 = new G4Material("A2_lD2", z=1., a= 2.014*g/mole, density= 0.162*g/cm3);
  new G4Material("A2_lHe3", z=2., a= 3.0160*g/mole, density= 0.07448*g/cm3); //density of 3He at 2.4 K (average temperature of Nov08)
-
+ new G4Material("A2_lHe4", z=2., a= 4.0026*g/mole, density= 0.125*g/cm3);  // 1050 mBar, 4.24 K
 
 //////////
 //Materials for Polarized Target:
