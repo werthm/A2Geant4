@@ -8,7 +8,7 @@
 
 A2CryoTarget::A2CryoTarget(G4bool isHe3)
 {
-  fTargetLength=5*cm;
+  fTargetLength=5.12*cm;
   fIsHe3=isHe3;
 }
 A2CryoTarget::~A2CryoTarget()
@@ -19,7 +19,7 @@ A2CryoTarget::~A2CryoTarget()
 
 G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
 
-  if (fIsHe3) G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long He3 target" <<G4endl;
+  if (fIsHe3) G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long He3/4 target" <<G4endl;
   else G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target" <<G4endl;
 
   fMotherLogic=MotherLogic;
