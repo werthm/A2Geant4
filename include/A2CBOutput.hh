@@ -14,6 +14,7 @@ const G4int MAXSIZE_NAI= 720;
 const G4int MAXSIZE_TAPS= 512;
 const G4int MAXSIZE_PID= 24;
 const G4int MAXSIZE_MWPC = 400;
+const G4int MAXSIZE_PIZZA = 24;
 
 class A2CBOutput 
 {
@@ -73,6 +74,11 @@ protected:
   Float_t *ftofx; //x hit position
   Float_t *ftofy; //y hit position
   Float_t *ftofz; //z hit position
+
+  Int_t fnpiz; //Number of hits in Pizza detector
+  Int_t fipiz[MAXSIZE_PIZZA]; //hit sector indexes
+  Float_t fepiz[MAXSIZE_PIZZA]; //hit sector energy deposits
+  Float_t ftpiz[MAXSIZE_PIZZA]; //hit sector time
 
   TLorentzVector** fGenLorentzVec;
   TLorentzVector* fBeamLorentzVec;

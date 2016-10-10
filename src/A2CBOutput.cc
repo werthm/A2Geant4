@@ -114,12 +114,16 @@ void A2CBOutput::SetBranches(){
     fTree->Branch("tofy",ftofy,"ftofy[fntof]/F",basket);
     fTree->Branch("tofz",ftofz,"ftofz[fntof]/F",basket);
   }
-}
+  fTree->Branch("npiz",&fnpiz,"fnpiz/I",basket);
+  fTree->Branch("ipiz",fipiz,"fipiz[fnpiz]/I",basket);
+  fTree->Branch("epiz",fepiz,"fepiz[fnpiz]/F",basket);
+  fTree->Branch("tpiz",ftpiz,"ftpiz[fnpiz]/F",basket);
+ }
 void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
   G4int CollSize=HitsColl->GetNumberOfCollections();
   //G4cout<<"Collection size "<<CollSize<<" "<<HitsColl->GetHC(0)->GetName()<<" "<<HitsColl->GetHC(1)->GetName()<<G4endl;
   //G4cout<<"Collection size "<<CollSize<<G4endl;
-  fnhits=fntaps=fnvtaps=fvhits=fntof= fnmwpc=0;
+  fnhits=fntaps=fnvtaps=fvhits=fntof=fnpiz=fnmwpc=0;
   fetot=0;
   G4int hci=0;
   for(G4int i=0;i<CollSize;i++){
@@ -190,6 +194,15 @@ void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
 	ftofy[ii]=hit->GetPos().y()/cm;
 	ftofz[ii]=hit->GetPos().z()/cm;
 	ftofi[ii]=hit->GetID();
+      }
+    }
+    if(hc->GetName()=="A2SDHitsPizzaSD" || hc->GetName()=="A2SDHitsPizzaVisSD"){
+      fnpiz=hc_nhits;
+      for(Int_t ii=0;ii<fnpiz;ii++){
+	A2Hit* hit=static_cast<A2Hit*>(hc->GetHit(ii));
+	fepiz[ii]=hit->GetEdep()/GeV;
+	ftpiz[ii]=hit->GetTime()/ns;
+	fipiz[ii]=hit->GetID();
       }
     }
   }
