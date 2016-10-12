@@ -54,7 +54,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
 
     // global geometry data
     const G4int nPizza = 24;
-    G4double phi0 = 360.*deg / nPizza / 2.;
+    G4double phi0 = 180.*deg;
     G4double dphi = 360.*deg / nPizza;
     const G4double scint_thick = 10*mm;
 
@@ -91,7 +91,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     for (G4int i = 0; i < nPizza; i++)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
-        rot->rotateZ(phi0 + i*dphi);
+        rot->rotateZ(phi0 - i*dphi);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, 0),
                                                  scint_log, TString::Format("pizza_scint_%d", i+1).Data(),
                                                  fMyLogic, false, i+1);
@@ -139,7 +139,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     for (G4int i = 0; i < nPizza; i++)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
-        rot->rotateZ(phi0 + i*dphi);
+        rot->rotateZ(phi0 - i*dphi);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, 0),
                                                  light_guide_log, TString::Format("pizza_light_guide_%d", i+1).Data(),
                                                  fMyLogic, false, i);
@@ -171,7 +171,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     for (G4int i = 0; i < nPizza; i++)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
-        rot->rotateZ(phi0 + i*dphi);
+        rot->rotateZ(phi0 - i*dphi);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, shoe_z),
                                                  shoe_log, TString::Format("pizza_shoe_back_%d", i+1).Data(),
                                                  fMyLogic, false, i);
@@ -206,7 +206,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     for (G4int i = 0; i < nPizza; i++)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
-        G4double rot_z = phi0 + i*dphi;
+        G4double rot_z = phi0 - i*dphi;
         rot->rotateZ(rot_z);
         rot->rotateY(90*deg);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
@@ -239,7 +239,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     for (G4int i = 0; i < nPizza; i++)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
-        G4double rot_z = phi0 + i*dphi;
+        G4double rot_z = phi0 - i*dphi;
         rot->rotateZ(rot_z);
         rot->rotateY(90*deg);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
