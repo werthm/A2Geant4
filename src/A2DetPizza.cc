@@ -164,7 +164,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     G4TessellatedSolid* shoe = BuildPlanarTessSolid(shoe_n, shoe_x, shoe_y,
                                                     shoe_thick, "pizza_shoe");
     G4LogicalVolume* shoe_log = new G4LogicalVolume(shoe,
-                                                    fNistManager->FindOrBuildMaterial("G4_Al"), // ?
+                                                    fNistManager->FindOrBuildMaterial("G4_Al"),
                                                     "pizza_shoe");
     shoe_log->SetVisAttributes(G4Colour(0, 0, 1));
 
@@ -199,7 +199,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     // create solid and logical volume
     G4Tubs* pm = new G4Tubs("pizza_pm", innerRadius, outerRadius, hz, startAngle, spanningAngle);
     G4LogicalVolume* pm_log = new G4LogicalVolume(pm,
-                                  fNistManager->FindOrBuildMaterial("A2_MUMETAL"), // ?
+                                  fNistManager->FindOrBuildMaterial("A2_MUMETAL"),
                                   "pizza_pm");
     pm_log->SetVisAttributes(G4Colour(0, 1, 1));
 
@@ -223,7 +223,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     // geometry data
     innerRadius = 25*mm; // ?
     outerRadius = 26*mm; // ? was 22.5 (overlap)
-    hz = 0.5*295*mm;
+    hz = 0.5*298*mm;
     startAngle = 0*deg;
     spanningAngle = 360*deg;
     const G4double shoe_pos = 918.330*mm + 8*mm; // prevents overlap
@@ -232,7 +232,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     // create solid and logical volume
     G4Tubs* pm_prot = new G4Tubs("pizza_pm_prot", innerRadius, outerRadius, hz, startAngle, spanningAngle);
     G4LogicalVolume* pm_prot_log = new G4LogicalVolume(pm_prot,
-                                                       fNistManager->FindOrBuildMaterial("A2_MUMETAL"), // ?
+                                                       fNistManager->FindOrBuildMaterial("A2_MUMETAL"),
                                                        "pizza_pm_prot");
     pm_prot_log->SetVisAttributes(G4Colour(1, 0, 1));
 
