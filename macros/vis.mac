@@ -76,6 +76,7 @@
 #/vis/geometry/set/forceAuxEdgeVisible World -1 true
 /vis/viewer/set/autoRefresh true
 /vis/verbose warnings
+/vis/scene/add/axes 0 0 0 100.00 cm
    
 /gun/particle pi-
 /gun/energy 3 MeV
