@@ -4,6 +4,7 @@
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4Polyhedra.hh"
+#include "G4Trd.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4VisAttributes.hh"
@@ -62,7 +63,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     fMotherLogic = motherLogic;
 
     // construct the air box
-    G4Box* airBox = new G4Box("pizza_box", 130.0*cm, 130.0*cm, 36*mm);
+    G4Box* airBox = new G4Box("pizza_box", 130.0*cm, 130.0*cm, 56*mm);
     fMyLogic = new G4LogicalVolume(airBox, fNistManager->FindOrBuildMaterial("G4_AIR"), "pizza_box");
     fMyLogic->SetVisAttributes(G4VisAttributes::Invisible);
     fMyPhysi = new G4PVPlacement(0, G4ThreeVector(0.0*cm, 0.0*cm, fZPos+0.5*scint_thick),
@@ -133,7 +134,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     G4LogicalVolume* light_guide_log = new G4LogicalVolume(light_guide,
                                                            fNistManager->FindOrBuildMaterial("A2_PLASTIC"), // ?
                                                            "pizza_light_guide");
-    light_guide_log->SetVisAttributes(G4Colour(1, 0, 0));
+    light_guide_log->SetVisAttributes(G4Colour(0, 1, 0));
 
     // create the physical volumes
     for (G4int i = 0; i < nPizza; i++)
@@ -225,7 +226,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     hz = 0.5*295*mm;
     startAngle = 0*deg;
     spanningAngle = 360*deg;
-    G4double shoe_pos = 918.330*mm + 8*mm; // prevents overlap
+    const G4double shoe_pos = 918.330*mm + 8*mm; // prevents overlap
     center_shift = shoe_pos+hz;
 
     // create solid and logical volume
@@ -245,6 +246,51 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
                                                  pm_prot_log, TString::Format("pizza_pm_prot_%d", i+1).Data(),
                                                  fMyLogic, false, i);
+        if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
+    }
+
+    //
+    // build the stabilizing steel plates
+    //
+
+    // geometry data
+    const G4double st_pl_long = 50*cm;
+    const G4double st_pl_short = 42*cm;
+    const G4double st_pl_height = 15*cm;
+    const G4double st_pl_thick = 1*cm;
+    const G4double st_pl_z_1 = 0.5*light_guide_thick + shoe_thick + 0.5*st_pl_thick;
+    const G4double st_pl_z_2 = 0.5*light_guide_thick + shoe_thick + 1.5*st_pl_thick;
+    center_shift = 85.9*cm;
+
+    // create solid and logical volume
+    G4Trd* st_pl = new G4Trd("pizza_st_pl", 0.5*st_pl_long, 0.5*st_pl_short,
+                             0.5*st_pl_thick, 0.5*st_pl_thick, 0.5*st_pl_height);
+    G4LogicalVolume* st_pl_log = new G4LogicalVolume(st_pl,
+                                                     fNistManager->FindOrBuildMaterial("A2_SS"),
+                                                     "pizza_st_pl");
+    st_pl_log->SetVisAttributes(G4Colour(1, 0, 0));
+
+    // create the physical volumes
+    for (G4int i = 0; i < 12; i++)
+    {
+        // first layer
+        G4RotationMatrix* rot = new G4RotationMatrix();
+        G4double rot_z = 187*deg - i*dphi*2;
+        rot->rotateZ(rot_z + 270*deg);
+        rot->rotateX(90*deg);
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), st_pl_z_1),
+                                                 st_pl_log, TString::Format("pizza_st_pl_1_%d", i+1).Data(),
+                                                 fMyLogic, false, i);
+        if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
+
+        // second layer
+        rot = new G4RotationMatrix();
+        rot_z = 175*deg - i*dphi*2;
+        rot->rotateZ(rot_z + 270*deg);
+        rot->rotateX(90*deg);
+        v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), st_pl_z_2),
+                              st_pl_log, TString::Format("pizza_st_pl_2_%d", i+1).Data(),
+                              fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
     }
 
