@@ -23,15 +23,15 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file hadronic/Hadr01/src/A2PhysicsList.cc
-/// \brief Implementation of the A2PhysicsList class
+/// \file hadronic/Hadr01/src/PhysicsList.cc
+/// \brief Implementation of the PhysicsList class
 //
 //
-// $Id: A2PhysicsList.cc 70761 2013-06-05 12:30:51Z gcosmo $
+// $Id: PhysicsList.cc 92421 2015-09-01 07:38:57Z gcosmo $
 //
 /////////////////////////////////////////////////////////////////////////
 //
-// A2PhysicsList
+// PhysicsList
 //
 // Created: 31.04.2006 V.Ivanchenko
 //
@@ -52,11 +52,13 @@
 #include "G4EmStandardPhysics_option2.hh"
 #include "G4EmStandardPhysics_option3.hh"
 #include "G4EmStandardPhysics_option4.hh"
+#include "G4EmStandardPhysicsGS.hh"
 #include "G4EmLivermorePhysics.hh"
 #include "G4EmPenelopePhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4HadronElasticPhysicsXS.hh"
 #include "G4HadronElasticPhysicsHP.hh"
+#include "G4HadronHElasticPhysics.hh"
 #include "G4ChargeExchangePhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4NeutronCrossSectionXS.hh"
@@ -68,6 +70,7 @@
 
 #include "G4HadronPhysicsFTFP_BERT.hh"
 #include "G4HadronPhysicsFTFP_BERT_HP.hh"
+#include "G4HadronPhysicsFTFP_BERT_TRV.hh"
 #include "G4HadronPhysicsFTF_BIC.hh"
 #include "G4HadronInelasticQBBC.hh"
 #include "G4HadronPhysicsQGSP_BERT.hh"
@@ -86,20 +89,15 @@
 #include "G4Electron.hh"
 #include "G4Positron.hh"
 #include "G4Proton.hh"
-#include "G4Region.hh"
-#include "G4RegionStore.hh"
-#include "G4ProductionCuts.hh"
 
-//#include "PolHadronElasticPhysics.hh"
-//#include "PolHadronElasticPhysicsN.hh"
-//#include "PolHadronInelasticPhysics.hh"
-//#include "PolNucleonRotate.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4RegionStore.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
 A2PhysicsList::A2PhysicsList() 
  : G4VModularPhysicsList(),
-   fEmA2PhysicsList(0), fParticleList(0), fMessenger(0)
+   fEmPhysicsList(0), fParticleList(0), fMessenger(0)
 {
   G4LossTableManager::Instance();
   defaultCutValue = 0.7*mm;
@@ -115,7 +113,7 @@ A2PhysicsList::A2PhysicsList()
   fParticleList = new G4DecayPhysics("decays");
 
   // EM physics
-  fEmA2PhysicsList = new G4EmStandardPhysics();
+  fEmPhysicsList = new G4EmStandardPhysics();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -124,58 +122,11 @@ A2PhysicsList::~A2PhysicsList()
 {
   delete fMessenger;
   delete fParticleList;
-  delete fEmA2PhysicsList;
+  delete fEmPhysicsList;
   for(size_t i=0; i<fHadronPhys.size(); i++) {
     delete fHadronPhys[i];
   }
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
-
-//PolNucleonRotate* A2PhysicsList::GetPolNucleonRotate(G4String type)
-//{
-//  if(type==G4String("n-elastic"))return  fPolHadronElasticPhysicsN->GetnElPolProc()->GetPolRot();
-// else if(type==G4String("p-elastic"))return fPolHadronElasticPhysicsN->GetpElPolProc()->GetPolRot();
-//  else if(type==G4String("p-inelastic"))return fPolHadronInelasticPhysics->GettheProtonInelastic()->GetPolRot();
-//  else if(type==G4String("n-inelastic"))return fPolHadronInelasticPhysics->GettheNeutronInelastic()->GetPolRot();
-  //else if(type==G4String("p-inelastic-qf"))return ((PolHadronQuasiFreeProcess*)fPolHadronInelasticPhysics->GettheProtonInelastic())->GetPolRotNP();//MHS, Nov 14, 2014, "p-inelastic-qf" not listed in npolPhysicsListMessenger
-  //else if(type==G4String("n-inelastic-qf"))return ((PolHadronQuasiFreeProcess*)fPolHadronInelasticPhysics->GettheNeutronInelastic())->GetPolRotNP();MHS, Nov 14, 2014,"n-inelastic-qf" not listed in npolPhysicsListMessenger
-  //else {G4cerr<<" npolPhysicsList::GetPolNucleonRotate() No process "<<type<<G4endl;return NULL;}
-
-//void A2PhysicsList::ResetEvent(){
-//  if(!fSaveScat) return;
-  // if(fPolHadronInelasticPhysics->GettheProtonInelastic()->GetPolRotEvent())fPolHadronInelasticPhysics->GettheProtonInelastic()->GetPolRotEvent()->ResetEvent();
-  // if(fPolHadronInelasticPhysics->GettheNeutronInelastic()->GetPolRotEvent())fPolHadronInelasticPhysics->GettheNeutronInelastic()->GetPolRotEvent()->ResetEvent();
-  // if(fPolHadronElasticPhysicsN->GetnElPolProc()->GetPolRotEvent())fPolHadronElasticPhysicsN->GetnElPolProc()->GetPolRotEvent()->ResetEvent();
-    // G4String process[]={ "p-elastic", "n-elastic", "p-inelastic", "n-inelastic", "p-inelastic-qf", "n-inelastic-qf"};
-//G4String process[]={ "p-elastic", "n-elastic", "p-inelastic", "n-inelastic"};//MHS Nov 14, 2014
-//   for(G4int i=0;i<4;i++){
-//    PolNucleonRotate* fPolRot = GetPolNucleonRotate(process[i]);
-//     if (fPolRot) fPolRot->ResetEvent();
-      //if (fPolRot) fPolRot->ToggleDidScat(false);
-// //     }
-   
-// // }
-// //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
-// //G4LorentzVector* A2PhysicsList::GetScatVec(){
-//   //This can be quite ambigous, particularly if there are more than 1 original nucleons
-//   //The highest energy incident nucleon that participates in a scatter is taken for
-//   //the saved nucleon
-// //  if(!fSaveScat) return NULL;
-// //  PolNucleonRotate* polRotE=fPolHadronElasticPhysicsN->GetnElPolProc()->GetPolRotEvent();
-// //  PolNucleonRotate* polRotIN=fPolHadronInelasticPhysics->GettheNeutronInelastic()->GetPolRotEvent();
-// //  PolNucleonRotate* polRotIP=fPolHadronInelasticPhysics->GettheProtonInelastic()->GetPolRotEvent();
-// //G4double NE,INE,IPE;
-// // NE=INE=IPE=0;
-// // if(polRotE)NE=polRotE->GetScatE();
-// // if(polRotIN)INE=polRotIN->GetScatE();
-// // if(polRotIP)IPE=polRotIP->GetScatE();
-
-// // if(NE&&NE>INE&&NE>IPE) return polRotE->GetScatVec();
-// // else if(INE&&INE>IPE)  return polRotIN->GetScatVec();
-// // else if(IPE) return polRotIP->GetScatVec();
-// // else return NULL;
-// }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
@@ -189,7 +140,7 @@ void A2PhysicsList::ConstructParticle()
 void A2PhysicsList::ConstructProcess()
 {
   AddTransportation();
-  fEmA2PhysicsList->ConstructProcess();
+  fEmPhysicsList->ConstructProcess();
   fParticleList->ConstructProcess();
   for(size_t i=0; i<fHadronPhys.size(); i++) {
     fHadronPhys[i]->ConstructProcess();
@@ -205,28 +156,33 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
   }
   if (name == "emstandard_opt0") {
 
-    delete fEmA2PhysicsList;
-    fEmA2PhysicsList = new G4EmStandardPhysics();
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysics();
 
   } else if (name == "emstandard_opt1") {
 
-    delete fEmA2PhysicsList;
-    fEmA2PhysicsList = new G4EmStandardPhysics_option1();
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysics_option1();
 
   } else if (name == "emstandard_opt2") {
 
-    delete fEmA2PhysicsList;
-    fEmA2PhysicsList = new G4EmStandardPhysics_option2();
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysics_option2();
 
   } else if (name == "emstandard_opt3") {
 
-    delete fEmA2PhysicsList;
-    fEmA2PhysicsList = new G4EmStandardPhysics_option3();
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysics_option3();
 
   } else if (name == "emstandard_opt4") {
 
-    delete fEmA2PhysicsList;
-    fEmA2PhysicsList = new G4EmStandardPhysics_option4();
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysics_option4();
+
+  } else if (name == "emstandardGS") {
+
+    delete fEmPhysicsList;
+    fEmPhysicsList = new G4EmStandardPhysicsGS();
 
   } else if (name == "FTFP_BERT_EMV") {
 
@@ -238,6 +194,11 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
     AddPhysicsList("emstandard_opt2");
     AddPhysicsList("FTFP_BERT");
 
+  } else if (name == "FTFP_BERT_EMY") {
+
+    AddPhysicsList("emstandard_opt3");
+    AddPhysicsList("FTFP_BERT");
+
   } else if (name == "FTFP_BERT_EMZ") {
 
     AddPhysicsList("emstandard_opt4");
@@ -245,14 +206,19 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
 
   } else if (name == "FTFP_BERT") {
 
-    SetBuilderList1();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT());
+
+  } else if (name == "FTFP_BERT_TRV") {
+
+    AddPhysicsList("emstandardGS");
+    SetBuilderList1(false);
+    fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT_TRV());
 
   } else if (name == "FTF_BIC") {
 
-    SetBuilderList0();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsFTF_BIC());
-    fHadronPhys.push_back( new G4NeutronCrossSectionXS(verboseLevel));
 
   } else if (name == "QBBC") {
 
@@ -262,12 +228,12 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
 
   } else if (name == "QGSP_BERT") {
 
-    SetBuilderList1();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT());
 
   } else if (name == "QGSP_FTFP_BERT") {
 
-    SetBuilderList1();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_FTFP_BERT());
 
   } else if (name == "QGSP_FTFP_BERT_EMV") {
@@ -287,25 +253,24 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
 
   } else if (name == "QGSP_BERT_HP") {
 
-    SetBuilderList1(true);
+    SetBuilderList0(true);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT_HP());
 
   } else if (name == "QGSP_BIC") {
 
-    SetBuilderList0();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC());
 
   } else if (name == "QGSP_BIC_EMY") {
 
     AddPhysicsList("emstandard_opt3");
-    SetBuilderList0();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC());
 
   } else if (name == "QGS_BIC") {
 
-    SetBuilderList0();
+    SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGS_BIC());
-    fHadronPhys.push_back( new G4NeutronCrossSectionXS(verboseLevel));
 
   } else if (name == "QGSP_BIC_HP") {
 
@@ -331,34 +296,9 @@ void A2PhysicsList::SetBuilderList0(G4bool flagHP)
     fHadronPhys.push_back( new G4HadronElasticPhysics(verboseLevel) );
   }
   fHadronPhys.push_back( new G4StoppingPhysics(verboseLevel));
-  fHadronPhys.push_back( new G4IonBinaryCascadePhysics(verboseLevel));
+  fHadronPhys.push_back( new G4IonPhysics(verboseLevel));
   fHadronPhys.push_back( new G4NeutronTrackingCut(verboseLevel));
 }
-
-//void A2PhysicsList::SetPolList(G4bool flagHP, G4bool isNew)
-//{
-//  fIsNew = isNew;
-//  fhadronPhys.push_back( new G4EmExtraPhysics("extra EM"));
-//  if( isNew ){
-//    fPolHadronElasticPhysicsN =
-//     new PolHadronElasticPhysicsN("NPelastic", verboseLevel, flagHP);
-//   hadronPhys.push_back( fPolHadronElasticPhysicsN );
-// }
-// else{
-//   fPolHadronElasticPhysics =
-//     new PolHadronElasticPhysics("NPelastic", verboseLevel, flagHP);
-//   fhadronPhys.push_back( fPolHadronElasticPhysics );
-// }
-//  fhadronPhys.push_back( new G4QStoppingPhysics("stopping",verboseLevel));
-//  fhadronPhys.push_back( new G4IonBinaryCascadePhysics("ionBIC"));
-//  fhadronPhys.push_back( new G4NeutronTrackingCut("Neutron tracking cut"));
-//}
-//void A2PhysicsList::SetNoHadList()
-//{
-//  fhadronPhys.push_back( new G4EmExtraPhysics("extra EM"));
-//  fhadronPhys.push_back( new G4QStoppingPhysics("stopping",verboseLevel));
-// fhadronPhys.push_back( new G4NeutronTrackingCut("Neutron tracking cut"));
-//}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
@@ -368,7 +308,7 @@ void A2PhysicsList::SetBuilderList1(G4bool flagHP)
   if(flagHP) {
     fHadronPhys.push_back( new G4HadronElasticPhysicsHP(verboseLevel) );
   } else {
-    fHadronPhys.push_back( new G4HadronElasticPhysics(verboseLevel) );
+    fHadronPhys.push_back( new G4HadronHElasticPhysics(verboseLevel) );
   }
   fHadronPhys.push_back( new G4StoppingPhysics(verboseLevel));
   fHadronPhys.push_back( new G4IonPhysics(verboseLevel));
@@ -441,7 +381,7 @@ void A2PhysicsList::SetCutForProton(G4double cut)
 void A2PhysicsList::List()
 {
   G4cout << "### A2PhysicsLists available: FTFP_BERT FTFP_BERT_EMV "
-         << "FTFP_BERT_EMX FTFP_BERT_EMZ"
+         << "FTFP_BERT_EMX FTFP_BERT_EMZ FTFP_BERT_TRV"
          << G4endl;
   G4cout << "                            FTF_BIC QBBC QGSP_BERT "
          << "QGSP_BERT_EMV QGSP_BERT_EMX"

@@ -23,9 +23,11 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file hadronic/Hadr01/include/PhysicsListMessenger.hh
+/// \brief Definition of the PhysicsListMessenger class
 //
-// $Id: PhysicsListMessenger.hh,v 1.4 2009-12-29 19:23:26 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+//
+// $Id: PhysicsListMessenger.hh 68803 2013-04-05 13:59:55Z gcosmo $
 //
 //
 /////////////////////////////////////////////////////////////////////////
@@ -35,13 +37,13 @@
 // Created: 31.01.2006 V.Ivanchenko
 //
 // Modified:
-// 04.06.2006 Adoptation of hadr01 (V.Ivanchenko)
+// 04.06.2006 Adoptation of Hadr01 (V.Ivanchenko)
 //
 ////////////////////////////////////////////////////////////////////////
 // 
 
-#ifndef A2PhysicsListMessenger_h
-#define A2PhysicsListMessenger_h 1
+#ifndef PhysicsListMessenger_h
+#define PhysicsListMessenger_h 1
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
@@ -60,23 +62,22 @@ public:
   A2PhysicsListMessenger(A2PhysicsList* p = 0);
   virtual ~A2PhysicsListMessenger();
     
-  void SetNewValue(G4UIcommand*, G4String);
+  virtual void SetNewValue(G4UIcommand*, G4String);
     
 private:
   
-  A2PhysicsList* pA2PhysicsList;
+  A2PhysicsList* fPhysicsList;
   G4String fRegion;
-  
-  G4UIcmdWithADoubleAndUnit* gammaCutCmd;
-  G4UIcmdWithADoubleAndUnit* electCutCmd;
-  G4UIcmdWithADoubleAndUnit* posCutCmd;
-  G4UIcmdWithADoubleAndUnit* pCutCmd;
-  G4UIcmdWithADoubleAndUnit* allCutCmd;
-  G4UIcmdWithAString*        pListCmd;
-  G4UIcmdWithoutParameter*   listCmd;  
+  G4UIcmdWithADoubleAndUnit* fGammaCutCmd;
+  G4UIcmdWithADoubleAndUnit* fElectCutCmd;
+  G4UIcmdWithADoubleAndUnit* fPosCutCmd;
+  G4UIcmdWithADoubleAndUnit* fCutCmd;
+  G4UIcmdWithADoubleAndUnit* fAllCutCmd;
+  G4UIcmdWithAString*        fPListCmd;
+  G4UIcmdWithoutParameter*   fListCmd;  
   G4UIcmdWithADoubleAndUnit* fRegCutCmd;
   G4UIcmdWithAString*        fRegCmd;
-  G4UIdirectory* fphysDir;
+  G4UIdirectory* fPhysDir;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

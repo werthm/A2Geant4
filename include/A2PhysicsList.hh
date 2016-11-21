@@ -23,15 +23,15 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file hadronic/Hadr01/include/A2PhysicsList.hh
-/// \brief Definition of the A2PhysicsList class
+/// \file hadronic/Hadr01/include/PhysicsList.hh
+/// \brief Definition of the PhysicsList class
 //
 //
-// $Id: A2PhysicsList.hh 68803 2013-04-05 13:59:55Z gcosmo $
+// $Id: PhysicsList.hh 68803 2013-04-05 13:59:55Z gcosmo $
 //
 /////////////////////////////////////////////////////////////////////////
 //
-// A2PhysicsList
+// PhysicsList
 //
 // Created: 31.04.2006 V.Ivanchenko
 //
@@ -41,19 +41,14 @@
 ////////////////////////////////////////////////////////////////////////
 // 
 
-#ifndef A2PhysicsList_h
-#define A2PhysicsList_h 1
+#ifndef PhysicsList_h
+#define PhysicsList_h 1
 
 #include "G4VModularPhysicsList.hh"
-#include "G4LorentzVector.hh"
 #include "globals.hh"
 
 class G4VPhysicsConstructor;
 class A2PhysicsListMessenger;
-//class PolHadronElasticPhysics;
-//class PolHadronElasticPhysicsN;
-//class PolHadronInelasticPhysics;
-//class PolNucleonRotate;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -80,8 +75,6 @@ public:
   
 private:
 
-  //void SetPolList(G4bool = false, G4bool = false);
-  //void SetNoHadList();
   void SetBuilderList0(G4bool flagHP = false);
   void SetBuilderList1(G4bool flagHP = false);
   void SetBuilderList2();
@@ -91,31 +84,11 @@ private:
   G4double fCutForPositron;
   G4double fCutForProton;
 
-  G4VPhysicsConstructor*  fEmA2PhysicsList;
+  G4VPhysicsConstructor*  fEmPhysicsList;
   G4VPhysicsConstructor*  fParticleList;
   std::vector<G4VPhysicsConstructor*>  fHadronPhys;
     
   A2PhysicsListMessenger* fMessenger;
-  // PolHadronElasticPhysics*  fPolHadronElasticPhysics;
-  // PolHadronElasticPhysicsN*  fPolHadronElasticPhysicsN;
-  //PolHadronInelasticPhysics*  fPolHadronInelasticPhysics;
-  //G4bool dump;
-  //G4bool fIsNew;
-  //G4bool fSaveScat;
-
-  //public:
-  //PolHadronElasticPhysics* GetPolHadronElasticPhysics()
-  // { return  fPolHadronElasticPhysics; }
-  // PolHadronElasticPhysicsN* GetPolHadronElasticPhysicsN()
-  // { return  fPolHadronElasticPhysicsN; }
-  // PolHadronInelasticPhysics* GetPolHadronInelasticPhysics()
-  // { return fPolHadronInelasticPhysics; }
-  // PolNucleonRotate* GetPolNucleonRotate(G4String type);
-
-  // void SetSaveScat(G4bool save=true){fSaveScat=save;}
-  // G4bool IsSaveScat(){return fSaveScat;} 
-  // G4LorentzVector* GetScatVec();
-  // void ResetEvent();
 
 };
 
