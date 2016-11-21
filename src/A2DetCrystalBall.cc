@@ -310,7 +310,7 @@ void A2DetCrystalBall::MakeOther1(){//please read note above
   G4double rims_zpos=1.01*m;
   fRIMS=new G4Tubs("RIMS",rims_rin,rims_rout,rims_z,rims_phlow,rims_phdelta);
   fRIMSLogic=new G4LogicalVolume(fRIMS,fNistManager->FindOrBuildMaterial("G4_Fe"),"RIMS");
-  fRIMSLogic->SetVisAttributes(G4VisAttributes::Invisible);
+  //fRIMSLogic->SetVisAttributes(G4VisAttributes::Invisible);
   fRIMSPhysi[0]=new G4PVPlacement(0,G4ThreeVector(0,gap1,rims_zpos),fRIMSLogic,"RIMS",fMotherLogic,false,1);
   fRIMSPhysi[1]=new G4PVPlacement(fRot[96],G4ThreeVector(0,-gap2,rims_zpos),fRIMSLogic,"RIMS",fMotherLogic,false,2);
 
