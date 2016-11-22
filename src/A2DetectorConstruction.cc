@@ -376,6 +376,15 @@ void A2DetectorConstruction::DefineMaterials()
   A2_Epoxy->AddMaterial(A2_Resin, fractionmass=0.8);
   A2_Epoxy->AddMaterial(A2_13BAC, fractionmass=0.2);
 
+  //
+  // Pizza detector
+  //
+
+  // PMMA C5H8O2 (Acrylic Glass)
+  G4Material* A2_Acrylic = new G4Material("A2_ACRYLIC", 1.19*g/cm3, 3);
+  A2_Acrylic->AddElement(NistManager->FindOrBuildElement(6), 5);
+  A2_Acrylic->AddElement(NistManager->FindOrBuildElement(1), 8);
+  A2_Acrylic->AddElement(NistManager->FindOrBuildElement(8), 2);
 
   /*Now useG4NistManager
  //This function illustrates the possible ways to define materials
