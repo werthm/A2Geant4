@@ -72,7 +72,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     if (fIsCheckOverlap) CheckOverlapAndAbort(fMyPhysi, "A2DetPizza::Construct()");
 
     //
-    // build the scintillator
+    // build the scintillator (EJ-200)
     //
 
     // geometry data (anti-clockwise ordering of surface points)
@@ -84,7 +84,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     G4TessellatedSolid* scint = BuildPlanarTessSolid(scint_n, scint_x, scint_y,
                                                      scint_thick, "pizza_scint");
     G4LogicalVolume* scint_log = new G4LogicalVolume(scint,
-                                                     fNistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"), // ?
+                                                     fNistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE"),
                                                      "pizza_scint");
     scint_log->SetVisAttributes(G4Colour(1, 1, 0));
 
@@ -132,7 +132,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     G4TessellatedSolid* light_guide = BuildPlanarTessSolid(light_guide_n, light_guide_x, light_guide_y,
                                                            light_guide_thick, "pizza_light_guide");
     G4LogicalVolume* light_guide_log = new G4LogicalVolume(light_guide,
-                                                           fNistManager->FindOrBuildMaterial("A2_PLASTIC"), // ?
+                                                           fNistManager->FindOrBuildMaterial("A2_ACRYLIC"),
                                                            "pizza_light_guide");
     light_guide_log->SetVisAttributes(G4Colour(0, 1, 0));
 
@@ -179,6 +179,43 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
         v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, -shoe_z),
                               shoe_log, TString::Format("pizza_shoe_%d", i+1).Data(),
+                              fMyLogic, false, i);
+        if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
+    }
+
+    //
+    // build the metal shoes edge pieces
+    //
+
+    // geometry data (anti-clockwise ordering of surface points)
+    const G4int shoe_e_n = 4;
+    const G4double shoe_e_x[shoe_n] = {  848.540*mm,  918.330*mm, 918.330*mm, 912.113*mm };
+    const G4double shoe_e_y[shoe_n] = { -110.201*mm, -109.915*mm, -23.493*mm, -23.493*mm };
+    const G4double shoe_e_thick = 30*mm;
+    const G4double shoe_e_z = 0;
+
+    // create solid and logical volume
+    G4TessellatedSolid* shoe_e = BuildPlanarTessSolid(shoe_e_n, shoe_e_x, shoe_e_y,
+                                                      shoe_e_thick, "pizza_shoe_edge");
+    G4LogicalVolume* shoe_e_log = new G4LogicalVolume(shoe_e,
+                                                      fNistManager->FindOrBuildMaterial("G4_Al"),
+                                                      "pizza_shoe_edge");
+    shoe_e_log->SetVisAttributes(G4Colour(0.3, 0, 0.7));
+
+    // create the physical volumes
+    for (G4int i = 0; i < nPizza; i++)
+    {
+        G4RotationMatrix* rot_1 = new G4RotationMatrix();
+        rot_1->rotateZ(phi0 - i*dphi);
+        G4VPhysicalVolume* v = new G4PVPlacement(rot_1, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z),
+                                                 shoe_e_log, TString::Format("pizza_shoe_edge_1_%d", i+1).Data(),
+                                                 fMyLogic, false, i);
+        if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
+        G4RotationMatrix* rot_2 = new G4RotationMatrix();
+        rot_2->rotateZ(phi0 - i*dphi);
+        rot_2->rotateX(180*deg);
+        v = new G4PVPlacement(rot_2, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z),
+                              shoe_e_log, TString::Format("pizza_shoe_edge_2_%d", i+1).Data(),
                               fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
     }
