@@ -124,8 +124,8 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     const G4int light_guide_n = 10;
     const G4double light_guide_x[light_guide_n] = { 727.947*mm, 837.948*mm, 848.540*mm, 912.113*mm, 940.146*mm,
                                                     940.146*mm, 912.113*mm, 848.540*mm, 837.948*mm, 727.947*mm };
-    const G4double light_guide_y[light_guide_n] = { -95.601*mm, -110.201*mm, -110.201*mm, -23.493*mm, -14.905*mm,
-                                                    14.905*mm, 23.493*mm, 110.201*mm, 110.201*mm, 95.601*mm };
+    const G4double light_guide_y[light_guide_n] = { -95.601*mm, -110.201*mm, -110.201*mm, -21.500*mm, -12.900*mm,
+                                                    12.900*mm, 21.500*mm, 110.201*mm, 110.201*mm, 95.601*mm };
     const G4double light_guide_thick = 30*mm;
 
     // create solid and logical volume
@@ -190,7 +190,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     // geometry data (anti-clockwise ordering of surface points)
     const G4int shoe_e_n = 4;
     const G4double shoe_e_x[shoe_n] = {  848.540*mm,  918.330*mm, 918.330*mm, 912.113*mm };
-    const G4double shoe_e_y[shoe_n] = { -110.201*mm, -109.915*mm, -23.493*mm, -23.493*mm };
+    const G4double shoe_e_y[shoe_n] = { -110.201*mm, -109.915*mm, -21.500*mm, -21.500*mm };
     const G4double shoe_e_thick = 30*mm;
     const G4double shoe_e_z = 0;
 
@@ -258,12 +258,12 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     //
 
     // geometry data
-    innerRadius = 25*mm; // ?
-    outerRadius = 26*mm; // ? was 22.5 (overlap)
+    innerRadius = 23*mm; // ?
+    outerRadius = 24*mm;
     hz = 0.5*298*mm;
     startAngle = 0*deg;
     spanningAngle = 360*deg;
-    const G4double shoe_pos = 918.330*mm + 8*mm; // prevents overlap
+    const G4double shoe_pos = 918.330*mm + 6.8*mm; // prevents overlap
     center_shift = shoe_pos+hz;
 
     // create solid and logical volume
@@ -282,6 +282,38 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         rot->rotateY(90*deg);
         G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
                                                  pm_prot_log, TString::Format("pizza_pm_prot_%d", i+1).Data(),
+                                                 fMyLogic, false, i);
+        if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
+    }
+
+    //
+    // build the PM protection flanges
+    //
+
+    // geometry data
+    innerRadius = 24*mm;
+    outerRadius = 32*mm;
+    hz = 6*mm;
+    startAngle = 0*deg;
+    spanningAngle = 360*deg;
+    center_shift = 918.330*mm + hz + 2.7*mm; // prevents overlap
+
+    // create solid and logical volume
+    G4Tubs* pm_prot_fl = new G4Tubs("pizza_pm_prot_fl", innerRadius, outerRadius, hz, startAngle, spanningAngle);
+    G4LogicalVolume* pm_prot_fl_log = new G4LogicalVolume(pm_prot_fl,
+                                                         fNistManager->FindOrBuildMaterial("A2_BRASS"),
+                                                         "pizza_pm_prot_fl");
+    pm_prot_fl_log->SetVisAttributes(G4Colour(0.5, 0.5, 0));
+
+    // create the physical volumes
+    for (G4int i = 0; i < nPizza; i++)
+    {
+        G4RotationMatrix* rot = new G4RotationMatrix();
+        G4double rot_z = phi0 - i*dphi;
+        rot->rotateZ(rot_z);
+        rot->rotateY(90*deg);
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
+                                                 pm_prot_fl_log, TString::Format("pizza_pm_prot_fl_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
     }
