@@ -300,6 +300,13 @@ void A2DetectorConstruction::DefineMaterials()
  new G4Material("A2_lHe3", z=2., a= 3.0160*g/mole, density= 0.07448*g/cm3); //density of 3He at 2.4 K (average temperature of Nov08)
  new G4Material("A2_lHe4", z=2., a= 4.0026*g/mole, density= 0.125*g/cm3);  // 1050 mBar, 4.24 K
 
+ // Birk's constant for plastic scintillators
+ G4Material* mat = NistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+ const G4double den = 1.023; // density of EJ-204 [g/cm^3]
+ G4double kB = 2.07e-2; // NIM B 170 (2000) 523 [g MeV^-1 cm^-2]
+ kB /= den; // [cm MeV^-1]
+ mat->GetIonisation()->SetBirksConstant(kB*cm/MeV);
+
 //////////
 //Materials for Polarized Target:
 //////////
