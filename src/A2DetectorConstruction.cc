@@ -59,7 +59,7 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
   fTargetLength=4.8*cm;
   fUseTarget=G4String("NO");
   //Default taps settings as for 2003
-  fTAPSSetupFile="taps.dat";
+  fTAPSSetupFile="data/taps.dat";
   fTAPSN=510;
   fTAPSZ=175*cm;
   fNPbWO4=0;

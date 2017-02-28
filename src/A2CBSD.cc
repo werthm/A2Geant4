@@ -30,9 +30,9 @@ A2CBSD::A2CBSD(G4String name):G4VSensitiveDetector(name)
   fCrystalConvert=new G4int[fNcrystals];
   fNhits=0;
   //Read in the AcquRoot id map
-  FILE* CCfile=fopen("CrystalConvert.in","r");
+  FILE* CCfile=fopen("data/CrystalConvert.in","r");
   if(!CCfile){
-    G4cerr<<"Couldn't open CrystalConvert.in in A2CBSD::A2CBSD(G4String name)"<<G4endl;
+    G4cerr<<"Couldn't open data/CrystalConvert.in in A2CBSD::A2CBSD(G4String name)"<<G4endl;
     exit(1);
   }
   G4int cc=0;

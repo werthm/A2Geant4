@@ -15,7 +15,7 @@ A2DetTAPS::A2DetTAPS(){
   fNTaps=552;//including dummies
   fZ0=175*cm;
   fNPbWORings=0;
-  fSetupFile="taps.dat";
+  fSetupFile="data/taps.dat";
   fCOVRPhysi=new G4VPhysicalVolume*[fNTaps+1];   //Crystal physical volumes
   fNPbWO4=72;
 //   fCOVRPbPhysi=new G4VPhysicalVolume*[fNPbWO4];   //Crystal physical volumes
@@ -82,7 +82,7 @@ void  A2DetTAPS::PlaceCrystals(){
   FILE* TAPSfile=fopen(fSetupFile.data(),"r");
   //FILE* TAPSfile=fopen("taps.dat","r");//workaround until get new taps files
   if(!TAPSfile){
-    G4cerr<<"Couldn't open taps.dat in A2DetTAPS::PlaceCrystals()"<<G4endl;
+    G4cerr<<"Couldn't open data/taps.dat in A2DetTAPS::PlaceCrystals()"<<G4endl;
     exit(1);
   }
   G4int index,ix,iy;
@@ -113,7 +113,7 @@ void  A2DetTAPS::PlaceCrystals(){
 
   
 
-    else if(fSetupFile=="taps.dat"&&index<=fNTaps)//dummies are not in tpas07.dat
+    else if(fSetupFile=="data/taps.dat"&&index<=fNTaps)//dummies are not in tpas07.dat
       fDUMMPhysi[i-fNRealTaps]=new G4PVPlacement(0,G4ThreeVector(px,py,pz),fDUMMLogic,"COVR",fFWMVLogic,false,i-fNRealTaps+1);
 
   }
