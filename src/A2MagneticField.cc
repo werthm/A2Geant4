@@ -1,4 +1,5 @@
 #include <fstream>
+#include "TString.h"
 #include "A2MagneticField.hh"
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
@@ -46,29 +47,48 @@ G4bool A2MagneticField::ReadFieldMap(const G4String &nameFileMap)
 {
   // Print info
   G4cout.setf(std::ios_base::unitbuf);
-  G4cout << "A2MagneticField::ReadFieldMap() Reading target magnetic field map...";
-  
+  G4cout << "A2MagneticField::ReadFieldMap() Reading target magnetic field map " << nameFileMap;
+
   // Open input stream
-//   G4String nameFile = static_cast<G4String>(getenv("G4WORKDIR"))+"/A2/data/Target/field_map.dat";
-  std::ifstream fin(nameFileMap);
-  
+  FILE* fin = 0;
+  TString name(nameFileMap.data());
+  if (name.EndsWith(".xz"))
+  {
+    G4cout << " (compressed)...";
+    fin = popen(TString::Format("xzcat %s", name.Data()), "r");
+  }
+  else
+  {
+    G4cout << " (not compressed)...";
+    fin = fopen(name.Data(), "r");
+  }
+
   // In case of an error return FALSE
-  if(!fin.good())
+  if(!fin)
   {
     G4cout << " **ERROR** - File " << nameFileMap << " not found." << G4endl;
     return false;
   }
-  
+
   // Read Xmin, Xmax, dX, Ymin, Ymax, dY, Zmin, Zmax, dZ and calculate number of points
+  char line[256];
   for(G4int i=0; i<3; ++i)
   {
-    fin >> fPointMin[i] >> fPointMax[i] >> fPointStep[i];
+    fgets(line, 256, fin);
+    G4int ret = sscanf(line, "%lf%lf%lf", &fPointMin[i], &fPointMax[i], &fPointStep[i]);
+    if (ret != 3)
+    {
+      G4cout << " **ERROR** - Wrong header format." << G4endl;
+      if (name.EndsWith(".xz")) pclose(fin);
+      else fclose(fin);
+      return false;
+    }
     fPointStep[i] *= cm;
     fPointMin[i]   = fPointMin[i]*cm - fPointStep[i]/2.;
     fPointMax[i]   = fPointMax[i]*cm + fPointStep[i]/2.;
     fPointsN[i]    = ceil((fPointMax[i] - fPointMin[i])/fPointStep[i]);
   }
-  
+
   // Allocate memory for fFieldMap
   fFieldMap = new A2Bvector**[fPointsN[0]];
   for(int i=0; i<fPointsN[0]; ++i)
@@ -79,29 +99,52 @@ G4bool A2MagneticField::ReadFieldMap(const G4String &nameFileMap)
       fFieldMap[i][j] = new A2Bvector[fPointsN[2]];
     }
   }
-  
+
   // Read the magnetic field map
+  G4int nline = 0;
   G4double p[3], b[3];
   G4int iPoint[3];
-  while(fin >> p[0] >> p[1] >> p[2] >> b[0] >> b[1] >> b[2])
+  while (fgets(line, 256, fin))
   {
+    // read data
+    G4int ret = sscanf(line, "%lf%lf%lf%lf%lf%lf", p, p+1, p+2, b, b+1, b+2);
+    if (ret != 6)
+    {
+      G4cout << " **ERROR** - Wrong data format." << G4endl;
+      if (name.EndsWith(".xz")) pclose(fin);
+      else fclose(fin);
+      return false;
+    }
+
     // Calculate x,y,z indexes of the point
     iPoint[0] = GetPointIndex(p[0]*cm,fPointMin[0],fPointStep[0]); // index x
     iPoint[1] = GetPointIndex(p[1]*cm,fPointMin[1],fPointStep[1]); // index y
     iPoint[2] = GetPointIndex(p[2]*cm,fPointMin[2],fPointStep[2]); // index z
-    
+
     // Fill the fFiledMap array
     fFieldMap[iPoint[0]][iPoint[1]][iPoint[2]][0] = b[0]*gauss; // Bx
     fFieldMap[iPoint[0]][iPoint[1]][iPoint[2]][1] = b[1]*gauss; // By
     fFieldMap[iPoint[0]][iPoint[1]][iPoint[2]][2] = b[2]*gauss; // Bz
+
+    nline++;
   }
-  
+
   // Close the field map file
-  fin.close();
-  
+  if (name.EndsWith(".xz")) pclose(fin);
+  else fclose(fin);
+
   // OK => return true
-  G4cout << " OK" << G4endl;
-  return true;
+  if (nline == fPointsN[0]*fPointsN[1]*fPointsN[2])
+  {
+    G4cout << " OK (read " << nline << " data points)"<< G4endl;
+    return true;
+  }
+  else
+  {
+    G4cout << " **ERROR** - Could not read all " << fPointsN[0]*fPointsN[1]*fPointsN[2]
+           << " data points."<< G4endl;
+    return false;
+  }
 }
 
 //______________________________________________________________________________________________________
