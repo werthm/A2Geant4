@@ -33,7 +33,7 @@ void A2PolarizedTarget::SetMagneticField(G4String &nameFileFieldMap)
   
   // Read magnetic field map
   // Set this field as default and create trajectory calculator
-  // Or, in case of a problem reading the field map, delete fMagneticField
+  // Or, in case of a problem reading the field map, delete fMagneticField and abort the simulation
   if(fMagneticField->ReadFieldMap(nameFileFieldMap))
   {
     G4FieldManager* fieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
@@ -43,6 +43,7 @@ void A2PolarizedTarget::SetMagneticField(G4String &nameFileFieldMap)
   else
   {
     delete fMagneticField;
+    exit(1);
   }
 }
 
