@@ -23,7 +23,7 @@
 using namespace CLHEP;
 
 // init static class members
-const G4double A2DetPizza::fgDefaultZPos = 162.35*cm;
+const G4double A2DetPizza::fgDefaultZPos = 162*cm;
 
 //______________________________________________________________________________
 A2DetPizza::A2DetPizza(G4double zpos)
@@ -58,15 +58,16 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     G4double phi0 = 180.*deg;
     G4double dphi = 360.*deg / nPizza;
     const G4double scint_thick = 10*mm;
+    const G4double shift_sc_center_airbox = 10*mm;
 
     // set the mother volume
     fMotherLogic = motherLogic;
 
     // construct the air box
-    G4Box* airBox = new G4Box("pizza_box", 130.0*cm, 130.0*cm, 56*mm);
+    G4Box* airBox = new G4Box("pizza_box", 130.0*cm, 130.0*cm, 45*mm);
     fMyLogic = new G4LogicalVolume(airBox, fNistManager->FindOrBuildMaterial("G4_AIR"), "pizza_box");
     fMyLogic->SetVisAttributes(G4VisAttributes::Invisible);
-    fMyPhysi = new G4PVPlacement(0, G4ThreeVector(0.0*cm, 0.0*cm, fZPos+0.5*scint_thick),
+    fMyPhysi = new G4PVPlacement(0, G4ThreeVector(0.0*cm, 0.0*cm, fZPos + 0.5*scint_thick + shift_sc_center_airbox),
                                                   fMyLogic, "pizza_box",
                                                   fMotherLogic, false, 0);
     if (fIsCheckOverlap) CheckOverlapAndAbort(fMyPhysi, "A2DetPizza::Construct()");
@@ -93,7 +94,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
         rot->rotateZ(phi0 - i*dphi);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, 0),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, -shift_sc_center_airbox),
                                                  scint_log, TString::Format("pizza_scint_%d", i+1).Data(),
                                                  fMyLogic, false, i+1);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -141,7 +142,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
         rot->rotateZ(phi0 - i*dphi);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, 0),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, -shift_sc_center_airbox),
                                                  light_guide_log, TString::Format("pizza_light_guide_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -173,11 +174,11 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     {
         G4RotationMatrix* rot = new G4RotationMatrix();
         rot->rotateZ(phi0 - i*dphi);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, shoe_z),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, shoe_z - shift_sc_center_airbox),
                                                  shoe_log, TString::Format("pizza_shoe_back_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
-        v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, -shoe_z),
+        v = new G4PVPlacement(rot, G4ThreeVector(0.0*cm, 0.0*cm, -shoe_z - shift_sc_center_airbox),
                               shoe_log, TString::Format("pizza_shoe_%d", i+1).Data(),
                               fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -207,14 +208,14 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     {
         G4RotationMatrix* rot_1 = new G4RotationMatrix();
         rot_1->rotateZ(phi0 - i*dphi);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot_1, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot_1, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z - shift_sc_center_airbox),
                                                  shoe_e_log, TString::Format("pizza_shoe_edge_1_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
         G4RotationMatrix* rot_2 = new G4RotationMatrix();
         rot_2->rotateZ(phi0 - i*dphi);
         rot_2->rotateX(180*deg);
-        v = new G4PVPlacement(rot_2, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z),
+        v = new G4PVPlacement(rot_2, G4ThreeVector(0.0*cm, 0.0*cm, shoe_e_z - shift_sc_center_airbox),
                               shoe_e_log, TString::Format("pizza_shoe_edge_2_%d", i+1).Data(),
                               fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -247,7 +248,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         G4double rot_z = phi0 - i*dphi;
         rot->rotateZ(rot_z);
         rot->rotateY(90*deg);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), -shift_sc_center_airbox),
                                                  pm_log, TString::Format("pizza_pm_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -280,7 +281,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         G4double rot_z = phi0 - i*dphi;
         rot->rotateZ(rot_z);
         rot->rotateY(90*deg);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), -shift_sc_center_airbox),
                                                  pm_prot_log, TString::Format("pizza_pm_prot_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -312,7 +313,7 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
         G4double rot_z = phi0 - i*dphi;
         rot->rotateZ(rot_z);
         rot->rotateY(90*deg);
-        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), 0*cm),
+        G4VPhysicalVolume* v = new G4PVPlacement(rot, G4ThreeVector(center_shift*cos(rot_z), -center_shift*sin(rot_z), -shift_sc_center_airbox),
                                                  pm_prot_fl_log, TString::Format("pizza_pm_prot_fl_%d", i+1).Data(),
                                                  fMyLogic, false, i);
         if (fIsCheckOverlap) CheckOverlapAndAbort(v, "A2DetPizza::Construct()");
@@ -327,8 +328,8 @@ G4VPhysicalVolume* A2DetPizza::Construct(G4LogicalVolume* motherLogic)
     const G4double st_pl_short = 42*cm;
     const G4double st_pl_height = 15*cm;
     const G4double st_pl_thick = 1*cm;
-    const G4double st_pl_z_1 = 0.5*light_guide_thick + shoe_thick + 0.5*st_pl_thick;
-    const G4double st_pl_z_2 = 0.5*light_guide_thick + shoe_thick + 1.5*st_pl_thick;
+    const G4double st_pl_z_1 = 0.5*light_guide_thick + shoe_thick + 0.5*st_pl_thick - shift_sc_center_airbox;
+    const G4double st_pl_z_2 = 0.5*light_guide_thick + shoe_thick + 1.5*st_pl_thick - shift_sc_center_airbox;
     center_shift = 85.9*cm;
 
     // create solid and logical volume
