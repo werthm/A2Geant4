@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(A2)
+project(A2Geant4)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -43,12 +43,12 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(A2 ${PROJECT_SOURCE_DIR}/src/A2.cc ${sources} ${headers})
-target_link_libraries(A2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(A2Geant4 ${PROJECT_SOURCE_DIR}/src/A2.cc ${sources} ${headers})
+target_link_libraries(A2Geant4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
-# build A2. This is so that we can run the executable directly because it
+# build A2Geant4. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
 #set(EXAMPLE_HardBeam_SCRIPTS
@@ -74,5 +74,5 @@ target_link_libraries(A2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-#install(TARGETS A2 DESTINATION bin)
+#install(TARGETS A2Geant4 DESTINATION bin)
 
