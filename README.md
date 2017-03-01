@@ -5,7 +5,7 @@ A2 Geant4 simulation
 ### Installation
 
 #### Dependencies
-* Geant 10.2
+* Geant 10.3
 * ROOT 
 * CMake 2.6
 
