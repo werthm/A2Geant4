@@ -9,7 +9,7 @@
 /A2/det/useTAPS 1
 /A2/det/setTAPSFile data/taps07.dat
 /A2/det/setTAPSZ 146.35 cm
-#/A2/det/setTAPSZ 188.35 cm
+#/A2/det/setTAPSZ 188 cm
 /A2/det/setTAPSN 384
 /A2/det/setTAPSPbWO4Rings 2
 #/A2/det/setTAPSFile data/taps.dat
@@ -34,7 +34,7 @@
 
 ##Use Pizza detector
 /A2/det/usePizza 0
-/A2/det/setPizzaZ 162.35 cm
+/A2/det/setPizzaZ 162 cm
 
 ##Set the target
 ###Cryo targets : G4_lH2, A2_lD2, A2_lHe3, A2_lHe4
