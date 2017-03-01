@@ -8,7 +8,7 @@
 ##Use TAPS?
 /A2/det/useTAPS 1
 /A2/det/setTAPSFile data/taps07.dat
-/A2/det/setTAPSZ 188.35 cm
+/A2/det/setTAPSZ 188 cm
 /A2/det/setTAPSN 384
 /A2/det/setTAPSPbWO4Rings 2
 
@@ -29,7 +29,7 @@
 
 ##Use Pizza detector
 /A2/det/usePizza 1
-/A2/det/setPizzaZ 162.35 cm
+/A2/det/setPizzaZ 162 cm
 
 ##Set the target
 /A2/det/useTarget CryoHe3
