@@ -384,6 +384,35 @@ void A2DetectorConstruction::DefineMaterials()
   A2_Epoxy->AddMaterial(A2_Resin, fractionmass=0.8);
   A2_Epoxy->AddMaterial(A2_13BAC, fractionmass=0.2);
 
+//Tedlar for Cherenkov windows (C2H3F)
+  G4Material* A2_Tedlar= new G4Material("A2_Tedlar", density= 1.397*g/cm3, ncomponents=3);
+  A2_Tedlar->AddElement(NistManager->FindOrBuildElement(6), 2);
+  A2_Tedlar->AddElement(NistManager->FindOrBuildElement(1), 3);
+  A2_Tedlar->AddElement(NistManager->FindOrBuildElement(9), 1);
+
+//gas of Cherenkov detector (C4F8)
+  G4double temperature  = 293.15*kelvin;
+  G4double pressure    = 80.*pascal;
+  G4Material* A2_Cherenkovgas= new G4Material("A2_Cherenkovgas", density= 0.00867*g/cm3, ncomponents=2,kStateGas,temperature,pressure);
+  A2_Cherenkovgas->AddElement(NistManager->FindOrBuildElement(6), 4);
+  A2_Cherenkovgas->AddElement(NistManager->FindOrBuildElement(9), 8);
+
+// PYREX for the mirror of the Cherenkov detector; pyrex= 80.5% of SIO2, 12.9% of B2O3, 3.8% of Na2O, 2% of Al2O3 and 0.8% for K2O
+  G4Material *A2_B2O3 = new G4Material("A2_B2O3", 2.34 *g/cm3, ncomponents=2);
+  A2_B2O3->AddElement(NistManager->FindOrBuildElement(5), natoms=2);
+  A2_B2O3->AddElement(NistManager->FindOrBuildElement(8), natoms=3);
+
+  G4Material *A2_K2O = new G4Material("A2_K2O", 2.35 *g/cm3, ncomponents=2);
+  A2_K2O->AddElement(NistManager->FindOrBuildElement(19), natoms=2);
+  A2_K2O->AddElement(NistManager->FindOrBuildElement(8), natoms=1);
+
+  G4Material* A2_Pyrex=new G4Material("A2_Pyrex", density=2.33*g/cm3, ncomponents=5);
+  A2_Pyrex->AddMaterial(NistManager->FindOrBuildMaterial("G4_SILICON_DIOXIDE"), fractionmass=0.805);
+  A2_Pyrex->AddMaterial(NistManager->FindOrBuildMaterial("G4_SODIUM_MONOXIDE"), fractionmass=0.038);
+  A2_Pyrex->AddMaterial(NistManager->FindOrBuildMaterial("G4_ALUMINUM_OXIDE"), fractionmass=0.02);
+  A2_Pyrex->AddMaterial(A2_B2O3, fractionmass=0.129);
+  A2_Pyrex->AddMaterial(A2_K2O, fractionmass=0.008);
+
   //
   // Pizza detector
   //
