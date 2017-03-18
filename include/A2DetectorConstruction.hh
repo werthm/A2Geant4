@@ -11,7 +11,6 @@
 #include "A2Detector.hh"
 #include "A2DetCrystalBall.hh"
 #include "A2DetTAPS.hh"
-#include "A2DetPID.hh"
 #include "A2DetTOF.hh"
 #include "A2Target.hh"
 #include "A2DetMWPC.hh"
@@ -91,7 +90,7 @@ public:
   
   A2DetCrystalBall* fCrystalBall;   //CrystalBall detector
   A2DetTAPS* fTAPS;   //TAPS detector
-  A2DetPID* fPID;   //PID detector
+  A2Detector* fPID;   //PID detector
   A2DetMWPC* fMWPC;   //MWPC detector
   A2DetTOF* fTOF;   //MWPC detector
   A2DetCherenkov* fCherenkov; //Cherenkov detector

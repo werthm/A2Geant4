@@ -25,6 +25,8 @@
 #include "A2CryoTarget.hh"
 #include "A2SolidTarget.hh"
 #include "A2PolarizedTarget.hh"
+#include "A2DetPID.hh"
+#include "A2DetPID3.hh"
 
 using namespace CLHEP;
 
@@ -148,10 +150,22 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
   }
   if(fUsePID){
     G4cout<<"A2DetectorConstruction::Construct() Take the pid "<< fUsePID<<G4endl;
-    fPID=new A2DetPID();
-    if(fUsePID==1) fPID->Construct1(fWorldLogic,fPIDZ);
-    else if(fUsePID==2) fPID->Construct2(fWorldLogic,fPIDZ);
-    else {G4cerr<<"There are 2 possible PIDS, please set UsePID to be 1 (2003) or 2 (2007)"<<G4endl; exit(1);}
+    if(fUsePID==1)
+    {
+      fPID=new A2DetPID();
+      ((A2DetPID*)fPID)->Construct1(fWorldLogic,fPIDZ);
+    }
+    else if(fUsePID==2)
+    {
+      fPID=new A2DetPID();
+      ((A2DetPID*)fPID)->Construct2(fWorldLogic,fPIDZ);
+    }
+    else if(fUsePID==3)
+    {
+      fPID=new A2DetPID3();
+      ((A2DetPID3*)fPID)->Construct1(fWorldLogic,fPIDZ);
+    }
+    else {G4cerr<<"There are 3 possible PIDS, please set UsePID to be 1 (2003) or 2 (available in 2007) or 3 (available in 2016)"<<G4endl; exit(1);}
   }
 
   if(fUseMWPC){
