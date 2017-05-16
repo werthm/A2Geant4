@@ -27,7 +27,7 @@
 /// \brief Implementation of the PhysicsList class
 //
 //
-// $Id: PhysicsList.cc 101216 2016-11-09 13:54:13Z gcosmo $
+// $Id: PhysicsList.cc 92421 2015-09-01 07:38:57Z gcosmo $
 //
 /////////////////////////////////////////////////////////////////////////
 //
@@ -66,9 +66,7 @@
 #include "G4IonBinaryCascadePhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4EmExtraPhysics.hh"
-#include "G4EmParameters.hh"
-
-#include "G4LossTableManager.hh"
+#include "G4EmProcessOptions.hh"
 
 #include "G4HadronPhysicsFTFP_BERT.hh"
 #include "G4HadronPhysicsFTFP_BERT_HP.hh"
@@ -81,6 +79,8 @@
 #include "G4HadronPhysicsQGSP_BIC_HP.hh"
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 #include "G4HadronPhysicsQGS_BIC.hh"
+
+#include "G4LossTableManager.hh"
 
 #include "G4ProcessManager.hh"
 #include "G4ParticleTypes.hh"
@@ -95,24 +95,25 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
-A2PhysicsList::A2PhysicsList() : G4VModularPhysicsList(),
+A2PhysicsList::A2PhysicsList() 
+ : G4VModularPhysicsList(),
    fEmPhysicsList(0), fParticleList(0), fMessenger(0)
 {
-  SetDefaultCutValue(0.7*CLHEP::mm);
-
-  verboseLevel = 1;
+  G4LossTableManager::Instance();
+  defaultCutValue = 0.7*mm;
   fCutForGamma     = defaultCutValue;
   fCutForElectron  = defaultCutValue;
   fCutForPositron  = defaultCutValue;
   fCutForProton    = defaultCutValue;
+  verboseLevel    = 1;
 
   fMessenger = new A2PhysicsListMessenger(this);
 
   // Particles
-  fParticleList = new G4DecayPhysics(verboseLevel);
+  fParticleList = new G4DecayPhysics("decays");
 
   // EM physics
-  fEmPhysicsList = new G4EmStandardPhysics(verboseLevel);
+  fEmPhysicsList = new G4EmStandardPhysics();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -156,126 +157,125 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
   if (name == "emstandard_opt0") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysics(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysics();
 
   } else if (name == "emstandard_opt1") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysics_option1(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysics_option1();
 
   } else if (name == "emstandard_opt2") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysics_option2(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysics_option2();
 
   } else if (name == "emstandard_opt3") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysics_option3(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysics_option3();
 
   } else if (name == "emstandard_opt4") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysics_option4(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysics_option4();
 
   } else if (name == "emstandardGS") {
 
     delete fEmPhysicsList;
-    fEmPhysicsList = new G4EmStandardPhysicsGS(verboseLevel);
+    fEmPhysicsList = new G4EmStandardPhysicsGS();
 
   } else if (name == "FTFP_BERT_EMV") {
 
-    AddPhysicsList("FTFP_BERT");
     AddPhysicsList("emstandard_opt1");
+    AddPhysicsList("FTFP_BERT");
 
   } else if (name == "FTFP_BERT_EMX") {
 
-    AddPhysicsList("FTFP_BERT");
     AddPhysicsList("emstandard_opt2");
+    AddPhysicsList("FTFP_BERT");
 
   } else if (name == "FTFP_BERT_EMY") {
 
-    AddPhysicsList("FTFP_BERT");
     AddPhysicsList("emstandard_opt3");
+    AddPhysicsList("FTFP_BERT");
 
   } else if (name == "FTFP_BERT_EMZ") {
 
-    AddPhysicsList("FTFP_BERT");
     AddPhysicsList("emstandard_opt4");
+    AddPhysicsList("FTFP_BERT");
 
   } else if (name == "FTFP_BERT") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT());
 
   } else if (name == "FTFP_BERT_TRV") {
 
     AddPhysicsList("emstandardGS");
-    G4EmParameters::Instance()->SetMscStepLimitType( fUseSafety );
-
     SetBuilderList1(false);
-    fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT_TRV(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsFTFP_BERT_TRV());
 
   } else if (name == "FTF_BIC") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsFTF_BIC(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsFTF_BIC());
 
   } else if (name == "QBBC") {
 
     AddPhysicsList("emstandard_opt0");
     SetBuilderList2();
-    fHadronPhys.push_back( new G4HadronInelasticQBBC(verboseLevel));
+    fHadronPhys.push_back( new G4HadronInelasticQBBC());
 
   } else if (name == "QGSP_BERT") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT());
 
   } else if (name == "QGSP_FTFP_BERT") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsQGSP_FTFP_BERT(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_FTFP_BERT());
 
   } else if (name == "QGSP_FTFP_BERT_EMV") {
 
-    AddPhysicsList("QGSP_FTFP_BERT");
     AddPhysicsList("emstandard_opt1");
+    AddPhysicsList("QGSP_FTFP_BERT");
 
   } else if (name == "QGSP_BERT_EMV") {
 
-    AddPhysicsList("QGSP_BERT");
     AddPhysicsList("emstandard_opt1");
+    AddPhysicsList("QGSP_BERT");
 
   } else if (name == "QGSP_BERT_EMX") {
 
-    AddPhysicsList("QGSP_BERT");
     AddPhysicsList("emstandard_opt2");
+    AddPhysicsList("QGSP_BERT");
 
   } else if (name == "QGSP_BERT_HP") {
 
     SetBuilderList0(true);
-    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT_HP(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BERT_HP());
 
   } else if (name == "QGSP_BIC") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC());
 
   } else if (name == "QGSP_BIC_EMY") {
 
-    AddPhysicsList("QGSP_BIC");
     AddPhysicsList("emstandard_opt3");
+    SetBuilderList0(false);
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC());
 
   } else if (name == "QGS_BIC") {
 
     SetBuilderList0(false);
-    fHadronPhys.push_back( new G4HadronPhysicsQGS_BIC(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGS_BIC());
 
   } else if (name == "QGSP_BIC_HP") {
 
     SetBuilderList0(true);
-    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC_HP(verboseLevel));
+    fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC_HP());
 
   } else {
 
@@ -328,22 +328,6 @@ void A2PhysicsList::SetBuilderList2()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
 
-void A2PhysicsList::List()
-{
-  G4cout << "### A2PhysicsLists available: FTFP_BERT FTFP_BERT_EMV "
-         << "FTFP_BERT_EMX FTFP_BERT_EMZ FTFP_BERT_TRV"
-         << G4endl;
-  G4cout << "                            FTF_BIC QBBC QGSP_BERT "
-         << "QGSP_BERT_EMV QGSP_BERT_EMX"
-         << G4endl; 
-  G4cout << "                            QGSP_BERT_HP QGSP_FTFP_BERT "
-         << "QGSP_FTFP_BERT_EMV"
-         << G4endl; 
-  G4cout << "                            QGS_BIC QGSP_BIC QGSP_BIC_EMY "
-         << "QGSP_BIC_HP" 
-         << G4endl; 
-}
-
 void A2PhysicsList::SetCuts()
 {
 
@@ -392,6 +376,22 @@ void A2PhysicsList::SetCutForProton(G4double cut)
 {
   fCutForProton = cut;
   SetParticleCuts(fCutForProton, G4Proton::Proton());
+}
+
+void A2PhysicsList::List()
+{
+  G4cout << "### A2PhysicsLists available: FTFP_BERT FTFP_BERT_EMV "
+         << "FTFP_BERT_EMX FTFP_BERT_EMZ FTFP_BERT_TRV"
+         << G4endl;
+  G4cout << "                            FTF_BIC QBBC QGSP_BERT "
+         << "QGSP_BERT_EMV QGSP_BERT_EMX"
+         << G4endl; 
+  G4cout << "                            QGSP_BERT_HP QGSP_FTFP_BERT "
+         << "QGSP_FTFP_BERT_EMV"
+         << G4endl; 
+  G4cout << "                            QGS_BIC QGSP_BIC QGSP_BIC_EMY "
+         << "QGSP_BIC_HP" 
+         << G4endl; 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
