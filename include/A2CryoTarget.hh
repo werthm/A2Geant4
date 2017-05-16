@@ -8,15 +8,23 @@ class A2CryoTarget: public  A2Target
 {
 
 public:
-  A2CryoTarget(G4bool isHe3=false);
+  enum A2CryoTargetType {
+    kCryo1,
+    kCryo2,
+    kCryoHe
+  };
+
+  A2CryoTarget(A2CryoTargetType type);
   ~A2CryoTarget();
 
-  virtual G4VPhysicalVolume* Construct(G4LogicalVolume *MotherLogic);
+  virtual G4VPhysicalVolume* Construct(G4LogicalVolume *MotherLogi);
+  virtual G4VPhysicalVolume* Construct1(G4LogicalVolume *MotherLogi);
+  virtual G4VPhysicalVolume* Construct2(G4LogicalVolume *MotherLogic);
   void SetTargetLength(G4double Len){fTargetLength=Len;}
 
 private:
  G4double fTargetLength;
- G4bool fIsHe3;
+ A2CryoTargetType fType;
 
 };
 #endif
