@@ -37,8 +37,10 @@
 /A2/det/setPizzaZ 162 cm
 
 ##Set the target
-###Cryo targets : G4_lH2, A2_lD2, A2_lHe3, A2_lHe4
+###Cryo targets : Cryo (larger cell), Cryo2 (narrower cell), CryoHe3 (He3/He4 target)
+###Materials: G4_lH2, A2_lD2, A2_lHe3, A2_lHe4
 /A2/det/useTarget Cryo
+#/A2/det/useTarget Cryo2
 #/A2/det/useTarget CryoHe3
 /A2/det/targetMaterial G4_lH2
 /A2/det/setTargetLength 5 cm
