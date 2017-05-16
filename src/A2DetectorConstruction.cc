@@ -181,14 +181,15 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
   }
   if(fUseTarget!=G4String("NO")){
     G4cout<<"A2DetectorConstruction::Construct() Fill the "<<fUseTarget<<" with "<<fTargetMaterial->GetName()<<G4endl;
-    if(fUseTarget=="Cryo") fTarget=static_cast<A2Target*>(new A2CryoTarget());
-    else if(fUseTarget=="CryoHe3") fTarget=static_cast<A2Target*>(new A2CryoTarget(true));
+    if(fUseTarget=="Cryo") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryo1));
+    else if(fUseTarget=="Cryo2") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryo2));
+    else if(fUseTarget=="CryoHe3") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryoHe));
     else if(fUseTarget=="Solid") fTarget=static_cast<A2Target*>(new A2SolidTarget());
     else if(fUseTarget=="Polarized") fTarget=static_cast<A2Target*>(new A2PolarizedTarget());
     else{G4cerr<<"A2DetectorConstruction::Construct() Target type does not exist. See DetectorSetup.mac"<<G4endl;exit(1);}
     //A2CryoTarget* Target=new  A2CryoTarget();
     fTarget->SetMaterial(fTargetMaterial);
-    if(fUseTarget=="Cryo" || fUseTarget=="CryoHe3") ((A2CryoTarget*)fTarget)->SetTargetLength(fTargetLength);
+    if(fUseTarget=="Cryo" || fUseTarget=="Cryo2" || fUseTarget=="CryoHe3") ((A2CryoTarget*)fTarget)->SetTargetLength(fTargetLength);
     if(fUseTarget=="Polarized")
     {
       G4cout<<"A2DetectorConstruction::Construct() make the polarised target with "<<fTypeMagneticCoils<<" coils"<<G4endl;
