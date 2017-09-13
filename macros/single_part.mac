@@ -19,6 +19,7 @@
 #####Output
 #Open the output file for writing
 /A2/event/setOutputFile /tmp/mc.root
+/A2/event/storePrimaries false
 /A2/physics/CutsAll 1 mm
 /gun/particle proton
 #/gun/direction 0 1 0
