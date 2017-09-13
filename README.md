@@ -2,6 +2,15 @@
 
 A2 Geant4 simulation
 
+### Recently added features
+* storage of primary particle IDs for CB/TAPS hits
+* PID III (S. Kay)
+* Cherenkov detector (F. Afzal)
+* support for xz-compressed magnetic field maps
+* Pizza detector
+* support for cryogenic He-3 target
+* possibility to disable MWPC hit storage
+
 ### Installation
 
 #### Dependencies
