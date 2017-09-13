@@ -31,6 +31,7 @@
 #include "A2EventAction.hh"
 #include "A2SteppingAction.hh"
 #include "A2SteppingVerbose.hh"
+#include "A2TrackingAction.hh"
 
 //#include "LHEP_BIC.hh"
 
@@ -188,6 +189,7 @@ int main(int argc,char** argv) {
   eventaction->SetIsInteractive(isInteractive);
   runManager->SetUserAction(eventaction);
   runManager->SetUserAction(new A2SteppingAction(detector, eventaction));
+  runManager->SetUserAction(new A2TrackingAction());
   // Initialize G4 kernel
 //   runManager->Initialize();
     
