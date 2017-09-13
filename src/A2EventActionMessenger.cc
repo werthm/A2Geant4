@@ -47,7 +47,11 @@ A2EventActionMessenger::A2EventActionMessenger(A2EventAction* EvAct)
   fPrintCmd->SetRange("EventNb>0");
   fPrintCmd->AvailableForStates(G4State_Idle);     
 
-
+  fStorePrimCmd = new G4UIcmdWithABool("/A2/event/storePrimaries", this);
+  fStorePrimCmd->SetGuidance("Store IDs of primary particles");
+  fStorePrimCmd->SetParameterName("storePrim", true);
+  fStorePrimCmd->SetDefaultValue(true);
+  fStorePrimCmd->AvailableForStates(G4State_Idle);
 }
 
 
@@ -57,7 +61,8 @@ A2EventActionMessenger::~A2EventActionMessenger()
   delete fOutFileCmd;
   delete fDrawCmd;
   delete fPrintCmd;
-  delete feventDir;   
+  delete feventDir;
+  delete fStorePrimCmd;
 }
 
 
@@ -77,6 +82,9 @@ void A2EventActionMessenger::SetNewValue(
        
   if(command == fPrintCmd)
     {feventAction->SetPrintModulo(fPrintCmd->GetNewIntValue(newValue));}
+
+  if (command == fStorePrimCmd)
+    feventAction->SetStorePrimaries(fStorePrimCmd->GetNewBoolValue(newValue));
 }
 
 

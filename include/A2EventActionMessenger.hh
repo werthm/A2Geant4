@@ -10,6 +10,7 @@ class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWithABool;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -28,7 +29,7 @@ class A2EventActionMessenger: public G4UImessenger
   G4UIcmdWithAString*   fOutFileCmd;
    G4UIcmdWithAString*   fHitDrawCmd;
     G4UIcmdWithAnInteger* fPrintCmd;    
-   
+    G4UIcmdWithABool* fStorePrimCmd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
