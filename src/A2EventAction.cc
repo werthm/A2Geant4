@@ -39,6 +39,7 @@ A2EventAction::A2EventAction(A2RunAction* run)
   fprintModulo=1000;
   fCBOut=NULL;
   fOverwriteFile=false;
+  fStorePrimaries=true;
 }
 
 
@@ -212,6 +213,7 @@ G4int A2EventAction::PrepareOutput(){
   //This is curently made in the same format as the cbsim output
   fCBOut=new A2CBOutput();
   fCBOut->SetFile(fOutFile);
+  fCBOut->SetStorePrimaries(fStorePrimaries);
   fCBOut->SetBranches();
   return 1;
 }

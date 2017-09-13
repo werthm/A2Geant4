@@ -30,7 +30,7 @@ class A2EventAction : public G4UserEventAction
   void SetCBCollID(G4int val){fCBCollID=val;}
   void SetIsInteractive(G4int is){fIsInteractive=is;}
   void SetHitDrawOpt(G4String val){fHitDrawOpt=val;}
-    
+  void SetStorePrimaries(G4bool val) { fStorePrimaries = val; }
   void SetOutFileName(TString name){fOutFileName=name;}
   G4int PrepareOutput();
   void CloseOutput();
@@ -44,8 +44,8 @@ class A2EventAction : public G4UserEventAction
    //G4int     fDrawMode;
   G4String fHitDrawOpt;
   G4bool fOverwriteFile;
-                            
- 
+  G4bool fStorePrimaries;
+
    A2EventActionMessenger*  feventMessenger;
 
   G4int fCBCollID;
