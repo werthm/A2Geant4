@@ -2,6 +2,7 @@
 #include "A2SD.hh"
 #include "A2Hit.hh"
 #include "A2EventAction.hh"
+#include "A2UserTrackInformation.hh"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
@@ -83,15 +84,21 @@ G4bool A2SD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   //    edep = emSaturation->VisibleEnergyDepositionAtAStep(aStep);
   //}
 
+  // get track information
+  G4Track* track = aStep->GetTrack();
+  A2UserTrackInformation* track_info = (A2UserTrackInformation*)
+                                        track->GetUserInformation();
+
   //if(volume->GetName().contains("Pb")) G4cout<<volume->GetName()<<" id "<<id <<" "<<mothervolume->GetCopyNo()<<" "<<volume->GetCopyNo()<<" edep "<<edep/MeV<<G4endl;
   if (fhitID[id]==-1){
     //if this crystal has already had a hit
     //don't make a new one, add on to old one.   
     // G4cout<<"Make hit "<<fCollection<<G4endl;    
     A2Hit* myHit = new A2Hit;
-    myHit->AddEnergy(edep);
-    myHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
     myHit->SetID(id);
+    myHit->AddEnergy(edep);
+    myHit->AddPartEnergy(track_info->GetPartID(), edep);
+    myHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
     myHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime());
     fhitID[id] = fCollection->insert(myHit) -1;
     fHits[fNhits++]=id;
@@ -99,6 +106,7 @@ G4bool A2SD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   else // This is not new
   {
     (*fCollection)[fhitID[id]]->AddEnergy(edep);
+    (*fCollection)[fhitID[id]]->AddPartEnergy(track_info->GetPartID(), edep);
     // set more realistic hit times
     G4double time = aStep->GetPreStepPoint()->GetGlobalTime();
     if (volume->GetName().contains("TAPS"))

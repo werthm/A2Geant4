@@ -2,6 +2,7 @@
 #include "A2VisSD.hh"
 #include "A2VisHit.hh"
 #include "A2EventAction.hh"
+#include "A2UserTrackInformation.hh"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
@@ -74,31 +75,10 @@ G4bool A2VisSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   G4int charge=(G4int)aStep->GetTrack()->GetDefinition()->GetPDGCharge();
   //G4int origID=aStep->GetTrack()->GetParentID();
 
-//   //Try to get the original particle that created this track but G4Trajectory::GetParentID always returns 0!!!!
-//   const G4Event *evt=(G4RunManager::GetRunManager())->GetCurrentEvent();
-//   G4TrajectoryContainer* trajectoryContainer = evt->GetTrajectoryContainer();
-//   G4int Ntracks=trajectoryContainer->size();
-//   G4cout<<"number of trajs "<<trajectoryContainer->size()<<" parent ID "<<origID<<" track "<<aStep->GetTrack()->GetTrackID()<<G4endl;
-//   G4int *trackIDs=new G4int[Ntracks];
-//   for(G4int i=0;i<Ntracks;i++){
-//     G4Trajectory* trj=static_cast<G4Trajectory*>((*trajectoryContainer)[i]);
-//     trackIDs[i]=trj->GetTrackID();
-//  }
-//   G4int parentTrackIndex=-1;
-//   for(G4int i=0;i<Ntracks;i++){
-//     G4Trajectory* trj=static_cast<G4Trajectory*>((*trajectoryContainer)[i]);
-//     //if(trj->GetParentID()==0) break; //doesn't have a parent
-//     //G4cout<<"Parent "<<trj->GetParentID()<<" "<<trackIDs<<" "<<i<<G4endl;
-//     //if(trj->GetParentID()==trackIDs[i]) parentTrackIndex=i;//Find parent track
-//     if(aStep->GetTrack()->GetParentID()==trackIDs[i]) parentTrackIndex=i;//Find parent track
-//   }
-//   if(parentTrackIndex>-1){
-//     G4Trajectory* trj=static_cast<G4Trajectory*>((*trajectoryContainer)[parentTrackIndex]);
-//     charge=trj->GetCharge();
-//     origID=trj->GetParentID();
-//     //G4cout<<"id "<<trj->GetTrackID() <<" name "<<trj->GetParticleName()<<" edep "<<edep/MeV<<G4endl;
-//   }
-
+  // get track information
+  G4Track* track = aStep->GetTrack();
+  A2UserTrackInformation* track_info = (A2UserTrackInformation*)
+                                        track->GetUserInformation();
 
   if (fhitID[id]==-1){
     //if this crystal has already had a hit
@@ -106,9 +86,10 @@ G4bool A2VisSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
     //G4cout<<"Make hit "<<fCollection<<G4endl;    
     A2VisHit* myHit = new A2VisHit();
     //standard hit stuff
-    myHit->AddEnergy(edep);
-    myHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
     myHit->SetID(id);
+    myHit->AddEnergy(edep);
+    myHit->AddPartEnergy(track_info->GetPartID(), edep);
+    myHit->SetPos(aStep->GetPreStepPoint()->GetPosition());
     myHit->SetTime(aStep->GetPreStepPoint()->GetGlobalTime());
     //visualisation hit stuff
     myHit->SetLogicalVolume(theTouchable->GetVolume()->GetLogicalVolume());
@@ -121,6 +102,7 @@ G4bool A2VisSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   else // This is not new
     {
     (*fCollection)[fhitID[id]]->AddEnergy(edep);
+    (*fCollection)[fhitID[id]]->AddPartEnergy(track_info->GetPartID(), edep);
     }
   return true;
 }
