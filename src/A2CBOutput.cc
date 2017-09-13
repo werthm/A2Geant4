@@ -39,6 +39,9 @@ A2CBOutput::A2CBOutput(){
   fCBCollID = -1;
   fTAPSCollID = -1;
 
+  // store IDs of primary particles
+  fStorePrimaries = true;
+
   //TOF stuff
   if(fDET->GetNToFbars()>0){
     fToFTot=fDET->GetNToFbars();
@@ -90,6 +93,12 @@ void A2CBOutput::SetBranches(){
   fTree->Branch("evtaps",fevtaps,"fevtaps[fnvtaps]/F",basket);
   fTree->Branch("icryst",ficryst,"ficryst[fnhits]/I",basket);
   fTree->Branch("ictaps",fictaps,"fictaps[fntaps]/I",basket);
+  if (fStorePrimaries)
+  {
+    G4cout << "Storing IDs of primary particles" << G4endl;
+    fTree->Branch("pcryst",fpcryst,"fpcryst[fnhits]/I",basket);
+    fTree->Branch("pctaps",fpctaps,"fpctaps[fntaps]/I",basket);
+  }
   fTree->Branch("ivtaps",fivtaps,"fictaps[fnvtaps]/I",basket);
   fTree->Branch("idpart",fidpart,"fidpart[fnpart]/I",basket);
   fTree->Branch("iveto",fiveto,"fiveto[fvhits]/I",basket);
@@ -141,6 +150,7 @@ void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
 	fecryst[ii]=hit->GetEdep()/GeV;
 	ftcryst[ii]=hit->GetTime()/ns;
 	ficryst[ii]=hit->GetID();
+	fpcryst[ii]=hit->GetParticle();
 	fetot+=fecryst[ii];
       }
     }
@@ -151,6 +161,7 @@ void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
 	fectapsl[ii]=hit->GetEdep()/GeV;
 	fictaps[ii]=hit->GetID();
 	ftctaps[ii]=hit->GetTime()/ns;
+	fpctaps[ii]=hit->GetParticle();
 	//fetot+=fectapsl[i];//***TEMP!!!!
       }
     }

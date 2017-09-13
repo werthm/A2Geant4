@@ -45,7 +45,9 @@ protected:
   Float_t ftveto[MAXSIZE_PID];  //Time of hit in PID elements
   Float_t fevtaps[MAXSIZE_TAPS];  //Energy deposited in TAPS veto counter
   Int_t ficryst[MAXSIZE_NAI];   //id numbers of Nai hits
+  Int_t fpcryst[MAXSIZE_NAI];  //particle index in each NaI crystal
   Int_t fictaps[MAXSIZE_TAPS];   //id numbers of TAPS hits
+  Int_t fpctaps[MAXSIZE_TAPS];   //id numbers of TAPS hits
   Int_t fivtaps[MAXSIZE_TAPS];   //id numbers of TAPS veto hits
   Int_t *fidpart;   //g3 id number of initial generated particle
   Int_t fiveto[MAXSIZE_PID];    //id number of the PID hits
@@ -86,6 +88,7 @@ protected:
 
   G4int fCBCollID;
   G4int fTAPSCollID;
+  G4bool fStorePrimaries;
 
 public:
   void SetFile(TFile* f){fFile=f;fTree->SetDirectory(fFile);}
@@ -95,6 +98,7 @@ public:
   TTree* GetTree(){return fTree;}
  
   void SetBranches();
+  void SetStorePrimaries(G4bool val) { fStorePrimaries = val; }
   
   void WriteTree(){fTree->Write();}
   void WriteHit(G4HCofThisEvent* );
