@@ -36,3 +36,5 @@
 #####Output
 #Open the output file for writing
 /A2/event/setOutputFile SCRATCHDIR/OUTPUTFILE
+/A2/event/storePrimaries false
+
