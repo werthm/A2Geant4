@@ -11,13 +11,14 @@
 #include "A2CBOutput.hh"
 
 class A2RunAction;
+class A2PrimaryGeneratorAction;
 class A2EventActionMessenger;
-
+class TStopwatch;
 
 class A2EventAction : public G4UserEventAction
 {
  public:
-   A2EventAction(A2RunAction*);
+   A2EventAction(A2RunAction*, A2PrimaryGeneratorAction*);
   ~A2EventAction();
 
  public:
@@ -36,11 +37,13 @@ class A2EventAction : public G4UserEventAction
   void CloseOutput();
  private:
    A2RunAction*  frunAct;
+   A2PrimaryGeneratorAction* fPGA;
   A2CBOutput* fCBOut;
 
   G4int fIsInteractive;        
    G4String  fdrawFlag;
    G4int     fprintModulo;
+  TStopwatch* fTimer;
    //G4int     fDrawMode;
   G4String fHitDrawOpt;
   G4bool fOverwriteFile;

@@ -17,13 +17,15 @@
 
 #include "Randomize.hh"
 #include "TString.h"
+#include "TStopwatch.h"
 #include <iomanip>
 
 using namespace CLHEP;
 
-A2EventAction::A2EventAction(A2RunAction* run)
+A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga)
 {
   frunAct = run;
+  fPGA = pga;
   fdrawFlag = "all";
   fprintModulo = 1;
   feventMessenger = new A2EventActionMessenger(this);
@@ -37,6 +39,7 @@ A2EventAction::A2EventAction(A2RunAction* run)
   fOutFileName=TString("");
 
   fprintModulo=1000;
+  fTimer = new TStopwatch();
   fCBOut=NULL;
   fOverwriteFile=false;
   fStorePrimaries=true;
@@ -47,22 +50,35 @@ A2EventAction::A2EventAction(A2RunAction* run)
 A2EventAction::~A2EventAction()
 {
   delete feventMessenger;
+  if (fTimer) delete fTimer;
 }
 
 
 
 void A2EventAction::BeginOfEventAction(const G4Event* evt)
-{  
- G4int evtNb = evt->GetEventID();
- if (evtNb%fprintModulo ==0) { 
-   G4cout <<evtNb%fprintModulo<< "---> Begin of event: " << evtNb << G4endl;
-   //   CLHEP::HepRandom::showEngineStatus();
- }
+{
+  if (evt->GetEventID() == 0) fTimer->Start();
+  if (fPGA->GetMode() == EPGA_ROOT && evt->GetEventID() == fPGA->GetNEvents() - 1)
+    G4cout << TString::Format("Total tracking time: %.2f minutes", fTimer->RealTime() / 60.) << G4endl;
 }
 
 
 void A2EventAction::EndOfEventAction(const G4Event* evt)
 {
+  G4int evtNb = evt->GetEventID();
+  if (evtNb && evtNb % fprintModulo == 0)
+  {
+    //CLHEP::HepRandom::showEngineStatus();
+    Double_t rate = evtNb / fTimer->RealTime();
+    fTimer->Continue();
+    G4cout << TString::Format("%7d events tracked (%.2f events/s)", evtNb, rate);
+    if (fPGA->GetMode() == EPGA_ROOT)
+      G4cout << TString::Format(", %.2f minutes remaining for %d events",
+                                (fPGA->GetNEvents() - evtNb) / rate / 60., fPGA->GetNEvents()) << G4endl;
+    else
+      G4cout << G4endl;
+  }
+
   //   G4cout<<" A2EventAction::EndOfEventAction"<<G4endl;
   //  A2VisHitsCollection* VisCBHC = NULL;
   G4HCofThisEvent* HCE = evt->GetHCofThisEvent();
