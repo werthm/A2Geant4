@@ -60,7 +60,7 @@ make -j
 
 #### General Target Options
 Command                        | Meaning
------------------------------- | -------
+:----------------------------- | :------
 `/A2/det/setTargetLength 2 cm` | set target length
 
 
