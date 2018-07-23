@@ -50,17 +50,18 @@ make -j
 | `/A2/det/targetMaterial G4_Pb`       | Lead         |
 
 #### Polarized Targets
-
-| `/A2/det/useTarget Polarized`                  | solid target                    |
-| `/A2/det/targetMaterial A2_HeButanol`          | Butanol/Helium mix              |
-| `/A2/det/targetMaterial A2_HeDButanol`         | D-Butanol/Helium mix            |
-| `/A2/det/targetMagneticCoils Solenoidal`       | longitudinally polarized target |
-| `/A2/det/targetMagneticCoils Saddle`           | transversely polarized target   |
-| `/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map              |
+Command                                        | Meaning
+:--------------------------------------------- |:-------
+`/A2/det/useTarget Polarized`                  | solid target
+`/A2/det/targetMaterial A2_HeButanol`          | Butanol/Helium mix
+`/A2/det/targetMaterial A2_HeDButanol`         | D-Butanol/Helium mix
+`/A2/det/targetMagneticCoils Solenoidal`       | longitudinally polarized target
+`/A2/det/targetMagneticCoils Saddle`           | transversely polarized target
+`/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map
 
 #### General Target Options
 Command                        | Meaning
-:----------------------------- | :------
+:----------------------------- |:-------
 `/A2/det/setTargetLength 2 cm` | set target length
 
 
