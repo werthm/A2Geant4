@@ -59,6 +59,8 @@ make -j
 | `/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map              |
 
 #### General Target Options
-| `/A2/det/setTargetLength 2 cm` | set target length |
+Command                        | Meaning
+------------------------------ | -------
+`/A2/det/setTargetLength 2 cm` | set target length
 
 
