@@ -33,34 +33,32 @@ make -j
 
 #### Cryogenic Targets
 
-| `/A2/det/useTarget Cryo`         | standard hydrogen target
-| `/A2/det/useTarget Cryo2`        | narrower hydrogen target
-| `/A2/det/targetMaterial G4_lH2`  | hydrogen
-| `/A2/det/targetMaterial A2_lD2`  | deuterium
-| `/A2/det/targetMaterial A2_lHe3` | He-3
-| `/A2/det/targetMaterial A2_lHe4` | He-4
-| `/A2/det/useTarget CryoHe3`      | He3/He3 target
+| `/A2/det/useTarget Cryo`         | standard hydrogen target |
+| `/A2/det/useTarget Cryo2`        | narrower hydrogen target |
+| `/A2/det/targetMaterial G4_lH2`  | hydrogen                 |
+| `/A2/det/targetMaterial A2_lD2`  | deuterium                |
+| `/A2/det/targetMaterial A2_lHe3` | He-3                     |
+| `/A2/det/targetMaterial A2_lHe4` | He-4                     |
+| `/A2/det/useTarget CryoHe3`      | He3/He3 target           |
 
 #### Solid Targets
 
-| `/A2/det/useTarget Solid`            | solid target
-| `/A2/det/targetMaterial G4_Li`       | Lithium
-| `/A2/det/targetMaterial G4_GRAPHITE` | Graphite
-| `/A2/det/targetMaterial G4_Ca`       | Calcium
-| `/A2/det/targetMaterial G4_Pb`       | Lead
+| `/A2/det/useTarget Solid`            | solid target |
+| `/A2/det/targetMaterial G4_Li`       | Lithium      |
+| `/A2/det/targetMaterial G4_GRAPHITE` | Graphite     |
+| `/A2/det/targetMaterial G4_Ca`       | Calcium      |
+| `/A2/det/targetMaterial G4_Pb`       | Lead         |
 
 #### Polarized Targets
 
-| `/A2/det/useTarget Polarized`                  | solid target
-| `/A2/det/targetMaterial A2_HeButanol`          | Butanol/Helium mix
-| `/A2/det/targetMaterial A2_HeDButanol`         | D-Butanol/Helium mix
-| `/A2/det/targetMagneticCoils Solenoidal`       | longitudinally polarized target 
-| `/A2/det/targetMagneticCoils Saddle`           | transversely polarized target 
-| `/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map
+| `/A2/det/useTarget Polarized`                  | solid target                    |
+| `/A2/det/targetMaterial A2_HeButanol`          | Butanol/Helium mix              |
+| `/A2/det/targetMaterial A2_HeDButanol`         | D-Butanol/Helium mix            |
+| `/A2/det/targetMagneticCoils Solenoidal`       | longitudinally polarized target |
+| `/A2/det/targetMagneticCoils Saddle`           | transversely polarized target   |
+| `/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map              |
 
 #### General Target Options
-| `/A2/det/setTargetLength 2 cm` | set target length
-
-
+| `/A2/det/setTargetLength 2 cm` | set target length |
 
 
