@@ -106,6 +106,7 @@ public:
  
   }
   G4int GetMode(){return fMode;}
+  TFile* GetGeneratedFile() const { return fGeneratedFile; }
   //for phase space generator
 private:
   void PhaseSpaceGenerator(G4Event* anEvent);
