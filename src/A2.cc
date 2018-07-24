@@ -185,7 +185,7 @@ int main(int argc,char** argv) {
 
   A2RunAction* runaction = new A2RunAction;  
   runManager->SetUserAction(runaction);
-  A2EventAction* eventaction = new A2EventAction(runaction, pga);
+  A2EventAction* eventaction = new A2EventAction(runaction, pga, argc, argv);
   eventaction->SetIsInteractive(isInteractive);
   runManager->SetUserAction(eventaction);
   runManager->SetUserAction(new A2SteppingAction(detector, eventaction));

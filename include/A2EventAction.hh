@@ -18,7 +18,7 @@ class TStopwatch;
 class A2EventAction : public G4UserEventAction
 {
  public:
-   A2EventAction(A2RunAction*, A2PrimaryGeneratorAction*);
+   A2EventAction(A2RunAction*, A2PrimaryGeneratorAction*, int argc, char** argv);
   ~A2EventAction();
 
  public:
@@ -48,6 +48,7 @@ class A2EventAction : public G4UserEventAction
   G4String fHitDrawOpt;
   G4bool fOverwriteFile;
   G4bool fStorePrimaries;
+  TString fInvokeCmd;
 
    A2EventActionMessenger*  feventMessenger;
 

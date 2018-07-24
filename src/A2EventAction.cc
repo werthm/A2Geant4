@@ -5,6 +5,7 @@
 #include "A2VisHit.hh"
 #include "A2RunAction.hh"
 #include "A2EventActionMessenger.hh"
+#include "A2Version.hh"
 
 #include "G4Event.hh"
 #include "G4TrajectoryContainer.hh"
@@ -14,15 +15,18 @@
 #include "G4Trajectory.hh"
 #include "G4UImanager.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "G4Version.hh"
 
 #include "Randomize.hh"
 #include "TString.h"
+#include "TSystem.h"
 #include "TStopwatch.h"
 #include <iomanip>
+#include <sys/utsname.h>
 
 using namespace CLHEP;
 
-A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga)
+A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga, int argc, char** argv)
 {
   frunAct = run;
   fPGA = pga;
@@ -43,6 +47,11 @@ A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga)
   fCBOut=NULL;
   fOverwriteFile=false;
   fStorePrimaries=true;
+  for (int i = 0; i < argc; i++)
+  {
+    fInvokeCmd += argv[i];
+    fInvokeCmd += " ";
+  }
 }
 
 
@@ -225,6 +234,58 @@ G4int A2EventAction::PrepareOutput(){
   //   }
   // }
   G4cout<<"A2EventAction::PrepareOutput() Output will be written to "<<fOutFileName<<G4endl;
+
+  // create header
+#if defined(__clang__)
+    TString compiler("clang ");
+    compiler += __clang_version__;
+#elif defined(__GNUC__)
+    TString compiler("gcc ");
+    compiler += __VERSION__;
+#else
+    TString compiler("unknown");
+#endif
+  TString version(G4Version.c_str());
+  version.ReplaceAll("$", "");
+  version.ReplaceAll(" ", "");
+  version.ReplaceAll("Name:", "");
+  SysInfo_t sysInfo;
+  gSystem->GetSysInfo(&sysInfo);
+  struct utsname unameBuffer;
+  uname(&unameBuffer);
+  TDatime date;
+  TString inputFile("none");
+  if (fPGA->GetGeneratedFile())
+    inputFile = fPGA->GetGeneratedFile()->GetName();
+  TNamed header("Header",
+                TString::Format("A2Geant4 Header\n\n"
+                                "    Version          : %s\n"
+                                "    Compiler         : %s\n"
+                                "    Geant4 Version   : %s\n"
+                                "    Command          : %s\n"
+                                "    Input file       : %s\n"
+                                "    Start time       : %s\n"
+                                "    Hostname         : %s\n"
+                                "    System model     : %s\n"
+                                "    OS name          : %s\n"
+                                "    OS release       : %s\n"
+                                "    OS version       : %s\n"
+                                "    OS architecture  : %s\n",
+                                A2_VERSION,
+                                compiler.Data(),
+                                version.Data(),
+                                fInvokeCmd.Data(),
+                                inputFile.Data(),
+                                date.AsString(),
+                                unameBuffer.nodename,
+                                sysInfo.fModel.Data(),
+                                unameBuffer.sysname,
+                                unameBuffer.release,
+                                unameBuffer.version,
+                                unameBuffer.machine
+                                ).Data());
+  header.Write();
+
   //Create output tree
   //This is curently made in the same format as the cbsim output
   fCBOut=new A2CBOutput();
