@@ -2,7 +2,14 @@
 
 A2 Geant4 simulation
 
-### Recently added features
+### Release notes
+
+#### 0.1.0beta
+* informative header in output file
+* nicer tracking progress information
+* better support for different Geant4 releases
+
+#### pre-0.1.0
 * storage of primary particle IDs for CB/TAPS hits
 * PID III (S. Kay)
 * Cherenkov detector (F. Afzal)
@@ -36,11 +43,11 @@ Command                          | Meaning
 :------------------------------- |:-------
 `/A2/det/useTarget Cryo`         | standard hydrogen target
 `/A2/det/useTarget Cryo2`        | narrower hydrogen target
+`/A2/det/useTarget CryoHe3`      | He3/He3 target
 `/A2/det/targetMaterial G4_lH2`  | hydrogen
 `/A2/det/targetMaterial A2_lD2`  | deuterium
 `/A2/det/targetMaterial A2_lHe3` | He-3
 `/A2/det/targetMaterial A2_lHe4` | He-4
-`/A2/det/useTarget CryoHe3`      | He3/He3 target
 
 #### Solid Targets
 Command                              | Meaning
