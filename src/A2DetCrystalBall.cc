@@ -688,23 +688,23 @@ void A2DetCrystalBall::MakeBall(){
     if(!fVisCBSD){
       G4SDManager* SDman = G4SDManager::GetSDMpointer();
       fVisCBSD = new A2VisSD("VisCBSD",fNcrystals);
-      SDman->AddNewDetector( fVisCBSD );		
+      SDman->AddNewDetector( fVisCBSD );
     }
   }
 
   char crystname[20];
-  G4int ihemi,imaj,imin,majt,mint,icryst,cryt,copy;
+  G4int ihemi,imaj,majt,mint,cryt,copy;
   G4int icut=fNCrystTypes+1;
+  G4int total = 0;
+
   for(ihemi=0;ihemi<2;ihemi++){//loop over hemispheres
     for(imaj=0;imaj<15;imaj++){//loop over major triangles
-      //  for(ihemi=0;ihemi<1;ihemi++){//loop over hemispheres
-      //    for(imaj=9;imaj==9;imaj++){//loop over major triangles
-      imin=0;
       majt=MajType[ihemi][imaj];
-      while(MinCopy[majt][imin]!=0&&imin<4){//loop over minor traingle
+      for(G4int imin=0; imin<4; imin++){//loop over minor traingle
+	if(MinCopy[majt][imin]==0) break;
 	mint=MinType[majt][imin];
-	icryst=0;
-	while(CrystCopy[mint][icryst]!=0&&icryst<9){//loop over crystals
+	for( G4int icryst=0; icryst<9; icryst++ ){//loop over crystals
+	  if(CrystCopy[mint][icryst]==0) break;
 	  cryt=CrystType[mint][icryst];
 	  G4Transform3D trans=G4Transform3D(fRot[CrystRTindex[mint][icryst]]->inverse(),fTrans[CrystRTindex[mint][icryst]]); //position in minor
 	  trans=G4Transform3D(fRot[MinRTindex[majt][imin]]->inverse(),fTrans[MinRTindex[majt][imin]])*trans;//position in major
@@ -784,10 +784,8 @@ void A2DetCrystalBall::MakeBall(){
 	    }
 	    else fCrystPhysi[copy]=new G4PVPlacement(trans,fCrystLogic[cryt],crystname,fMotherLogic,false,fCrystalConvert[copy],false);
 	  }
-	  icryst++;
+	  total++;
 	}
-	imin++;
-
       }
     }
   }
@@ -821,7 +819,7 @@ void A2DetCrystalBall::MakeCrystals(){
   if(!fCBSD){
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
     fCBSD = new A2SD("CBSD",fNcrystals);
-    SDman->AddNewDetector( fCBSD );		
+    SDman->AddNewDetector( fCBSD );
   }
   //Use the shapes to make the different Logical volumes
   for(G4int i=1;i<=fNCrystTypes;i++){
