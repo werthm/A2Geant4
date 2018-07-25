@@ -5,6 +5,8 @@ A2 Geant4 simulation
 ### Release notes
 
 #### 0.1.0beta
+* fixed bug related to compiler optimizations for Geant4 >= 10.3 (S. Gardner)
+* G4ExtrudedSolid-based CB-crystal implementation for Geant4 >= 10.4 (S. Gardner)
 * informative metadata in output file
 * nicer tracking progress information
 * better support for different Geant4 releases
@@ -21,7 +23,7 @@ A2 Geant4 simulation
 ### Installation
 
 #### Dependencies
-* Geant4 10.2 (10.3 seems to give erratic results)
+* Geant4 10.2/10.3/10.4
 * ROOT 5 or 6
 * CMake 2.6
 
@@ -36,7 +38,63 @@ cmake ..
 make -j
 ```
 
-### Documentation
+### Quick start
+
+#### Interactive GUI mode:
+```
+build/A2Geant4 --gui
+```
+
+#### Batch-mode
+```
+build/A2Geant4 --mac=macros/your_macro.mac --det=macros/DetectorSetup.mac --if=input.root --of=output.root
+```
+
+### Detector setup commands
+
+#### Crystal Ball
+Command                            | Meaning
+:--------------------------------- |:-------
+`/A2/det/useCB 1`                  | use CB (0=off, 1=on)
+`/A2/det/setHemiGap 0.4 0.4 -1 cm` | upper air gap, lower air gap, geometry (>0: Prakhov, <0: old)
+`/A2/det/setCBCrystGeo extr`       | CB crystal geometry (trap=G4Trap, extr=G4ExtrudedSolid (default for Geant4 >= 10.4))
+
+#### TAPS
+Command                               | Meaning
+:------------------------------------ |:-------
+`/A2/det/useTAPS 1`                   | use TAPS (0=off, 1=on)
+`/A2/det/setTAPSFile data/taps07.dat` | location of TAPS geometry file (taps07.dat, taps.dat)
+`/A2/det/setTAPSZ 146.35 cm`          | distance target-TAPS
+`A2/det/setTAPSN 384`                 | number of TAPS crystals (384, 510)
+`/A2/det/setTAPSPbWO4Rings 2`         | number of PbWO4 rings (1, 2)
+
+#### PID
+Command                 | Meaning
+:-----------------------|:-------
+`/A2/det/usePID 2`      | use PID (0=off, 1=PID I, 2=PID II, 3=PID III)
+`/A2/det/setPIDZ 0. cm` | PID z-shift
+
+#### MWPC
+Command                 | Meaning
+:-----------------------|:-------
+`/A2/det/useMWPC 2`     | use MWPC (0=off, 1=without anode wires, 2=with anode wires, 10/20: without/with wires but no readout)
+
+#### Cherenkov
+Command                  | Meaning
+:------------------------|:-------
+`/A2/det/useCherenkov 0` | use Cherenkov detector (0=off, 1=on)
+
+#### TOF-walls
+Command                           | Meaning
+:---------------------------------|:-------
+`/A2/det/useTOF 0`                | use TOF-walls (0=off, 1=on)
+`/A2/det/setTOFFile data/TOF.par` | location of TOF-walls geometry file
+
+#### Pizza detector
+Command                             | Meaning
+:-----------------------------------|:-------
+`/A2/det/usePizza 0`                | use the Pizza detector (0=off, 1=on)
+`/A2/det/setPizzaZ 162 cm`          | distance target-Pizza detector
 
 #### Cryogenic Targets
 Command                          | Meaning
@@ -66,11 +124,10 @@ Command                                        | Meaning
 `/A2/det/targetMaterial A2_HeDButanol`         | D-Butanol/Helium mix
 `/A2/det/targetMagneticCoils Solenoidal`       | longitudinally polarized target
 `/A2/det/targetMagneticCoils Saddle`           | transversely polarized target
-`/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map
+`/A2/det/setTargetMagneticFieldMap map.dat.xz` | magnetic field map (data/wouter_field_map.dat.xz, data/field_map_jul_13_pos.dat.xz)
 
 #### General Target Options
 Command                        | Meaning
 :----------------------------- |:-------
 `/A2/det/setTargetLength 2 cm` | set target length
-
 
