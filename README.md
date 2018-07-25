@@ -5,7 +5,7 @@ A2 Geant4 simulation
 ### Release notes
 
 #### 0.1.0beta
-* informative header in output file
+* informative metadata in output file
 * nicer tracking progress information
 * better support for different Geant4 releases
 

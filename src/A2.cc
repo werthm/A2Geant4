@@ -233,6 +233,7 @@ int main(int argc,char** argv) {
 	  // Run in batch mode
 	  if (numberOfEvents < 0) numberOfEvents=pga->GetNEvents();
 	  G4cout << "Will analyse " << numberOfEvents << " events." << G4endl;
+          eventaction->SetReqEvents(numberOfEvents);
 	  runManager->BeamOn(numberOfEvents);
 	}
     }

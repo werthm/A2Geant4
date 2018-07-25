@@ -32,6 +32,8 @@ A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga, in
   fPGA = pga;
   fdrawFlag = "all";
   fprintModulo = 1;
+  fEventRate = 0;
+  fReqEvents = 0;
   feventMessenger = new A2EventActionMessenger(this);
   fIsInteractive=1;
   // hits collections
@@ -67,8 +69,11 @@ A2EventAction::~A2EventAction()
 void A2EventAction::BeginOfEventAction(const G4Event* evt)
 {
   if (evt->GetEventID() == 0) fTimer->Start();
-  if (fPGA->GetMode() == EPGA_ROOT && evt->GetEventID() == fPGA->GetNEvents() - 1)
-    G4cout << TString::Format("Total tracking time: %.2f minutes", fTimer->RealTime() / 60.) << G4endl;
+  if (fPGA->GetMode() == EPGA_ROOT && evt->GetEventID() == fReqEvents - 1)
+  {
+    FormatTimeSec(fTimer->RealTime(), fDuration);
+    G4cout << TString::Format("Total tracking time: %s", fDuration.Data()) << G4endl;
+  }
 }
 
 
@@ -78,12 +83,15 @@ void A2EventAction::EndOfEventAction(const G4Event* evt)
   if (evtNb && evtNb % fprintModulo == 0)
   {
     //CLHEP::HepRandom::showEngineStatus();
-    Double_t rate = evtNb / fTimer->RealTime();
+    fEventRate = evtNb / fTimer->RealTime();
     fTimer->Continue();
-    G4cout << TString::Format("%7d events tracked (%.2f events/s)", evtNb, rate);
+    G4cout << TString::Format("%7d events tracked (%.2f events/s)", evtNb, fEventRate);
     if (fPGA->GetMode() == EPGA_ROOT)
-      G4cout << TString::Format(", %.2f minutes remaining for %d events",
-                                (fPGA->GetNEvents() - evtNb) / rate / 60., fPGA->GetNEvents()) << G4endl;
+    {
+      TString timeFmt;
+      FormatTimeSec((fReqEvents - evtNb) / (Double_t)fEventRate, timeFmt);
+      G4cout << TString::Format(", %s remaining for %d events", timeFmt.Data(), fReqEvents) << G4endl;
+    }
     else
       G4cout << G4endl;
   }
@@ -235,7 +243,23 @@ G4int A2EventAction::PrepareOutput(){
   // }
   G4cout<<"A2EventAction::PrepareOutput() Output will be written to "<<fOutFileName<<G4endl;
 
-  // create header
+  TDatime date;
+  fStartTime = date.AsString();
+
+  //Create output tree
+  //This is curently made in the same format as the cbsim output
+  fCBOut=new A2CBOutput();
+  fCBOut->SetFile(fOutFile);
+  fCBOut->SetStorePrimaries(fStorePrimaries);
+  fCBOut->SetBranches();
+  return 1;
+}
+void  A2EventAction::CloseOutput(){
+  if(!fCBOut) return;
+  fCBOut->WriteTree();
+  delete fCBOut;
+
+  // write metadata
 #if defined(__clang__)
     TString compiler("clang ");
     compiler += __clang_version__;
@@ -257,49 +281,58 @@ G4int A2EventAction::PrepareOutput(){
   TString inputFile("none");
   if (fPGA->GetGeneratedFile())
     inputFile = fPGA->GetGeneratedFile()->GetName();
-  TNamed header("A2Geant4 Header",
-                TString::Format("\n"
-                                "       Version         : %s\n"
-                                "       Compiler        : %s\n"
-                                "       Geant4 Version  : %s\n"
-                                "       Command         : %s\n"
-                                "       Input file      : %s\n"
-                                "       Output file     : %s\n"
-                                "       Start time      : %s\n"
-                                "       Hostname        : %s\n"
-                                "       System model    : %s\n"
-                                "       OS name         : %s\n"
-                                "       OS release      : %s\n"
-                                "       OS version      : %s\n"
-                                "       OS architecture : %s",
-                                A2_VERSION,
-                                compiler.Data(),
-                                version.Data(),
-                                fInvokeCmd.Data(),
-                                inputFile.Data(),
-                                fOutFile->GetName(),
-                                date.AsString(),
-                                unameBuffer.nodename,
-                                sysInfo.fModel.Data(),
-                                unameBuffer.sysname,
-                                unameBuffer.release,
-                                unameBuffer.version,
-                                unameBuffer.machine
-                                ).Data());
-  header.Write();
+  TNamed meta("A2Geant4 Metadata", TString::Format("\n"
+              "       Version            : %s\n"
+              "       Geant4 Version     : %s\n"
+              "       Compiler           : %s\n"
+              "       Hostname           : %s\n"
+              "       System model       : %s\n"
+              "       OS name            : %s\n"
+              "       OS release         : %s\n"
+              "       OS version         : %s\n"
+              "       OS architecture    : %s\n"
+              "       Command            : %s\n"
+              "       Input file         : %s\n"
+              "       Output file        : %s\n"
+              "       Start time         : %s\n"
+              "       Stop time          : %s\n"
+              "       Tracking time      : %s\n"
+              "       Tracked events     : %d\n"
+              "       Average events/sec : %.2f",
+              A2_VERSION,
+              version.Data(),
+              compiler.Data(),
+              unameBuffer.nodename,
+              sysInfo.fModel.Data(),
+              unameBuffer.sysname,
+              unameBuffer.release,
+              unameBuffer.version,
+              unameBuffer.machine,
+              fInvokeCmd.Data(),
+              inputFile.Data(),
+              fOutFile->GetName(),
+              fStartTime.Data(),
+              date.AsString(),
+              fDuration.Data(),
+              fReqEvents,
+              fEventRate
+              ).Data());
+  meta.Write();
 
-  //Create output tree
-  //This is curently made in the same format as the cbsim output
-  fCBOut=new A2CBOutput();
-  fCBOut->SetFile(fOutFile);
-  fCBOut->SetStorePrimaries(fStorePrimaries);
-  fCBOut->SetBranches();
-  return 1;
-}
-void  A2EventAction::CloseOutput(){
-  if(!fCBOut) return;
-  fCBOut->WriteTree();
-  delete fCBOut;
   fOutFile->Close();
   if(fOutFile)delete fOutFile;
 }
+
+void A2EventAction::FormatTimeSec(double seconds, TString& out)
+{
+  // convert seconds
+  Int_t hours = Int_t(seconds / 3600);
+  seconds -= hours * 3600;
+  Int_t min = Int_t(seconds / 60);
+  seconds -= min * 60;
+  Int_t sec = Int_t(seconds);
+
+  // format string
+  out.Form("%02d:%02d:%02d", hours, min, sec);
+}
+

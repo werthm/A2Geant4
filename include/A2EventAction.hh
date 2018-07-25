@@ -28,6 +28,7 @@ class A2EventAction : public G4UserEventAction
    void SetDrawFlag   (G4String val)  {fdrawFlag = val;}
    void SetOverwriteFile   (G4bool val)  {fOverwriteFile = val;}
    void SetPrintModulo(G4int    val)  {fprintModulo = val;}
+   void SetReqEvents(G4int ev) { fReqEvents = ev; }
   void SetCBCollID(G4int val){fCBCollID=val;}
   void SetIsInteractive(G4int is){fIsInteractive=is;}
   void SetHitDrawOpt(G4String val){fHitDrawOpt=val;}
@@ -43,12 +44,16 @@ class A2EventAction : public G4UserEventAction
   G4int fIsInteractive;        
    G4String  fdrawFlag;
    G4int     fprintModulo;
+   G4double fEventRate;
+   G4int fReqEvents;
   TStopwatch* fTimer;
    //G4int     fDrawMode;
   G4String fHitDrawOpt;
   G4bool fOverwriteFile;
   G4bool fStorePrimaries;
   TString fInvokeCmd;
+  TString fStartTime;
+  TString fDuration;
 
    A2EventActionMessenger*  feventMessenger;
 
@@ -58,6 +63,8 @@ class A2EventAction : public G4UserEventAction
   TFile* fOutFile;
   TTree* fOutTree;
   TString fOutFileName;
+
+  static void FormatTimeSec(double seconds, TString& out);
 };
 
 #endif
