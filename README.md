@@ -40,7 +40,7 @@ make -j
 
 ### Quick start
 
-#### Interactive GUI mode:
+#### Interactive GUI mode
 ```
 build/A2Geant4 --gui
 ```
@@ -49,6 +49,46 @@ build/A2Geant4 --gui
 ```
 build/A2Geant4 --mac=macros/your_macro.mac --det=macros/DetectorSetup.mac --if=input.root --of=output.root
 ```
+
+### Simulation commands
+
+#### Physics
+Command                            | Meaning
+:--------------------------------- |:-------
+`/A2/physics/Physics QGSP_BERT`    | select physics list
+`/A2/physics/ListPhysics`          | show available physics lists
+`/A2/physics/SetRegion CB`         | select region for tracking cut (CB, TAPS, TAPSV, PID, MWPC, Pizza)
+`/A2/physics/RegionCut 0.1 mm`     | set tracking cut for selected region
+`/A2/physics/CutGamma 0.1 mm`      | set tracking cut for photons
+`/A2/physics/CutEl 0.1 mm`         | set tracking cut for electrons
+`/A2/physics/CutPos 0.1 mm`        | set tracking cut for positrons
+`/A2/physics/CutProt 0.1 mm`       | set tracking cut for protons
+`/A2/physics/CutsAll 0.1 mm`       | set the same tracking cut for photons, electrons, positrons and protons
+
+#### Generator
+Command                                | Meaning
+:------------------------------------- |:-------
+`/A2/generator/Seed 3243434`           | set the seed of the random number generator
+`/A2/generator/NToBeTracked 3`         | set the number of particles to be tracked
+`/A2/generator/Track 1`                | set the index of a particle to be tracked
+`/A2/generator/InputFile input.root`   | set the event input file (sets mode to 2)
+`/A2/generator/Mode 1`                 | select generator mode (0=G4 CLI generator, 1=phase-space, 2=ROOT input, 3=overlap debug)
+`/A2/generator/SetTMin 200 MeV`        | minimum kinetic energy for a particle in the phase-space generator
+`/A2/generator/SetTMax 450 MeV`        | maximum kinetic energy for a particle in the phase-space generator
+`/A2/generator/SetThetaMin 0 deg`      | minimum polar angle for a particle in the phase-space generator
+`/A2/generator/SetThetaMax 120 deg`    | maximum polar angle for a particle in the phase-space generator
+`/A2/generator/SetBeamXSigma 10 mm`    | x-sigma of incoming beam
+`/A2/generator/SetBeamYSigma 10 mm`    | y-sigma of incoming beam
+`/A2/generator/SetTargetZ0 0 mm`       | target z-position
+`/A2/generator/SetTargetThick 0.4 mm`  | target length
+`/A2/generator/SetTargetRadius 0.5 cm` | target radius
+`/A2/generator/SetSplitTheta 5 deg`    | theta split-angle for overlap generator
+
+#### Event-saver
+Command                              | Meaning
+:----------------------------------- |:-------
+`/A2/event/setOutputFile ouput.root` | set the tracked-event output file
+`/A2/event/storePrimaries false`     | disable storage of primary particle indices for CB/TAPS hits
 
 ### Detector setup commands
 
@@ -65,7 +105,7 @@ Command                               | Meaning
 `/A2/det/useTAPS 1`                   | use TAPS (0=off, 1=on)
 `/A2/det/setTAPSFile data/taps07.dat` | location of TAPS geometry file (taps07.dat, taps.dat)
 `/A2/det/setTAPSZ 146.35 cm`          | distance target-TAPS
-`A2/det/setTAPSN 384`                 | number of TAPS crystals (384, 510)
+`/A2/det/setTAPSN 384`                | number of TAPS crystals (384, 510)
 `/A2/det/setTAPSPbWO4Rings 2`         | number of PbWO4 rings (1, 2)
 
 #### PID
