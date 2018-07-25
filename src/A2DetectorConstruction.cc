@@ -57,6 +57,7 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
 
   fTOFparFile="TOF.par";
   //fHemiGap=0.4*cm;
+  fCBCrystGeometry = "std";
   fTarget=NULL;
   fTargetLength=4.8*cm;
   fUseTarget=G4String("NO");
@@ -138,6 +139,19 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
     fCrystalBall=new A2DetCrystalBall();
     fCrystalBall->SetIsInteractive(fIsInteractive);
     fCrystalBall->SetGap(fHemiGap);
+    if (fCBCrystGeometry != "std")
+    {
+      if (fCBCrystGeometry == "trap")
+        fCrystalBall->SetCrystImpl(A2DetCrystalBall::kG4Trap);
+      else if (fCBCrystGeometry == "extr")
+        fCrystalBall->SetCrystImpl(A2DetCrystalBall::kG4ExtrudedSolid);
+      else
+      {
+        G4cout << "Unknown CB crystal geometry implementation: " << fCBCrystGeometry <<
+                  " (valid options: trap, extr)" << G4endl;
+        exit(1);
+      }
+    }
     fCrystalBall->Construct(fWorldLogic);
   }
   if(fUseTAPS){

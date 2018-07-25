@@ -57,6 +57,7 @@ class A2DetectorConstruction : public G4VUserDetectorConstruction
   void SetTargetMagneticCoils(G4String &type) { fTypeMagneticCoils = type; }
   void SetTargetMagneticFieldMap(G4String &name) { fNameFileFieldMap = name; }
   void SetHemiGap(G4ThreeVector zz){fHemiGap=zz;}
+  void SetCBCrystGeometry(G4String geo) { fCBCrystGeometry = geo; }
   void SetTAPSFile(G4String file){fTAPSSetupFile=file;}
   void SetTAPSZ(G4double zz){fTAPSZ=zz;}
   void SetTAPSN(G4int nn){fTAPSN=nn;}
@@ -97,6 +98,7 @@ public:
   A2DetPizza* fPizza; // Pizza detector
 
   G4ThreeVector fHemiGap;
+  G4String fCBCrystGeometry;
   A2Target* fTarget;
   G4Material* fTargetMaterial;
   G4double fTargetLength;
