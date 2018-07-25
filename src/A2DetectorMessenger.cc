@@ -88,6 +88,11 @@ A2DetectorMessenger::A2DetectorMessenger(
   fHemiGapCmd->SetUnitCategory("Length");
   fHemiGapCmd->AvailableForStates(cmdState,G4State_Idle);
 
+  fCBCrystGeoCmd = new G4UIcmdWithAString("/A2/det/setCBCrystGeo",this);
+  fCBCrystGeoCmd->SetGuidance("Set the geometry implementation of the CB crystals.");
+  fCBCrystGeoCmd->SetParameterName("GeometryImpl",false);
+  fCBCrystGeoCmd->AvailableForStates(cmdState,G4State_Idle);
+
   fTAPSFileCmd = new G4UIcmdWithAString("/A2/det/setTAPSFile",this);
   fTAPSFileCmd->SetGuidance("Set the taps configuration file.");
   fTAPSFileCmd->SetParameterName("tapsfile",false);
@@ -176,7 +181,7 @@ A2DetectorMessenger::~A2DetectorMessenger()
   delete fTargetLengthCmd;
   delete fTargetMagneticFieldCmd;
   delete fHemiGapCmd;
-
+  delete fCBCrystGeoCmd;
  }
 
 
@@ -228,6 +233,9 @@ void A2DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 
    if( command == fHemiGapCmd )
     { fA2Detector->SetHemiGap(fHemiGapCmd->GetNew3VectorValue(newValue));}
+
+   if( command == fCBCrystGeoCmd )
+    { fA2Detector->SetCBCrystGeometry(newValue);}
  
   if( command == fTAPSFileCmd )
     { fA2Detector->SetTAPSFile(newValue);}

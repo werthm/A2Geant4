@@ -40,6 +40,7 @@ class A2DetectorMessenger: public G4UImessenger
     G4UIcmdWithADoubleAndUnit* fTargetLengthCmd;
     G4UIcmdWithAString*      fTargetMagneticFieldCmd;
     G4UIcmdWith3VectorAndUnit* fHemiGapCmd;
+    G4UIcmdWithAString*       fCBCrystGeoCmd;
     G4UIcmdWithAString*      fTAPSFileCmd;
     G4UIcmdWithAnInteger*      fTAPSNCmd;    
     G4UIcmdWithAnInteger*      fTAPSPbCmd;    

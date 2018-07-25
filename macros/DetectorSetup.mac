@@ -4,6 +4,9 @@
 # if positive use new Prakhov geometry
 #the first two numbers give the upper and lower air gap between hemispheres
 /A2/det/setHemiGap 0.4 0.4 -1 cm
+# CB crystal geometry implementation: trap=G4Trap, extr=G4ExtrudedSolid
+# G4ExtrudedSolid is default for Geant4 >= 10.4
+#/A2/det/setCBCrystGeo extr
 
 ##Use TAPS?
 /A2/det/useTAPS 1
