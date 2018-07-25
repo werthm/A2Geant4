@@ -23,10 +23,12 @@
 #include "TStopwatch.h"
 #include <iomanip>
 #include <sys/utsname.h>
+#include <fstream>
 
 using namespace CLHEP;
 
-A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga, int argc, char** argv)
+A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga,
+                             int argc, char** argv, const char* detSetup)
 {
   frunAct = run;
   fPGA = pga;
@@ -54,6 +56,8 @@ A2EventAction::A2EventAction(A2RunAction* run, A2PrimaryGeneratorAction* pga, in
     fInvokeCmd += argv[i];
     fInvokeCmd += " ";
   }
+
+  ReadDetectorSetup(detSetup);
 }
 
 
@@ -292,6 +296,7 @@ void  A2EventAction::CloseOutput(){
               "       OS version         : %s\n"
               "       OS architecture    : %s\n"
               "       Command            : %s\n"
+              "       Detector setup     : %s"
               "       Input file         : %s\n"
               "       Output file        : %s\n"
               "       Start time         : %s\n"
@@ -309,6 +314,7 @@ void  A2EventAction::CloseOutput(){
               unameBuffer.version,
               unameBuffer.machine,
               fInvokeCmd.Data(),
+              fDetSetup.Data(),
               inputFile.Data(),
               fOutFile->GetName(),
               fStartTime.Data(),
@@ -334,5 +340,27 @@ void A2EventAction::FormatTimeSec(double seconds, TString& out)
 
   // format string
   out.Form("%02d:%02d:%02d", hours, min, sec);
+}
+
+void A2EventAction::ReadDetectorSetup(const char* detSetup)
+{
+  fDetSetup = detSetup;
+  fDetSetup += "\n";
+
+  G4String line;
+  std::ifstream file;
+  file.open(detSetup);
+  if (file.is_open())
+  {
+    while (line.readLine(file))
+    {
+      if (line[0] == '#') continue;
+      fDetSetup += "                            ";
+      fDetSetup += line.c_str();
+      fDetSetup += "\n";
+      G4cout << line << G4endl;
+    }
+    file.close();
+  }
 }
 

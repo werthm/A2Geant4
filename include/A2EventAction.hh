@@ -18,7 +18,8 @@ class TStopwatch;
 class A2EventAction : public G4UserEventAction
 {
  public:
-   A2EventAction(A2RunAction*, A2PrimaryGeneratorAction*, int argc, char** argv);
+   A2EventAction(A2RunAction*, A2PrimaryGeneratorAction*,
+                 int argc, char** argv, const char* detSetup);
   ~A2EventAction();
 
  public:
@@ -54,6 +55,7 @@ class A2EventAction : public G4UserEventAction
   TString fInvokeCmd;
   TString fStartTime;
   TString fDuration;
+  TString fDetSetup;
 
    A2EventActionMessenger*  feventMessenger;
 
@@ -65,6 +67,7 @@ class A2EventAction : public G4UserEventAction
   TString fOutFileName;
 
   static void FormatTimeSec(double seconds, TString& out);
+  void ReadDetectorSetup(const char* detSetup);
 };
 
 #endif
