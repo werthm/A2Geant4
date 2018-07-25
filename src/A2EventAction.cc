@@ -257,25 +257,27 @@ G4int A2EventAction::PrepareOutput(){
   TString inputFile("none");
   if (fPGA->GetGeneratedFile())
     inputFile = fPGA->GetGeneratedFile()->GetName();
-  TNamed header("Header",
-                TString::Format("A2Geant4 Header\n\n"
-                                "    Version          : %s\n"
-                                "    Compiler         : %s\n"
-                                "    Geant4 Version   : %s\n"
-                                "    Command          : %s\n"
-                                "    Input file       : %s\n"
-                                "    Start time       : %s\n"
-                                "    Hostname         : %s\n"
-                                "    System model     : %s\n"
-                                "    OS name          : %s\n"
-                                "    OS release       : %s\n"
-                                "    OS version       : %s\n"
-                                "    OS architecture  : %s\n",
+  TNamed header("A2Geant4 Header",
+                TString::Format("\n"
+                                "       Version         : %s\n"
+                                "       Compiler        : %s\n"
+                                "       Geant4 Version  : %s\n"
+                                "       Command         : %s\n"
+                                "       Input file      : %s\n"
+                                "       Output file     : %s\n"
+                                "       Start time      : %s\n"
+                                "       Hostname        : %s\n"
+                                "       System model    : %s\n"
+                                "       OS name         : %s\n"
+                                "       OS release      : %s\n"
+                                "       OS version      : %s\n"
+                                "       OS architecture : %s",
                                 A2_VERSION,
                                 compiler.Data(),
                                 version.Data(),
                                 fInvokeCmd.Data(),
                                 inputFile.Data(),
+                                fOutFile->GetName(),
                                 date.AsString(),
                                 unameBuffer.nodename,
                                 sysInfo.fModel.Data(),
