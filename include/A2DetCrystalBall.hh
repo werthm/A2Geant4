@@ -9,7 +9,6 @@
 #include "G4Sphere.hh"
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
-#include "G4Trap.hh"
 #include "G4Trd.hh"
 #include "G4Polyhedra.hh"
 #include "G4LogicalVolume.hh"
@@ -40,8 +39,11 @@ private:
   G4int *fCrystalConvert;  //convert copy # to AcquRoot id
   G4int fNcrystals;
 
+  enum ECrystImpl { kG4Trap, kG4ExtrudedSolid };
+  ECrystImpl fCrystImpl;
+
   G4int fNCrystTypes;   //Number of different crystal shapes
-  G4Trap** fCrystal;    //Array of different crystal shapes
+  G4VSolid** fCrystal;    //Array of different crystal shapes
   G4LogicalVolume** fCrystLogic;  //Logical volume for crystals
   G4VPhysicalVolume** fCrystPhysi;  //Physical volumes for crystals
 

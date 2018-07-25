@@ -3,10 +3,13 @@
 #include "G4SubtractionSolid.hh"
 #include "G4UnionSolid.hh"
 #include "G4Box.hh"
+#include "G4Trap.hh"
+#include "G4ExtrudedSolid.hh"
 #include "G4RotationMatrix.hh"
 #include "G4String.hh"
 #include "G4SDManager.hh"
 #include "TGeoMatrix.h"
+#include "G4Version.hh"
 
 #include "G4Colour.hh"
 #include "G4ios.hh"
@@ -25,9 +28,17 @@ A2DetCrystalBall::A2DetCrystalBall()
   G4cout<<"Construct the crystal ball!!!!!!"<<G4endl;
   fIsInteractive=1;
   fNcrystals=720;
+
+  // crystal geometry implementation
+#if G4VERSION_NUMBER >= 1040
+  fCrystImpl = kG4ExtrudedSolid;
+#else
+  fCrystImpl = kG4Trap;
+#endif
+
   //Make array for different crystal types
   fNCrystTypes=11; //Add 1 as 0 is ignmored to keep connection with cbsim
-  fCrystal=new G4Trap*[fNCrystTypes+1];   //Crystal shapes
+  fCrystal=new G4VSolid*[fNCrystTypes+1];   //Crystal shapes
   for(G4int i=0;i<=fNCrystTypes;i++) fCrystal[i]=NULL;
   if(fIsInteractive==0){
     fCrystLogic=new G4LogicalVolume*[fNCrystTypes+1+72];   //Crystal logical volumes,additional space (72) for cut crystals (actually there are less than this!)
@@ -797,23 +808,68 @@ void A2DetCrystalBall::MakeBall(){
 }
 
 void A2DetCrystalBall::MakeCrystals(){
-  //Crystal parameters are taken from CrystalBall.C
-  //which is a root conversion of cbsim ugeom.F
-  //original parameters were calculated in the Prism.F file
-  //There are 11 different shapes of crystal as defined below, each needs it's own logical volume
-  G4double Vanish=1*nm;//small length to make G4Trap work with approx 3 sides
-  G4double Shrink=1;///for testing
-  fCrystal[1]=new G4Trap("CR01", 20.19144*Shrink*cm,2.217791*deg,89.99987*deg,1.875317*Shrink*cm,2.707754*Shrink*cm,Vanish,    0.*deg,         4.875824*Shrink*cm, 7.04016*Shrink*cm,  Vanish,   0.*deg);
-  fCrystal[2]=new G4Trap("CR02", 20.18581*Shrink*cm,2.130379*deg,90.53368*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    -0.2537469*deg, 5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   -0.2537412*deg);
-  fCrystal[3]=new G4Trap("CR03", 20.18625*Shrink*cm,2.093683*deg,269.9998*deg,1.987023*Shrink*cm,Vanish,   2.7077546*Shrink*cm,0.*deg,         5.16626*Shrink*cm,  Vanish,    7.04016*Shrink*cm, 0.*deg);
-  fCrystal[4]=new G4Trap("CR04", 20.18581*Shrink*cm,2.130379*deg,89.46632*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    0.2537469*deg,  5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   0.2537412*deg);
-  fCrystal[5]=new G4Trap("CR05", 20.1931*Shrink*cm, 1.978827*deg,95.34957*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    -2.374402*deg,  5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   -2.374406*deg);
-  fCrystal[6]=new G4Trap("CR06", 20.18483*Shrink*cm,2.109143*deg,268.5951*deg,1.995582*Shrink*cm,Vanish,   2.723455*Shrink*cm, 0.6542568*deg,  5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,0.6542572*deg);
-  fCrystal[7]=new G4Trap("CR07", 20.18352*Shrink*cm,2.114796*deg,89.99928*deg,2.007283*Shrink*cm,2.734993*Shrink*cm,Vanish,    0.*deg,         5.218937*Shrink*cm, 7.110981*Shrink*cm, Vanish,   0.*deg);
-  fCrystal[8]=new G4Trap("CR08", 20.18483*Shrink*cm,2.109143*deg,271.4048*deg,1.995582*Shrink*cm,Vanish,   2.7234556*Shrink*cm,-0.6542568*deg, 5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,-0.6542572*deg);
-  fCrystal[9]=new G4Trap("CR09", 20.1931*Shrink*cm, 1.978827*deg,84.65044*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    2.374402*deg,   5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   2.374406*deg);
-  fCrystal[10]=new G4Trap("CR10",20.17123*Shrink*cm,1.674679*deg,260.4183*deg,2.331228*Shrink*cm,Vanish,   2.6150286*Shrink*cm,3.013278*deg,   6.061194*Shrink*cm, Vanish,    6.799075*Shrink*cm,3.013267*deg);
-  fCrystal[11]=new G4Trap("CR11",20.16107*Shrink*cm,1.812293*deg,91.16*deg,   2.3732*Shrink*cm,  2.751179*Shrink*cm,Vanish,    -0.3896213*deg, 6.17032*Shrink*cm,  7.153065*Shrink*cm, Vanish,   -0.3896199*deg);
+
+  // old geometry implementation based on G4Trap
+  if (fCrystImpl == kG4Trap)
+  {
+    G4cout << "A2DetCrystalBall::MakeCrystals(): Using G4Trap-based crystal geometry implementation" << G4endl;
+
+    //Crystal parameters are taken from CrystalBall.C
+    //which is a root conversion of cbsim ugeom.F
+    //original parameters were calculated in the Prism.F file
+    //There are 11 different shapes of crystal as defined below, each needs it's own logical volume
+    G4double Vanish=1*nm;//small length to make G4Trap work with approx 3 sides
+    G4double Shrink=1;///for testing
+    fCrystal[1]=new G4Trap("CR01", 20.19144*Shrink*cm,2.217791*deg,89.99987*deg,1.875317*Shrink*cm,2.707754*Shrink*cm,Vanish,    0.*deg,         4.875824*Shrink*cm, 7.04016*Shrink*cm,  Vanish,   0.*deg);
+    fCrystal[2]=new G4Trap("CR02", 20.18581*Shrink*cm,2.130379*deg,90.53368*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    -0.2537469*deg, 5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   -0.2537412*deg);
+    fCrystal[3]=new G4Trap("CR03", 20.18625*Shrink*cm,2.093683*deg,269.9998*deg,1.987023*Shrink*cm,Vanish,   2.7077546*Shrink*cm,0.*deg,         5.16626*Shrink*cm,  Vanish,    7.04016*Shrink*cm, 0.*deg);
+    fCrystal[4]=new G4Trap("CR04", 20.18581*Shrink*cm,2.130379*deg,89.46632*deg,1.975611*Shrink*cm,2.723455*Shrink*cm,Vanish,    0.2537469*deg,  5.136588*Shrink*cm, 7.080982*Shrink*cm, Vanish,   0.2537412*deg);
+    fCrystal[5]=new G4Trap("CR05", 20.1931*Shrink*cm, 1.978827*deg,95.34957*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    -2.374402*deg,  5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   -2.374406*deg);
+    fCrystal[6]=new G4Trap("CR06", 20.18483*Shrink*cm,2.109143*deg,268.5951*deg,1.995582*Shrink*cm,Vanish,   2.723455*Shrink*cm, 0.6542568*deg,  5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,0.6542572*deg);
+    fCrystal[7]=new G4Trap("CR07", 20.18352*Shrink*cm,2.114796*deg,89.99928*deg,2.007283*Shrink*cm,2.734993*Shrink*cm,Vanish,    0.*deg,         5.218937*Shrink*cm, 7.110981*Shrink*cm, Vanish,   0.*deg);
+    fCrystal[8]=new G4Trap("CR08", 20.18483*Shrink*cm,2.109143*deg,271.4048*deg,1.995582*Shrink*cm,Vanish,   2.7234556*Shrink*cm,-0.6542568*deg, 5.188515*Shrink*cm, Vanish,    7.080982*Shrink*cm,-0.6542572*deg);
+    fCrystal[9]=new G4Trap("CR09", 20.1931*Shrink*cm, 1.978827*deg,84.65044*deg,1.961185*Shrink*cm,2.615028*Shrink*cm,Vanish,    2.374402*deg,   5.09908*Shrink*cm,  6.799075*Shrink*cm, Vanish,   2.374406*deg);
+    fCrystal[10]=new G4Trap("CR10",20.17123*Shrink*cm,1.674679*deg,260.4183*deg,2.331228*Shrink*cm,Vanish,   2.6150286*Shrink*cm,3.013278*deg,   6.061194*Shrink*cm, Vanish,    6.799075*Shrink*cm,3.013267*deg);
+    fCrystal[11]=new G4Trap("CR11",20.16107*Shrink*cm,1.812293*deg,91.16*deg,   2.3732*Shrink*cm,  2.751179*Shrink*cm,Vanish,    -0.3896213*deg, 6.17032*Shrink*cm,  7.153065*Shrink*cm, Vanish,   -0.3896199*deg);
+  }
+  // new geometry implementation based on G4ExtrudedSolid for Geant4 >= 10.3 (S. Gardner)
+  else if (fCrystImpl == kG4ExtrudedSolid)
+  {
+    G4cout << "A2DetCrystalBall::MakeCrystals(): Using G4ExtrudedSolid-based crystal geometry implementation" << G4endl;
+
+    //Half hight of the crystal
+    G4double zL[11]      = {20.19144*cm,20.18581*cm,20.18625*cm,20.18581*cm,20.1931*cm,20.18483*cm,20.18352*cm,20.18483*cm,20.1931*cm,20.17123*cm,20.16107*cm};
+    //Half length of inner triangle along the x axis
+    G4double xL[11]      = {2.707754*cm,2.723455*cm,2.7077546*cm,2.723455*cm,2.615028*cm,2.723455*cm,2.734993*cm,2.7234556*cm,2.615028*cm,2.6150286*cm,2.751179*cm};
+    //Half hight of inner triangle along the y axis
+    G4double yL[11]      = {1.875317*cm,1.975611*cm,1.987023*cm,1.975611*cm,1.961185*cm,1.995582*cm,2.007283*cm,1.995582*cm,1.961185*cm,2.331228*cm,2.3732*cm};
+    //Angle between center of triangle x-base and opposing point
+    G4double yAng[11]    = {0*deg,-0.2537469*deg,0*deg,0.2537469*deg,-2.374402*deg,0.6542568*deg,0*deg,-0.6542568*deg,2.374402*deg,3.013278*deg,-0.3896213*deg};
+
+    G4int    invertY[11] = {1,1,-1,1,1,-1,1,-1,1,-1,1};
+
+    //Angles from the center of the bottom to the center top triangle
+    G4double theta[11]   = {2.217791*deg,2.130379*deg,2.093683*deg,2.130379*deg,1.978827*deg,2.109143*deg,2.114796*deg,2.109143*deg,1.978827*deg,1.674679*deg,1.812293*deg};
+    G4double phi[11]     = {89.99987*deg,90.53368*deg,269.9998*deg,89.46632*deg,95.34957*deg,268.5951*deg,89.99928*deg,271.4048*deg,84.65044*deg,260.4183*deg,91.16*deg};
+
+    //Size of the top triangle compared to the bottom
+    G4double scale       = 2.6;
+
+    //Create the different crystal geometries
+    for( G4int i = 0; i<11; i++ ){
+
+      G4double    xOff        = yL[i]*tan(yAng[i])*invertY[i];
+      std::vector<G4TwoVector> triangle = {{-xOff-xL[i],-yL[i]*invertY[i]},{-xOff+xL[i],-yL[i]*invertY[i]},{xOff,yL[i]*invertY[i]}};
+      G4double    xyDist      = zL[i]*tan(theta[i]);
+      G4TwoVector xyOff       = {xyDist*cos(phi[i]),xyDist*sin(phi[i])};
+
+      TString cryName;
+      cryName.Form("CR%02d",i+1);
+
+      fCrystal[i+1] = new G4ExtrudedSolid((G4String)cryName, triangle, zL[i],-xyOff,1,xyOff,scale);
+    }
+  }
+
   if(fIsInteractive==1)return;
   //set up sensitive detectors
   if(!fCBSD){
