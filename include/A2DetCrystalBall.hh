@@ -35,11 +35,14 @@ public:
   void MakeRotationMatrices();  //Use ROOT matrices to vcreate G4 rotations
   void MakeTransformVectors();  //Make the transform vectors using the ROOT AddNode parameters
   void SetGap(G4ThreeVector gap) {fGap=gap;}
+
+  enum ECrystImpl { kG4Trap, kG4ExtrudedSolid };
+  void SetCrystImpl(ECrystImpl impl) { fCrystImpl = impl; }
+
 private:
   G4int *fCrystalConvert;  //convert copy # to AcquRoot id
   G4int fNcrystals;
 
-  enum ECrystImpl { kG4Trap, kG4ExtrudedSolid };
   ECrystImpl fCrystImpl;
 
   G4int fNCrystTypes;   //Number of different crystal shapes
