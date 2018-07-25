@@ -1,0 +1,50 @@
+#
+# Macro file for the initialization phase of "exampleN03.cc"
+# when running in interactive mode
+#####Pre-Initialisation
+#Choose a physics list, for a full listing type /A2/physics/ListPhysics
+/A2/physics/Physics QGSP_BERT_HP
+
+# enable Dalitz decay only for pi0
+/particle/select pi0
+/particle/property/decay/select 0
+/particle/property/decay/br 0
+/particle/property/decay/select 1
+/particle/property/decay/br 1
+/particle/property/decay/dump
+
+####Initialise
+/run/initialize
+
+##the initial random number seed
+/A2/generator/Seed SEED
+
+# tracking cuts
+/A2/physics/SetRegion CB
+/A2/physics/RegionCut  0.1 mm
+/A2/physics/SetRegion TAPS
+/A2/physics/RegionCut  0.1 mm
+/A2/physics/SetRegion TAPSV
+/A2/physics/RegionCut 0.01 mm
+/A2/physics/SetRegion PID
+/A2/physics/RegionCut 0.01 mm
+/A2/physics/SetRegion MWPC
+/A2/physics/RegionCut 0.1 mm
+/A2/physics/SetRegion Pizza
+/A2/physics/RegionCut 0.01 mm
+
+#Set the number of particles to be tracked from the input ntuple
+/A2/generator/NToBeTracked 5
+#give the indexes of the particles to be tracked
+#(have a look at the branch names in the input file)
+/A2/generator/Track 1
+/A2/generator/Track 3
+/A2/generator/Track 5
+/A2/generator/Track 6
+/A2/generator/Track 7
+#Open the file and set up the ntuple for reading
+/A2/generator/InputFile SCRATCHDIR/INPUTFILE
+
+#####Output
+#Open the output file for writing
+/A2/event/setOutputFile SCRATCHDIR/OUTPUTFILE
