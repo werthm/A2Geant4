@@ -16,9 +16,7 @@ else()
 endif()
 
 # use copied CMake modules from ROOT 6
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "$ENV{ROOTSYS}/etc/cmake/")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 # locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
 find_package(ROOT REQUIRED MODULE COMPONENTS MathCore RIO Hist Tree Geom)
