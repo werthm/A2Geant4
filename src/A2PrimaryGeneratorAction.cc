@@ -2,6 +2,7 @@
 #include "A2PrimaryGeneratorAction.hh"
 
 #include "A2PrimaryGeneratorMessenger.hh"
+#include "A2FileGeneratorMkin.hh"
 
 #include "G4Event.hh"
 #include "G4String.hh"
@@ -88,6 +89,8 @@ A2PrimaryGeneratorAction::~A2PrimaryGeneratorAction()
     fGeneratedFile->Close();
     delete fGeneratedFile;
    }
+  if (fFileGen)
+      delete fFileGen;
   delete fParticleGun;
   delete fGunMessenger;
   delete fBeamLorentzVec;
@@ -125,8 +128,23 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   case EPGA_ROOT:
     if(fGenTree&&fNToBeTracked>0){
-      //Get the event from input tree
-      fGenTree->GetEvent(fNevent++);
+
+      // set tracking flag (only for first event)
+      if (fNevent == 1)
+      {
+        for (G4int i = 0; i < fNToBeTracked; i++)
+          fFileGen->SetParticleIsTrack(fTrackThis[i]-1);
+      }
+
+      // get the event from input tree
+      fGenTree->GetEvent(fNevent);
+      fFileGen->ReadEvent(fNevent);
+
+      // debug
+      //G4cout << G4endl;
+      //fFileGen->Print();
+      //G4cout << G4endl;
+
       //Set vertex position
       fThreeVector.setX(fGenPosition[0]*cm);
       fThreeVector.setY(fGenPosition[1]*cm);
@@ -146,12 +164,15 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //};
        fParticleGun->SetParticlePosition(fThreeVector);
      //Loop over tracked particles, set particle gun and create vertex for each particle
-      
+
       for(Int_t i=0;i<fNToBeTracked;i++){
 	fParticleGun->SetParticleDefinition(fParticleDefinition[fTrackThis[i]]);
 	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(fGen4Vectors[fTrackThis[i]][0]*GeV,fGen4Vectors[fTrackThis[i]][1]*GeV,fGen4Vectors[fTrackThis[i]][2]*GeV).unit());
 	fParticleGun->SetParticleEnergy(fGen4Vectors[fTrackThis[i]][3]*GeV-fGenMass[fTrackThis[i]]);
 	fParticleGun->GeneratePrimaryVertex(anEvent);
+        G4cout << fTrackThis[i] << "  " << fParticleDefinition[fTrackThis[i]]->GetParticleName() << G4endl
+               << "Direction : " << G4ThreeVector(fGen4Vectors[fTrackThis[i]][0]*GeV,fGen4Vectors[fTrackThis[i]][1]*GeV,fGen4Vectors[fTrackThis[i]][2]*GeV).unit() << G4endl
+               << "Energy : " << fGen4Vectors[fTrackThis[i]][3]*GeV-fGenMass[fTrackThis[i]] << G4endl;
       }
       for(Int_t i=1;i<fNGenParticles;i++){//0 is not used
 	//Set ROOT LorentzVector, first calculate momentum
@@ -160,15 +181,31 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	P=fGen4Vectors[i][4]*GeV;
 	if(fParticleDefinition[i])fGenLorentzVec[i]->SetXYZM(P*fGen4Vectors[i][0],P*fGen4Vectors[i][1],P*fGen4Vectors[i][2],fGenMass[i]);
 	else fGenLorentzVec[i]->SetXYZM(P*fGen4Vectors[i][0],P*fGen4Vectors[i][1],P*fGen4Vectors[i][2],sqrt(fGen4Vectors[i][3]*fGen4Vectors[i][3]*GeV*GeV-P*P));
-      }	
+      }
       //Assume photon beam!
       P=fGen4Vectors[0][3]*GeV;
       fBeamLorentzVec->SetXYZM(fGen4Vectors[0][0]*P,fGen4Vectors[0][1]*P,fGen4Vectors[0][2]*P,0);
+
+      // new code
+      G4cout << "-------- new -----------" << G4endl;
+      for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
+      {
+        if (fFileGen->IsParticleTrack(i))
+        {
+          G4cout << i+1 << "  " << fFileGen->GetParticleDefinition(i)->GetParticleName() << G4endl
+                 << "Direction : " << fFileGen->GetParticleDirection(i) << G4endl
+                 << "Energy : " << fFileGen->GetParticleKineticEnergy(i) << G4endl;
+         }
+      }
+      G4cout << G4endl;
+
+      // increment event counter
+      fNevent++;
     }
     else{ G4cerr<<"ROOT input mode specidied but no input file given"<<G4endl; exit(1);}
     break;
   default:
-    G4cerr<<"Unknown mode given to A2PrimiaryGeneratorAction"<<G4endl; 
+    G4cerr<<"Unknown mode given to A2PrimiaryGeneratorAction"<<G4endl;
     exit(1);
 
   }
@@ -283,6 +320,9 @@ void A2PrimaryGeneratorAction::SetUpROOTInput(){
     fGeneratedFile->ls();
     exit(1);
   }
+  fFileGen = new A2FileGeneratorMkin(fInFileName);
+  fFileGen->Init();
+
   //Get the number of branches
   fNGenBranches=fGenTree->GetNbranches();
   //Calculate number of particles assuming 3 position branches and 5 particle variables 

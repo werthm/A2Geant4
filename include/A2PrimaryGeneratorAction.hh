@@ -21,6 +21,7 @@
 class G4ParticleGun;
 class G4Event;
 class A2PrimaryGeneratorMessenger;
+class A2FileGenerator;
 
 //Event generator mode
 enum { EPGA_g4, EPGA_phase_space, EPGA_ROOT, EPGA_Overlap};
@@ -77,7 +78,8 @@ private:
   Float_t ** fGen4Vectors;    //4 vector components from the ntuple branches
   TLorentzVector ** fGenLorentzVec;    //4 vector components from the ntuple branches converted into a ROOT lorentz vector
   TLorentzVector* fBeamLorentzVec; //For the beam or nonntuple input
-  
+  A2FileGenerator* fFileGen;
+
   Float_t *fGenMass;        //Masses of the generated particles 
   Int_t *fGenPartType;        //Array of G3 particle types 
   Int_t *fTrackThis;         //Array carrying the index of particles to be tracked
