@@ -47,10 +47,21 @@ A2FileGeneratorTree::~A2FileGeneratorTree()
 }
 
 //______________________________________________________________________________
-Bool_t A2FileGeneratorTree::LinkBranch(const char* bname, void* addr, Bool_t verbose)
+G4bool A2FileGeneratorTree::Init()
+{
+    // Init the file event reader.
+
+    // set number of events
+    fNEvents = fTree->GetEntries();
+
+    return true;
+}
+
+//______________________________________________________________________________
+G4bool A2FileGeneratorTree::LinkBranch(const char* bname, void* addr, G4bool verbose)
 {
     // Try to link the branch with name 'bname' to the pointer 'addr'.
-    // Return kTRUE on success, otherwise kFALSE.
+    // Return true on success, otherwise false.
 
     // look for branch
     TBranch* b = fTree->GetBranch(bname);
@@ -59,14 +70,14 @@ Bool_t A2FileGeneratorTree::LinkBranch(const char* bname, void* addr, Bool_t ver
     if (b)
     {
         b->SetAddress(addr);
-        return kTRUE;
+        return true;
     }
     else
     {
         if (verbose)
             G4cout << "A2FileGeneratorTree::LinkBranch(): Branch " << bname << " not found in tree "
                    << fTree->GetName() << "!" << G4endl;
-        return kFALSE;
+        return false;
     }
 }
 

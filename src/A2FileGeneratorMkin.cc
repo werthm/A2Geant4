@@ -55,6 +55,9 @@ G4bool A2FileGeneratorMkin::Init()
 {
     // Init the file event reader.
 
+    // call parent method
+    A2FileGeneratorTree::Init();
+
     // link vertex
     LinkBranch("X_vtx", &fVertexBr[0]);
     LinkBranch("Y_vtx", &fVertexBr[1]);

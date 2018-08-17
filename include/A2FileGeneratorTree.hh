@@ -16,13 +16,13 @@ protected:
     TFile* fFile;           // ROOT input file
     TTree* fTree;           // input tree
 
-    Bool_t LinkBranch(const char* bname, void* addr, Bool_t verbose = kTRUE);
+    G4bool LinkBranch(const char* bname, void* addr, G4bool verbose = true);
 
 public:
     A2FileGeneratorTree(const char* filename, const char* treename);
     virtual ~A2FileGeneratorTree();
 
-    virtual G4bool Init() = 0;
+    virtual G4bool Init();
     virtual G4bool ReadEvent(G4int event) = 0;
 };
 
