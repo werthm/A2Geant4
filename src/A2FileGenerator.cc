@@ -12,10 +12,11 @@ A2FileGenerator::A2FileGenerator(const char* filename)
 
     // init members
     fFileName = filename;
+    fNEvents = 0;
 }
 
 //______________________________________________________________________________
-void A2FileGenerator::A2GenParticle_t::Print(const char* pre)
+void A2FileGenerator::A2GenParticle_t::Print(const char* pre) const
 {
     // Print the content of this class.
 
@@ -29,11 +30,28 @@ void A2FileGenerator::A2GenParticle_t::Print(const char* pre)
 }
 
 //______________________________________________________________________________
-void A2FileGenerator::Print()
+void A2FileGenerator::SetParticleIsTrack(G4int p, G4bool t)
+{
+    // Set the tracking flag for the particle 'p'.
+
+    // check if particle can be tracked
+    if (t && !fPart[p].fDef)
+    {
+        G4cout << "A2FileGenerator::SetParticleIsTrack(): Unknown particle " << p
+               << " cannot be tracked!" << G4endl;
+        return;
+    }
+
+    fPart[p].fIsTrack = t;
+}
+
+//______________________________________________________________________________
+void A2FileGenerator::Print() const
 {
     // Print the content of this class.
 
     G4cout << "File name           : " << fFileName << G4endl
+           << "Number of events    : " << fNEvents << G4endl
            << "Number of particles : " << fPart.size() << G4endl
            << "Primary vertex      : " << fVertex << G4endl
            << "Beam particle" << G4endl;
