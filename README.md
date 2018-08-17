@@ -12,7 +12,7 @@ A2 Geant4 simulation
 
 ## Release notes
 
-### 0.1.0beta
+### 0.1.0
 * fixed bug related to compiler optimizations for Geant4 >= 10.3 (S. Gardner)
 * G4ExtrudedSolid-based CB-crystal implementation for Geant4 >= 10.4 (S. Gardner)
 * informative metadata in output file
