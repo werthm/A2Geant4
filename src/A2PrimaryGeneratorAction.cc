@@ -317,6 +317,8 @@ void A2PrimaryGeneratorAction::SetMode(G4int mode)
     fGenLorentzVec[1]=new TLorentzVector(0,0,0,0);
     fGenPartType[0]=-1;
     fGenPartType[1]=-1;
+    fTrackThis = new Int_t[1];
+    fTrackThis[0] = 1;
   }
   G4cout<<"Set Mode done "<<G4endl;
 }
