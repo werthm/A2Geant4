@@ -15,7 +15,7 @@ class A2DetectorConstruction;
 class A2FileGenerator;
 
 //Event generator mode
-enum { EPGA_g4, EPGA_phase_space, EPGA_ROOT, EPGA_Overlap};
+enum { EPGA_g4, EPGA_phase_space, EPGA_FILE, EPGA_Overlap};
 
 class A2PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {

@@ -3,10 +3,12 @@
 
 #include "A2PrimaryGeneratorMessenger.hh"
 #include "A2FileGeneratorMkin.hh"
+#include "A2FileGeneratorPluto.hh"
 
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"
 #include "TLorentzVector.h"
+#include "TFile.h"
 
 #include "MCNtuple.h"
 
@@ -99,7 +101,7 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     OverlapGenerator(anEvent);
     break;
 
-  case EPGA_ROOT:
+  case EPGA_FILE:
     if (fFileGen && fNToBeTracked > 0){
 
       //
@@ -271,8 +273,49 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
   if(fInFileName==TString(""))return;
   G4cout<<"A2PrimaryGeneratorAction::SetUpFileInput(): input file set as "<<fInFileName<<G4endl;
 
-  fMode=EPGA_ROOT;
-  fFileGen = new A2FileGeneratorMkin(fInFileName);
+  fMode=EPGA_FILE;
+
+  // check for ROOT file
+  if (!fInFileName.EndsWith(".root"))
+  {
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Unknown input-file ending!" << G4endl;
+    exit(1);
+  }
+
+  // look for supported event trees in ROOT file
+  TFile* ftest = new TFile(fInFileName);
+  TTree* tree_mkin = 0;
+  TTree* tree_pluto = 0;
+  if (ftest && !ftest->IsZombie())
+  {
+    tree_mkin = (TTree*)ftest->Get("h1");
+    tree_pluto = (TTree*)ftest->Get("data");
+    delete ftest;
+  }
+  else
+  {
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Could not open ROOT file " << fInFileName << G4endl;
+    exit(1);
+  }
+
+  // open file
+  if (tree_mkin)
+  {
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening mkin event-file" << G4endl;
+    fFileGen = new A2FileGeneratorMkin(fInFileName);
+  }
+  else if (tree_pluto)
+  {
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto event-file" << G4endl;
+    fFileGen = new A2FileGeneratorPluto(fInFileName);
+  }
+  else
+  {
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No supported ROOT event-tree found!" << G4endl;
+    exit(1);
+  }
+
+  // init the file
   fFileGen->Init();
 
   fNGenParticles = fFileGen->GetNParticles() + 1; // for beam
