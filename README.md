@@ -80,7 +80,7 @@ Command                                | Meaning
 `/A2/generator/NToBeTracked 3`         | set the number of particles to be tracked
 `/A2/generator/Track 1`                | set the index of a particle to be tracked
 `/A2/generator/InputFile input.root`   | set the event input file (sets mode to 2)
-`/A2/generator/Mode 1`                 | select generator mode (0=G4 CLI generator, 1=phase-space, 2=ROOT input, 3=overlap debug)
+`/A2/generator/Mode 1`                 | select generator mode (0=G4 CLI generator, 1=phase-space, 2=file input, 3=overlap debug)
 `/A2/generator/SetTMin 200 MeV`        | minimum kinetic energy for a particle in the phase-space generator
 `/A2/generator/SetTMax 450 MeV`        | maximum kinetic energy for a particle in the phase-space generator
 `/A2/generator/SetThetaMin 0 deg`      | minimum polar angle for a particle in the phase-space generator
