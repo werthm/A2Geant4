@@ -212,7 +212,7 @@ int main(int argc,char** argv) {
     }
   
   // Set and prepare input if it has been set
-  pga->SetUpROOTInput();
+  pga->SetUpFileInput();
   
   if (session||uiexecutive)   // Define UI session for interactive mode.
     {
