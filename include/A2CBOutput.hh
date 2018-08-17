@@ -9,6 +9,8 @@
 
 
 #include "TLorentzVector.h"
+#include "TFile.h"
+#include "TTree.h"
 
 const G4int MAXSIZE_NAI= 720;
 const G4int MAXSIZE_TAPS= 512;
