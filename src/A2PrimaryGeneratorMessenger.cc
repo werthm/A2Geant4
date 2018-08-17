@@ -142,7 +142,7 @@ void A2PrimaryGeneratorMessenger::SetNewValue(
     { A2Action->SetInputFile(static_cast<TString>(newValue));}
   //  { A2Action->SetUpROOTInput(static_cast<TString>(newValue));}
   if( command == SetInput2Cmd )
-    {  A2Action->SetInputFile(static_cast<TString>(newValue));A2Action->SetUpROOTInput();}//prepare input file in interactive mode
+    {  A2Action->SetInputFile(static_cast<TString>(newValue));A2Action->SetUpFileInput();}//prepare input file in interactive mode
   if( command == SetNTrackCmd )
      { A2Action->SetNParticlesToBeTracked(SetNTrackCmd->GetNewIntValue(newValue));}
  
