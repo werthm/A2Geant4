@@ -225,10 +225,10 @@ int main(int argc,char** argv) {
       }
       delete session;
     }
-  else           // Batch mode with ROOT input
+  else           // Batch mode with FILE input
     {
       
-      if (pga->GetMode() == EPGA_ROOT || numberOfEvents > 0)
+      if (pga->GetMode() == EPGA_FILE || numberOfEvents > 0)
 	{
 	  // Run in batch mode
 	  if (numberOfEvents < 0) numberOfEvents=pga->GetNEvents();

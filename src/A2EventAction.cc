@@ -74,7 +74,7 @@ A2EventAction::~A2EventAction()
 void A2EventAction::BeginOfEventAction(const G4Event* evt)
 {
   if (evt->GetEventID() == 0) fTimer->Start();
-  if (fPGA->GetMode() == EPGA_ROOT && evt->GetEventID() == fReqEvents - 1)
+  if (fPGA->GetMode() == EPGA_FILE && evt->GetEventID() == fReqEvents - 1)
   {
     FormatTimeSec(fTimer->RealTime(), fDuration);
     G4cout << TString::Format("Total tracking time: %s", fDuration.Data()) << G4endl;
@@ -91,7 +91,7 @@ void A2EventAction::EndOfEventAction(const G4Event* evt)
     fEventRate = evtNb / fTimer->RealTime();
     fTimer->Continue();
     G4cout << TString::Format("%7d events tracked (%.2f events/s)", evtNb, fEventRate);
-    if (fPGA->GetMode() == EPGA_ROOT)
+    if (fPGA->GetMode() == EPGA_FILE)
     {
       TString timeFmt;
       FormatTimeSec((fReqEvents - evtNb) / (Double_t)fEventRate, timeFmt);
