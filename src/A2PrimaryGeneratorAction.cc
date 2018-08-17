@@ -18,14 +18,13 @@ A2PrimaryGeneratorAction::A2PrimaryGeneratorAction()
   G4int n_particle = 1;
   fParticleGun  = new G4ParticleGun(n_particle);
 
-  //create a messenger for this class
   fGunMessenger = new A2PrimaryGeneratorMessenger(this);
   fGenPartType=NULL;
   fTrackThis=NULL;
   fGenLorentzVec=NULL;
   fBeamLorentzVec=new TLorentzVector(0,0,0,0);//for beam or interactive events
-
   fFileGen = 0;
+
   //default phase space limits
   fTmin=0;
   fTmax=400*MeV;
@@ -38,7 +37,8 @@ A2PrimaryGeneratorAction::A2PrimaryGeneratorAction()
   fTargetRadius=2*cm;
   //overlap
   fSplitTheta=0;
- //default mode is g4 command line input
+
+  //default mode is g4 command line input
   fMode=EPGA_g4;
   fNevent=0;
   fNToBeTcount=0;
@@ -190,7 +190,7 @@ void A2PrimaryGeneratorAction::PhaseSpaceGenerator(G4Event* anEvent){
   G4float Mass=fParticleGun->GetParticleDefinition()->GetPDGMass();
   G4float E=T+Mass;
   G4float P=sqrt(E*E-Mass*Mass);
-  G4ThreeVector p3;
+  G4ThreeVector p3(0, 0, 1);
   p3.setMag(P);
   p3.setTheta(theta);
   p3.setPhi(phi);
@@ -315,7 +315,6 @@ void A2PrimaryGeneratorAction::SetMode(G4int mode)
     fNGenParticles=2;//to write the A2CBoutput into dircos branch
     fGenLorentzVec[0]=new TLorentzVector(0,0,0,0);
     fGenLorentzVec[1]=new TLorentzVector(0,0,0,0);
-    //fBeamLorentzVec=new TLorentzVector(0,0,0,0);
     fGenPartType[0]=-1;
     fGenPartType[1]=-1;
   }
