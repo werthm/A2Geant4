@@ -6,6 +6,7 @@
 #include "A2RunAction.hh"
 #include "A2EventActionMessenger.hh"
 #include "A2Version.hh"
+#include "A2FileGenerator.hh"
 
 #include "G4Event.hh"
 #include "G4TrajectoryContainer.hh"
@@ -283,8 +284,23 @@ void  A2EventAction::CloseOutput(){
   uname(&unameBuffer);
   TDatime date;
   TString inputFile("none");
-  if (fPGA->GetGeneratedFile())
-    inputFile = fPGA->GetGeneratedFile()->GetName();
+  if (fPGA->GetFileGen())
+    inputFile = fPGA->GetFileGen()->GetFileName().c_str();
+  TString trackedPart("unknown");
+  if (fPGA->GetFileGen())
+  {
+    trackedPart = "";
+    for (G4int i = 0; i < fPGA->GetFileGen()->GetNParticles(); i++)
+    {
+      if (fPGA->GetFileGen()->IsParticleTrack(i))
+      {
+          if (trackedPart != "")
+            trackedPart += ", ";
+          trackedPart += TString::Format("%d (%s)", i+1, fPGA->GetFileGen()->GetParticleDefinition(i)->GetParticleName().c_str());
+      }
+    }
+  }
+
   TNamed meta("A2Geant4 Metadata", TString::Format("\n"
               "       Version            : %s\n"
               "       Geant4 Version     : %s\n"
@@ -299,6 +315,7 @@ void  A2EventAction::CloseOutput(){
               "       Detector setup     : %s"
               "       Input file         : %s\n"
               "       Output file        : %s\n"
+              "       Tracked particles  : %s\n"
               "       Start time         : %s\n"
               "       Stop time          : %s\n"
               "       Tracking time      : %s\n"
@@ -317,6 +334,7 @@ void  A2EventAction::CloseOutput(){
               fDetSetup.Data(),
               inputFile.Data(),
               fOutFile->GetName(),
+              trackedPart.Data(),
               fStartTime.Data(),
               date.AsString(),
               fDuration.Data(),
