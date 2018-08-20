@@ -7,8 +7,9 @@
 #include "A2FileGeneratorTree.hh"
 
 //______________________________________________________________________________
-A2FileGeneratorTree::A2FileGeneratorTree(const char* filename, const char* treename)
-    : A2FileGenerator(filename)
+A2FileGeneratorTree::A2FileGeneratorTree(const char* filename, EFileGenType type,
+                                         const char* treename)
+    : A2FileGenerator(filename, type)
 {
     // Constructor.
 
@@ -53,6 +54,17 @@ G4bool A2FileGeneratorTree::Init()
 
     // set number of events
     fNEvents = fTree->GetEntries();
+
+    return true;
+}
+
+//______________________________________________________________________________
+G4bool A2FileGeneratorTree::ReadEvent(G4int event)
+{
+    // Read the event 'event'.
+
+    // read tree entry
+    fTree->GetEntry(event);
 
     return true;
 }
