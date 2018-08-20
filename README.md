@@ -54,7 +54,7 @@ make -j
 ```
 
 #### Method 2: Install a release
-Download a [release](../releases), unpack and compile it:
+Download a [release](../../releases), unpack and compile it:
 ```
 cd /some/directory
 wget https://github.com/werthm/A2Geant4/archive/v0.1.0.tar.gz
@@ -77,6 +77,10 @@ build/A2Geant4 --gui
 ```
 build/A2Geant4 --mac=macros/your_macro.mac --det=macros/DetectorSetup.mac --if=input.root --of=output.root
 ```
+
+## Known issues
+* storage of primary particles only works if tracked particles are manually specified
+* particle auto-tracking for mkin-files uses PDG stable attribute for now so many particles are not tracked
 
 ## Simulation commands
 
