@@ -18,12 +18,15 @@ protected:
     Float_t** fPartPBr;     //[fNPart] particle 4-momenta
     Float_t** fPartVBr;     //[fNPart] particle vertices
 
+    static const G4int fgMaxParticles;
+
 public:
     A2FileGeneratorMkin(const char* filename);
     virtual ~A2FileGeneratorMkin();
 
     virtual G4bool Init();
     virtual G4bool ReadEvent(G4int event);
+    virtual G4int GetMaxParticles();
 };
 
 #endif

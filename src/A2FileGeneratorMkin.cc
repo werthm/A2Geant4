@@ -7,24 +7,25 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TTree.h"
-#include "TMath.h"
 
 #include "A2FileGeneratorMkin.hh"
 #include "MCNtuple.h"
 
 using namespace CLHEP;
 
+const G4int A2FileGeneratorMkin::fgMaxParticles = 99;
+
 //______________________________________________________________________________
 A2FileGeneratorMkin::A2FileGeneratorMkin(const char* filename)
-    : A2FileGeneratorTree(filename, "h1")
+    : A2FileGeneratorTree(filename, kMkin, "h1")
 {
     // Constructor.
 
     // init members
     fNPart = 0;
-    fPartPBr = new Float_t*[99];
-    fPartVBr = new Float_t*[99];
-    for (Int_t i = 0; i < 99; i++)
+    fPartPBr = new Float_t*[fgMaxParticles];
+    fPartVBr = new Float_t*[fgMaxParticles];
+    for (Int_t i = 0; i < fgMaxParticles; i++)
     {
         fPartPBr[i] = 0;
         fPartVBr[i] = 0;
@@ -56,7 +57,8 @@ G4bool A2FileGeneratorMkin::Init()
     // Init the file event reader.
 
     // call parent method
-    A2FileGeneratorTree::Init();
+    if (!A2FileGeneratorTree::Init())
+        return false;
 
     // link vertex
     LinkBranch("X_vtx", &fVertexBr[0]);
@@ -80,7 +82,7 @@ G4bool A2FileGeneratorMkin::Init()
     fNPart = 0;
     TString prefix;
     TObjArray* objarray = fTree->GetListOfBranches();
-    for (G4int i = 0; i < 99; i++)
+    for (G4int i = 0; i < fgMaxParticles; i++)
     {
         // format branch-prefix for particle i
         prefix.Form("Px_l%02d", i+1);
@@ -122,8 +124,13 @@ G4bool A2FileGeneratorMkin::Init()
 
                 // look-up particle
                 G4ParticleDefinition* partDef = G4ParticleTable::GetParticleTable()->FindParticle(GetPDGfromG3(g3_id));
-                if (!partDef)
-                    partDef = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(GetPDGfromG3(g3_id));
+                if (!partDef && g3_id != 0)
+                {
+                    G4int Z, A, L, J;
+                    G4double E;
+                    if (G4IonTable::GetNucleusByEncoding(GetPDGfromG3(g3_id), Z, A, L, E, J))
+                        partDef = G4ParticleTable::GetParticleTable()->GetIonTable()->GetIon(Z, A, L, 0.0, J);
+                }
 
                 // add particle
                 if (partDef)
@@ -165,8 +172,9 @@ G4bool A2FileGeneratorMkin::ReadEvent(G4int event)
 {
     // Read the event 'event'.
 
-    // read tree entry
-    fTree->GetEntry(event);
+    // call parent method
+    if (!A2FileGeneratorTree::ReadEvent(event))
+        return false;
 
     // set vertex event data
     fVertex.set(fVertexBr[0]*cm,
@@ -187,10 +195,7 @@ G4bool A2FileGeneratorMkin::ReadEvent(G4int event)
                         fPartPBr[i][1]*fPartPBr[i][4]*GeV,
                         fPartPBr[i][2]*fPartPBr[i][4]*GeV);
         fPart[i].fE = fPartPBr[i][3]*GeV;
-        if (fPart[i].fDef && fPart[i].fDef->GetPDGMass() == 0)
-            fPart[i].fM = 0;
-        else
-            fPart[i].fM = TMath::Sqrt(fPart[i].fE*fPart[i].fE - fPart[i].fP.mag2());
+        fPart[i].SetCorrectMass();
 
         // vertex
         if (fPartVBr[i])
@@ -205,8 +210,20 @@ G4bool A2FileGeneratorMkin::ReadEvent(G4int event)
              fPart[i].fX = fVertex;
              fPart[i].fT = 0;
         }
+
+        // tracking flag
+        if (fPart[i].fDef && fPart[i].fDef->GetPDGStable())
+            fPart[i].fIsTrack = true;
     }
 
     return true;
+}
+
+//______________________________________________________________________________
+G4int A2FileGeneratorMkin::GetMaxParticles()
+{
+    // Return the maximum number of particles.
+
+    return fNPart;
 }
 
