@@ -14,6 +14,7 @@ A2 Geant4 simulation
 
 ### 0.2.0beta
 * generalized interface for input event-files
+* support for Pluto event-files
 * added tracked particles to metadata
 
 ### 0.1.0
@@ -53,7 +54,7 @@ make -j
 ```
 
 #### Method 2: Install a release
-Download a [release](releases), unpack and compile it:
+Download a [release](../releases), unpack and compile it:
 ```
 cd /some/directory
 wget https://github.com/werthm/A2Geant4/archive/v0.1.0.tar.gz
