@@ -290,13 +290,18 @@ void  A2EventAction::CloseOutput(){
   if (fPGA->GetFileGen())
   {
     trackedPart = "";
-    for (G4int i = 0; i < fPGA->GetFileGen()->GetNParticles(); i++)
+    if (fPGA->GetFileGen()->GetType() == A2FileGenerator::kPlutoCocktail)
+      trackedPart = "all stable (Pluto cocktail)";
+    else
     {
-      if (fPGA->GetFileGen()->IsParticleTrack(i))
+      for (G4int i = 0; i < fPGA->GetFileGen()->GetNParticles(); i++)
       {
-          if (trackedPart != "")
-            trackedPart += ", ";
-          trackedPart += TString::Format("%d (%s)", i+1, fPGA->GetFileGen()->GetParticleDefinition(i)->GetParticleName().c_str());
+        if (fPGA->GetFileGen()->IsParticleTrack(i))
+        {
+            if (trackedPart != "")
+              trackedPart += ", ";
+            trackedPart += TString::Format("%d (%s)", i+1, fPGA->GetFileGen()->GetParticleDefinition(i)->GetParticleName().c_str());
+        }
       }
     }
   }
