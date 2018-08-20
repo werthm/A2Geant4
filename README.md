@@ -12,6 +12,10 @@ A2 Geant4 simulation
 
 ## Release notes
 
+### 0.2.0beta
+* generalized interface for input event-files
+* added tracked particles to metadata
+
 ### 0.1.0
 * fixed bug related to compiler optimizations for Geant4 >= 10.3 (S. Gardner)
 * G4ExtrudedSolid-based CB-crystal implementation for Geant4 >= 10.4 (S. Gardner)
@@ -36,10 +40,25 @@ A2 Geant4 simulation
 * CMake 2.6
 
 ### Installation
+
+#### Method 1: Getting the git master branch
 ```
 cd /some/directory
 git clone https://github.com/werthm/A2Geant4.git
 cd A2Geant4
+mkdir build
+cd build
+cmake ..
+make -j
+```
+
+#### Method 2: Install a release
+Download a [release](releases), unpack and compile it:
+```
+cd /some/directory
+wget https://github.com/werthm/A2Geant4/archive/v0.1.0.tar.gz
+tar xvfz v0.1.0.tar.gz
+cd A2Geant4-0.1.0
 mkdir build
 cd build
 cmake ..
