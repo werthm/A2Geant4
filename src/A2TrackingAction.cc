@@ -35,7 +35,10 @@ void A2TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     {
         // create and set track information object
         A2UserTrackInformation* anInfo = new A2UserTrackInformation(aTrack);
-        anInfo->SetPartID(fPGA->GetParticlesToBeTracked()[anInfo->GetTrackID()-1]);
+        if (fPGA->GetNParticlesToBeTracked())
+            anInfo->SetPartID(fPGA->GetParticlesToBeTracked()[anInfo->GetTrackID()-1]);
+        else
+            anInfo->SetPartID(1);   // set dummy ID
         G4Track* theTrack = (G4Track*)aTrack;
         theTrack->SetUserInformation(anInfo);
     }
