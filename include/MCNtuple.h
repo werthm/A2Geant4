@@ -305,7 +305,7 @@ inline Double_t GetIonMass( Int_t ipdg )
 inline Int_t GetIonG3( Int_t ipdg )
 {
   for( Int_t i=0;;i++ ){
-    if( kG3toPDGions[i].iPDG == ENullPDG ) return -1;
+    if( kG3toPDGions[i].iPDG == ENullPDG ) return 0;
     if( kG3toPDGions[i].iPDG == ipdg ) return kG3toPDGions[i].iG3;
   }
 }
