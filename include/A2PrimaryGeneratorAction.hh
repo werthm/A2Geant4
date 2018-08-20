@@ -28,12 +28,25 @@ public:
 
   void SetUpFileInput();
   void SetInputFile(TString filename){fInFileName=filename;};
-  void SetNParticlesToBeTracked(Int_t n){fNToBeTracked=n;fTrackThis=new Int_t[n];}
+  void SetNParticlesToBeTracked(Int_t n){
+    fNToBeTracked=n;
+    fTrackThis=new Int_t[n];
+    for (G4int i = 0; i < fNToBeTracked; i++)
+      fTrackThis[i] = -99;
+  }
   void SetParticlesToBeTracked(Int_t ipart){if(fTrackThis) fTrackThis[fNToBeTcount++]=ipart;}
   Int_t *GetParticlesToBeTracked(){return fTrackThis;}
+  Int_t GetNParticlesToBeTracked(){return fNToBeTracked;}
+  G4bool IsTracked(Int_t part){
+    for (G4int i = 0; i < fNToBeTracked; i++)
+      if (part == fTrackThis[i])
+        return true;
+    return false;
+  }
   G4int GetNEvents();
 
   Int_t GetNGenParticles(){return fNGenParticles;}
+  Int_t GetNGenMaxParticles(){return fNGenMaxParticles;}
   TLorentzVector* GetGenLorentzVec(Int_t i){return fGenLorentzVec[i];}
   TLorentzVector** GetGenLorentzVecs(){return fGenLorentzVec;}
   TLorentzVector* GetBeamLorentzVec(){return fBeamLorentzVec;}
@@ -48,6 +61,7 @@ private:
   A2DetectorConstruction* fDetCon;   //pointer to the detector volumes
   TString fInFileName;  //Name of input file
   Int_t fNGenParticles;     //Number of particles in ntuple
+  Int_t fNGenMaxParticles;     //Maximum number of particles in ntuple
   Float_t fGenPosition[3]; //vertex position from ntuple, can't be double!
   TLorentzVector ** fGenLorentzVec;    //4 vector components from the ntuple branches converted into a ROOT lorentz vector
   TLorentzVector* fBeamLorentzVec; //For the beam or nonntuple input

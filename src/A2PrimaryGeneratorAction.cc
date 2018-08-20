@@ -46,6 +46,7 @@ A2PrimaryGeneratorAction::A2PrimaryGeneratorAction()
   fNToBeTcount=0;
   fNToBeTracked=0;
   fNGenParticles=1;//for interactive use
+  fNGenMaxParticles=1;//for interactive use
 
   fDetCon=NULL;
   fInFileName="";
@@ -57,7 +58,7 @@ A2PrimaryGeneratorAction::~A2PrimaryGeneratorAction()
 {
   if(fGenLorentzVec)
   {
-    for(Int_t i=0;i<fNGenParticles;i++) delete fGenLorentzVec[i];
+    for(Int_t i=0;i<fNGenMaxParticles;i++) delete fGenLorentzVec[i];
     delete [] fGenLorentzVec;
   }
   if (fGenPartType)
@@ -102,30 +103,78 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     break;
 
   case EPGA_FILE:
-    if (fFileGen && fNToBeTracked > 0){
-
-      //
-      // set tracking flag (only for first event)
-      //
-
-      // check for first event
-      if (fNevent == 0)
-      {
-        // loop over tracked particles
-        for (G4int i = 0; i < fNToBeTracked; i++)
-        {
-          G4int p_index = fTrackThis[i]-1;
-          fFileGen->SetParticleIsTrack(p_index);
-          if (fFileGen->IsParticleTrack(p_index))
-          {
-            G4cout << "Will track " << fFileGen->GetParticleDefinition(p_index)->GetParticleName()
-                   << " with index " << fTrackThis[i] << G4endl;
-          }
-        }
-      }
+    if (fFileGen){
 
       // get the event from input tree
       fFileGen->ReadEvent(fNevent);
+      //fFileGen->Print();
+
+      //
+      // show added particles
+      //
+
+      // check for first event
+      if (fNevent == 0 && fFileGen->GetType() != A2FileGenerator::kPlutoCocktail)
+      {
+        for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
+        {
+          TString fmt = TString::Format("Particle %2d : ", i+1);
+          if (fFileGen->GetParticleDefinition(i))
+          {
+            fmt += TString::Format("%-12s  PDG ID: %d",
+                                   fFileGen->GetParticleDefinition(i)->GetParticleName().c_str(),
+                                   fFileGen->GetParticleDefinition(i)->GetPDGEncoding());
+          }
+          else
+            fmt += "unknown";
+          G4cout << fmt << G4endl;
+        }
+      }
+
+      //
+      // set tracking flag
+      // overwrite tracking flags possibly set in the file
+      // event generator (Pluto)
+      //
+
+      // check for manually specified tracking indices
+      if (fNToBeTracked)
+      {
+        // loop over particles
+        for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
+        {
+          // check if it was marked as tracked
+          if (IsTracked(i+1))
+          {
+            // try to set flag for tracking
+            fFileGen->SetParticleIsTrack(i);
+
+            // user info
+            if (fNevent == 0)
+            {
+              if (fFileGen->IsParticleTrack(i))
+              {
+                G4cout << "Particle " << i+1 << " ("
+                       << fFileGen->GetParticleDefinition(i)->GetParticleName()
+                       << ") will be tracked" << G4endl;
+              }
+              else
+              {
+                G4cout << "Unknown particle " << i+1 << " cannot be tracked!" << G4endl;
+              }
+            }
+          }
+          else
+          {
+            fFileGen->SetParticleIsTrack(i, false);
+          }
+        }
+      }
+      else
+      {
+        if (fNevent == 0)
+          G4cout << "All stable particles will be tracked" << G4endl;
+      }
 
       //
       // set arrays for CB output reader
@@ -141,10 +190,13 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       fBeamLorentzVec->SetPxPyPzE(beam.fP.x(), beam.fP.y(), beam.fP.z(), beam.fE);
 
       // set generated 4-vectors to store in output file
-      for (G4int i = 1; i < fNGenParticles; i++)
+      fNGenParticles = fFileGen->GetNParticles();
+      for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
       {
-	const G4ThreeVector& mom = fFileGen->GetParticleMomentum(i-1);
-        fGenLorentzVec[i]->SetPxPyPzE(mom.x(), mom.y(), mom.z(), fFileGen->GetParticleEnergy(i-1));
+	const G4ThreeVector& mom = fFileGen->GetParticleMomentum(i);
+        fGenLorentzVec[i+1]->SetPxPyPzE(mom.x(), mom.y(), mom.z(), fFileGen->GetParticleEnergy(i));
+        fGenPartType[i+1] = fFileGen->GetParticleDefinition(i) ?
+                            PDGtoG3(fFileGen->GetParticleDefinition(i)->GetPDGEncoding()) : 0;
       }
 
       //
@@ -300,43 +352,53 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
 
   // open file
   if (tree_mkin)
-  {
-    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening mkin event-file" << G4endl;
     fFileGen = new A2FileGeneratorMkin(fInFileName);
-  }
   else if (tree_pluto)
-  {
-    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto event-file" << G4endl;
     fFileGen = new A2FileGeneratorPluto(fInFileName);
-  }
   else
   {
-    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No supported ROOT event-tree found!" << G4endl;
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): ROOT event-tree format is not supported!" << G4endl;
     exit(1);
   }
 
   // init the file
   fFileGen->Init();
 
-  fNGenParticles = fFileGen->GetNParticles() + 1; // for beam
-  fGenLorentzVec=new TLorentzVector*[fNGenParticles];
-  for(Int_t i=0;i<fNGenParticles;i++)
+  // user info
+  if (fFileGen->GetType() == A2FileGenerator::kMkin)
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening mkin event-file" << G4endl;
+  else if (fFileGen->GetType() == A2FileGenerator::kPluto)
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto single-event file" << G4endl;
+  else if (fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto cocktail-event file" << G4endl;
+
+  // create data structures for generated particles
+  fNGenMaxParticles = fFileGen->GetMaxParticles() + 1; // for beam
+  fGenLorentzVec=new TLorentzVector*[fNGenMaxParticles];
+  for(Int_t i=0;i<fNGenMaxParticles;i++)
     fGenLorentzVec[i]=new TLorentzVector();
-  fGenPartType=new Int_t[fNGenParticles];
-  for(Int_t i=1;i<fNGenParticles;i++)
+  fGenPartType=new Int_t[fNGenMaxParticles];
+  for(Int_t i=1;i<fNGenMaxParticles;i++)
+    fGenPartType[i] = -1;
+
+  // perform a few checks
+  if (fNToBeTracked == 0)
   {
-    fGenPartType[i] = fFileGen->GetParticleDefinition(i-1) ?
-                      PDGtoG3(fFileGen->GetParticleDefinition(i-1)->GetPDGEncoding()) : 0;
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No particles marked for tracking so all stable particles will be tracked" << G4endl;
   }
-  if(fNToBeTracked==0){
-    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No particle marked for tracking!" << G4endl;
+  else
+  {
+    if (fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+    {
+      G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Particle tracking should not be specified if input is Pluto cocktail!" << G4endl;
+      exit(1);
+    }
+  }
+  if (fNToBeTracked != fNToBeTcount)
+  {
+    G4cout<<"A2PrimaryGeneratorAction::SetUpFileInput(): Mismatch between number of tracked particles and particles marked for tracking!"<<G4endl;
     exit(1);
   }
-  else if(fNToBeTracked!=fNToBeTcount){
-    G4cout<<"A2PrimaryGeneratorAction::SetUpRootInput(): You have not set enough particles to be tracked!"<<G4endl;
-    exit(1);
-  }
-  else G4cout<<"A2PrimaryGeneratorAction::SetUpFileInput(): You have chosen to track "<<fNToBeTracked<<" generated particles."<<G4endl;
 }
 
 G4int A2PrimaryGeneratorAction::GetNEvents()
@@ -356,6 +418,7 @@ void A2PrimaryGeneratorAction::SetMode(G4int mode)
     fGenLorentzVec=new TLorentzVector*[2];
     fGenPartType=new G4int[2];
     fNGenParticles=2;//to write the A2CBoutput into dircos branch
+    fNGenMaxParticles=2;//to write the A2CBoutput into dircos branch
     fGenLorentzVec[0]=new TLorentzVector(0,0,0,0);
     fGenLorentzVec[1]=new TLorentzVector(0,0,0,0);
     fGenPartType[0]=-1;
