@@ -24,10 +24,19 @@ public:
         G4bool fIsTrack;            // tracking flag
         A2GenParticle_t() : fDef(0), fP(0, 0, 0), fE(0),
                             fM(0), fX(0, 0, 0), fT(0), fIsTrack(false) { }
+        void SetCorrectMass();
         void Print(const char* pre = "") const;
     };
 
+    enum EFileGenType {
+        kNone,
+        kMkin,
+        kPluto,
+        kPlutoCocktail
+    };
+
 protected:
+    EFileGenType fType;                     // type of file generator
     G4String fFileName;                     // input file name
     G4int fNEvents;                         // number of events
     A2GenParticle_t fBeam;                  // beam particle
@@ -35,12 +44,14 @@ protected:
     std::vector<A2GenParticle_t> fPart;     // list of particles
 
 public:
-    A2FileGenerator(const char* filename);
+    A2FileGenerator(const char* filename, EFileGenType type);
     virtual ~A2FileGenerator() { }
 
     virtual G4bool Init() = 0;
     virtual G4bool ReadEvent(G4int event) = 0;
+    virtual G4int GetMaxParticles() = 0;
 
+    EFileGenType GetType() const { return fType; }
     const G4String& GetFileName() const { return fFileName; }
     G4int GetNEvents() const { return fNEvents; }
     const G4ThreeVector& GetVertex() const { return fVertex; }

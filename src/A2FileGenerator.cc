@@ -1,18 +1,34 @@
 // Abstract file-based event generator
 // Author: Dominik Werthmueller, 2018
 
+#include "TMath.h"
+
 #include "G4ParticleDefinition.hh"
 
 #include "A2FileGenerator.hh"
 
 //______________________________________________________________________________
-A2FileGenerator::A2FileGenerator(const char* filename)
+A2FileGenerator::A2FileGenerator(const char* filename, EFileGenType type)
 {
     // Constructor.
 
     // init members
+    fType = type;
     fFileName = filename;
     fNEvents = 0;
+}
+
+//______________________________________________________________________________
+void A2FileGenerator::A2GenParticle_t::SetCorrectMass()
+{
+    // Init the mass of the particle based on the particle definition and
+    // the 4-momentum.
+
+    // check for defined massless particles
+    if (fDef && fDef->GetPDGMass() == 0)
+        fM = 0;
+    else
+        fM = TMath::Sqrt(fE*fE - fP.mag2());
 }
 
 //______________________________________________________________________________
@@ -36,11 +52,7 @@ void A2FileGenerator::SetParticleIsTrack(G4int p, G4bool t)
 
     // check if particle can be tracked
     if (t && !fPart[p].fDef)
-    {
-        G4cout << "A2FileGenerator::SetParticleIsTrack(): Unknown particle " << p
-               << " cannot be tracked!" << G4endl;
         return;
-    }
 
     fPart[p].fIsTrack = t;
 }
@@ -50,7 +62,18 @@ void A2FileGenerator::Print() const
 {
     // Print the content of this class.
 
-    G4cout << "File name           : " << fFileName << G4endl
+    G4String type;
+    if (fType == kMkin)
+        type = "Mkin";
+    else if (fType == kPluto)
+        type = "Pluto";
+    else if (fType == kPlutoCocktail)
+        type = "Pluto Cocktail";
+    else
+        type = "Unknown";
+
+    G4cout << "Generator type      : " << type << G4endl
+           << "File name           : " << fFileName << G4endl
            << "Number of events    : " << fNEvents << G4endl
            << "Number of particles : " << fPart.size() << G4endl
            << "Primary vertex      : " << fVertex << G4endl
