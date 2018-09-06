@@ -78,7 +78,7 @@ int main(int argc,char** argv) {
 	G4cout << G4endl;
 	G4cout << "Options: " << G4endl;
 	G4cout << "\t-h --help \t print this help and exit" << G4endl;
-	G4cout << "\t-i --if   \t input mkin file (overwrites /A2/event/setInputFile command in macro)" << G4endl;
+	G4cout << "\t-i --if   \t input event file (overwrites /A2/event/setInputFile command in macro)" << G4endl;
 	G4cout << "\t-m --mac  \t .mac file to run in batch mode" << G4endl;
 	G4cout << "\t-n --num  \t # of events to simulate" << G4endl;
 	G4cout << "\t-d --det  \t detector setup macro" << G4endl;
