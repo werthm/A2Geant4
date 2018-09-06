@@ -89,7 +89,7 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     P=sqrt(fParticleGun->GetParticleEnergy()*fParticleGun->GetParticleEnergy()-Mass*Mass);
     pvec=(fParticleGun->GetParticleMomentumDirection())*P;
     fBeamLorentzVec->SetXYZM(pvec.x(),pvec.y(),pvec.z(),Mass);
-    fGenLorentzVec[1]->SetXYZM(pvec.x(),pvec.y(),pvec.z(),Mass);
+    fGenLorentzVec[0]->SetXYZM(pvec.x(),pvec.y(),pvec.z(),Mass);
     break;
 
   case EPGA_phase_space:
@@ -194,9 +194,9 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
       {
 	const G4ThreeVector& mom = fFileGen->GetParticleMomentum(i);
-        fGenLorentzVec[i+1]->SetPxPyPzE(mom.x(), mom.y(), mom.z(), fFileGen->GetParticleEnergy(i));
-        fGenPartType[i+1] = fFileGen->GetParticleDefinition(i) ?
-                            PDGtoG3(fFileGen->GetParticleDefinition(i)->GetPDGEncoding()) : 0;
+        fGenLorentzVec[i]->SetPxPyPzE(mom.x(), mom.y(), mom.z(), fFileGen->GetParticleEnergy(i));
+        fGenPartType[i] = fFileGen->GetParticleDefinition(i) ?
+                          PDGtoG3(fFileGen->GetParticleDefinition(i)->GetPDGEncoding()) : 0;
       }
 
       //
@@ -236,7 +236,7 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 }
 
 void A2PrimaryGeneratorAction::PhaseSpaceGenerator(G4Event* anEvent){
-  if(fGenPartType[1]==-1){fGenPartType[1]= PDGtoG3(fParticleGun->GetParticleDefinition()->GetPDGEncoding());G4cout<<"P type "<<fGenPartType[1]<<G4endl;}
+  if(fGenPartType[0]==-1){fGenPartType[0]= PDGtoG3(fParticleGun->GetParticleDefinition()->GetPDGEncoding());G4cout<<"P type "<<fGenPartType[0]<<G4endl;}
   //4-momenta
   G4float theta=acos((cos(fThetamax)-cos(fThetamin))*G4UniformRand()+cos(fThetamin));
   G4float phi=2*3.141592653589*G4UniformRand();
@@ -252,7 +252,7 @@ void A2PrimaryGeneratorAction::PhaseSpaceGenerator(G4Event* anEvent){
   fParticleGun->SetParticleEnergy(T);
   //save root output
   fBeamLorentzVec->SetXYZM(p3.x(),p3.y(),p3.z(),Mass);
-  fGenLorentzVec[1]->SetXYZM(p3.x(),p3.y(),p3.z(),Mass);
+  fGenLorentzVec[0]->SetXYZM(p3.x(),p3.y(),p3.z(),Mass);
   //position vertex
   G4float tx=1E10*m;
   G4float ty=1E10*m;
@@ -373,7 +373,7 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
     G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto cocktail-event file" << G4endl;
 
   // create data structures for generated particles
-  fNGenMaxParticles = fFileGen->GetMaxParticles() + 1; // for beam
+  fNGenMaxParticles = fFileGen->GetMaxParticles();
   fGenLorentzVec=new TLorentzVector*[fNGenMaxParticles];
   for(Int_t i=0;i<fNGenMaxParticles;i++)
     fGenLorentzVec[i]=new TLorentzVector();
@@ -415,14 +415,12 @@ void A2PrimaryGeneratorAction::SetMode(G4int mode)
   G4cout<<"Set Mode "<<G4endl;
   if(fMode==EPGA_phase_space||fMode==EPGA_g4)
   {
-    fGenLorentzVec=new TLorentzVector*[2];
-    fGenPartType=new G4int[2];
-    fNGenParticles=2;//to write the A2CBoutput into dircos branch
-    fNGenMaxParticles=2;//to write the A2CBoutput into dircos branch
+    fGenLorentzVec=new TLorentzVector*[1];
+    fGenPartType=new G4int[1];
+    fNGenParticles=1;//to write the A2CBoutput into dircos branch
+    fNGenMaxParticles=1;//to write the A2CBoutput into dircos branch
     fGenLorentzVec[0]=new TLorentzVector(0,0,0,0);
-    fGenLorentzVec[1]=new TLorentzVector(0,0,0,0);
     fGenPartType[0]=-1;
-    fGenPartType[1]=-1;
     fTrackThis = new Int_t[1];
     fTrackThis[0] = 1;
   }

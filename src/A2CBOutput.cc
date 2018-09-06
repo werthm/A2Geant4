@@ -11,7 +11,7 @@ A2CBOutput::A2CBOutput(){
 
   fDET=const_cast<A2DetectorConstruction*>(static_cast<const A2DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction()));
   //Need to get the number of initial particles
-  fnpart=fPGA->GetNGenMaxParticles()-1; //-1 for beam
+  fnpart=fPGA->GetNGenMaxParticles();
   if(fnpart>100){
     G4cerr<<"A2CBOutput::A2CBOutput() can only store 100 particles. Need to edit fdircos[100][3] in A2CBOutput.hh if you want more particles."<<G4endl;
     exit(1);
@@ -232,17 +232,12 @@ void A2CBOutput::WriteGenInput(){
   //Loop over the input particles and write their real kinematics
   fnpart=fPGA->GetNGenParticles();
   for(Int_t i=0;i<fnpart;i++){
-    //+1 , index 0 is empty
-    //if(!fGenLorentzVec[i+1])continue;
-    vec=fGenLorentzVec[i+1]->Vect().Unit();
-    // G4cout<<i<<" "<<vec.X()<<" "<<vec.Y()<<" "<<vec.Z()<<G4endl;
-    // G4cout<<" "<<fGenLorentzVec[i+1]->E()<<" "<<fGenLorentzVec[i+1]->Rho()<<G4endl;
+    vec=fGenLorentzVec[i]->Vect().Unit();
     fdircos[i][0]=static_cast<Float_t>(vec.X());
     fdircos[i][1]=static_cast<Float_t>(vec.Y());
     fdircos[i][2]=static_cast<Float_t>(vec.Z());
-    // G4cout<<fdircos[i][0]<<" "<<fdircos[i][1]<<" "<<fdircos[i][2]<<G4endl;
-    felab[i]=fGenLorentzVec[i+1]->E()/GeV;
-    fplab[i]=fGenLorentzVec[i+1]->Rho()/GeV;
-    fidpart[i]=fGenPartType[i+1];
+    felab[i]=fGenLorentzVec[i]->E()/GeV;
+    fplab[i]=fGenLorentzVec[i]->Rho()/GeV;
+    fidpart[i]=fGenPartType[i];
   }
 }
