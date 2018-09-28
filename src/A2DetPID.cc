@@ -108,7 +108,7 @@ G4VPhysicalVolume* A2DetPID::Construct2(G4LogicalVolume* MotherLogical,G4double 
   //Make PID Logical Volume
   //Take the centre radius from the scintillators, thickness from the lightguides~1cm, and length from scintillators+lightguides+pmts+base
   // G4double moth_rin=fpid_rin+fpid_thick/2-8*mm;
-  G4double moth_rin=54.2-0.1*mm; //aliminium ring
+  G4double moth_rin=(54.2-0.1)*mm; //aliminium ring
   //  G4double moth_rout=fpid_rin+fpid_thick/2+0.55*cm;
   G4double moth_rout=66.31*mm; //aliminium ring chnaged dglazier 26/01/09
   G4double moth_z=fpid_z+flg_z-flg12_z+fpmt_z*2+fbase_z*2+10*mm;//extra 6mm for supports
