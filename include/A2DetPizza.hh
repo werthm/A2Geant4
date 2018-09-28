@@ -33,7 +33,6 @@ protected:
     G4TessellatedSolid* BuildPlanarTessSolid(G4int n, const G4double* x,
                                              const G4double* y, G4double thickness,
                                              const G4String& name);
-    void CheckOverlapAndAbort(G4VPhysicalVolume* vol, const G4String& location);
 
 public:
     A2DetPizza(G4double zpos);
