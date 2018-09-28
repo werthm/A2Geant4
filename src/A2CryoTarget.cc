@@ -20,7 +20,7 @@ A2CryoTarget::~A2CryoTarget()
 }
 
 
-G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
+G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic, G4double Z0){
   switch (fType)
   {
     case kCryo1:
@@ -34,7 +34,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic){
   }
 }
 
-G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic){
+G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic, G4double Z0){
 
   if (fType==kCryoHe) G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long He3/4 target" <<G4endl;
   else G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target (4.1 cm CFK radius)" <<G4endl;
@@ -182,7 +182,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic){
 
 }
 
-G4VPhysicalVolume* A2CryoTarget::Construct2(G4LogicalVolume *MotherLogic){
+G4VPhysicalVolume* A2CryoTarget::Construct2(G4LogicalVolume *MotherLogic, G4double Z0){
 
   G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target (3.1 cm CFK radius)" <<G4endl;
 
