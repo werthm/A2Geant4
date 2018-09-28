@@ -60,6 +60,7 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
   fCBCrystGeometry = "std";
   fTarget=NULL;
   fTargetLength=4.8*cm;
+  fTargetZ=0;
   fUseTarget=G4String("NO");
   //Default taps settings as for 2003
   fTAPSSetupFile="data/taps.dat";
@@ -224,7 +225,9 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
       (static_cast<A2PolarizedTarget*>(fTarget))->SetMagneticField(fNameFileFieldMap);
       (static_cast<A2PolarizedTarget*>(fTarget))->SetMagneticCoils(fTypeMagneticCoils);
     }
-    fTarget->Construct(fWorldLogic);
+    if (fTargetZ)
+        G4cout << "A2DetectorConstruction::Construct() Shift the target center by " << fTargetZ << " mm" << G4endl;
+    fTarget->Construct(fWorldLogic, fTargetZ);
   }
   //                                        
   // Visualization attributes

@@ -203,4 +203,5 @@ Command                                        | Meaning
 Command                        | Meaning
 :----------------------------- |:-------
 `/A2/det/setTargetLength 2 cm` | set target length
+`/A2/det/setTargetZ 0. cm`     | target z-shift
 
