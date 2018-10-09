@@ -16,6 +16,8 @@ using namespace CLHEP;
 
 A2PolarizedTarget::A2PolarizedTarget()
 {
+  fLength=20.0*mm;
+  fRadius=9.905*mm; //was 0.5mm
   fMagneticField = NULL;
 }
 A2PolarizedTarget::~A2PolarizedTarget()
@@ -62,8 +64,6 @@ G4VPhysicalVolume* A2PolarizedTarget::Construct(G4LogicalVolume *MotherLogic, G4
 //   }
 
  fMotherLogic=MotherLogic;
- fLength=20.0*mm;
- fRadius=9.905*mm; //was 0.5mm
 
  //Note: 
  //l indicates length,
