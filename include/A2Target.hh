@@ -29,7 +29,7 @@ public:
   void SetLength(G4double l) { fLength = l; }
   void SetRadius(G4double r) { fRadius = r; }
 
-  G4ThreeVector GetCenter(){return fCenter;}
+  G4ThreeVector& GetCenter(){return fCenter;}
   G4double GetLength(){return fLength;}
   G4double GetRadius(){return fRadius;}
 
