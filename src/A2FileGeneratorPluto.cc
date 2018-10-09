@@ -159,9 +159,6 @@ G4bool A2FileGeneratorPluto::ReadEvent(G4int event)
     if (!A2FileGeneratorTree::ReadEvent(event))
         return false;
 
-    // set primary vertex
-    // TODO
-
     // clear particles
     fPart.clear();
 
@@ -174,7 +171,9 @@ G4bool A2FileGeneratorPluto::ReadEvent(G4int event)
         part.fP.set(fPartPx[i]*GeV, fPartPy[i]*GeV, fPartPz[i]*GeV);
         part.fE = fPartE[i]*GeV;
         part.SetCorrectMass();
-        part.fX.set(fPartX[i]*mm, fPartY[i]*mm, fPartZ[i]*mm); // TODO shift from primary vertex
+        part.fX.set(fVertex.x() + fPartX[i]*mm,
+                    fVertex.y() + fPartY[i]*mm,
+                    fVertex.z() + fPartZ[i]*mm);
         part.fT = fPartT[i] * 1e-3 / TMath::C() * 1e9 * ns; // TODO check this
 
         // check for stable particles to be tracked
