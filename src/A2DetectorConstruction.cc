@@ -24,6 +24,7 @@
 
 #include "A2CryoTarget.hh"
 #include "A2SolidTarget.hh"
+#include "A2SolidTargetGeneric.hh"
 #include "A2PolarizedTarget.hh"
 #include "A2DetPID.hh"
 #include "A2DetPID3.hh"
@@ -215,6 +216,8 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
     else if(fUseTarget=="Cryo2") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryo2));
     else if(fUseTarget=="CryoHe3") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryoHe));
     else if(fUseTarget=="Solid") fTarget=static_cast<A2Target*>(new A2SolidTarget());
+    else if(fUseTarget=="Solid_Generic") fTarget=static_cast<A2Target*>(new A2SolidTargetGeneric());
+    else if(fUseTarget=="Solid_Oct_18") fTarget=static_cast<A2Target*>(new A2SolidTargetGeneric(A2SolidTargetGeneric::kOct_18));
     else if(fUseTarget=="Polarized") fTarget=static_cast<A2Target*>(new A2PolarizedTarget());
     else{G4cerr<<"A2DetectorConstruction::Construct() Target type does not exist. See DetectorSetup.mac or README"<<G4endl;exit(1);}
     fTarget->SetMaterial(fTargetMaterial);
