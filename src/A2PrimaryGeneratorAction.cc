@@ -2,6 +2,7 @@
 #include "A2PrimaryGeneratorAction.hh"
 
 #include "A2PrimaryGeneratorMessenger.hh"
+#include "A2DetectorConstruction.hh"
 #include "A2FileGeneratorMkin.hh"
 #include "A2FileGeneratorPluto.hh"
 
@@ -104,7 +105,16 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     break;
 
   case EPGA_FILE:
-    if (fFileGen){
+    if (fFileGen)
+    {
+      // generate vertex for pluto input
+      if (fFileGen->GetType() == A2FileGenerator::kPluto ||
+          fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+      {
+        fFileGen->GenerateVertexCylinder(fDetCon->GetTarget()->GetLength(),
+                                         fDetCon->GetTarget()->GetCenter().z(),
+                                         fBeamDiameter);
+      }
 
       // get the event from input tree
       fFileGen->ReadEvent(fNevent);
@@ -400,6 +410,15 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
     G4cout<<"A2PrimaryGeneratorAction::SetUpFileInput(): Mismatch between number of tracked particles and particles marked for tracking!"<<G4endl;
     exit(1);
   }
+  if (fFileGen->GetType() == A2FileGenerator::kPluto || fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+  {
+    if (fBeamDiameter == 0)
+    {
+      G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Pluto-input requires a beam diameter set via /A2/generator/SetBeamDiameter" << G4endl;
+      exit(1);
+    }
+  }
+
 }
 
 G4int A2PrimaryGeneratorAction::GetNEvents()
