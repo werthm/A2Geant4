@@ -88,6 +88,7 @@ private:
   G4float fThetamax;       //Max phase space angle
   G4float fBeamXSigma;    //beam X width
   G4float fBeamYSigma;    //beam X width
+  G4float fBeamDiameter;    //beam diameter on target
   G4float fTargetZ0;      //Target Z position
   G4float fTargetThick;   //Target thickness
   G4float fTargetRadius;   //Target radius (in x-y plane)
@@ -101,6 +102,7 @@ public:
   void SetThetamax(G4float max){fThetamax=max;}
   void SetBeamXSigma(G4float sigma){fBeamXSigma=sigma;}
   void SetBeamYSigma(G4float sigma){fBeamYSigma=sigma;}
+  void SetBeamDiameter(G4float d){fBeamDiameter=d;}
   void SetTargetZ0(G4float z){fTargetZ0=z;}
   void SetTargetThick(G4float z){fTargetThick=z;}
   void SetTargetRadius(G4float z){fTargetRadius=z;}

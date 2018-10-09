@@ -34,6 +34,7 @@ A2PrimaryGeneratorAction::A2PrimaryGeneratorAction()
   fThetamax=180*deg;
   fBeamXSigma=0.5*cm;
   fBeamYSigma=0.5*cm;
+  fBeamDiameter = 0;
   fTargetZ0=0*cm;
   fTargetThick=5*cm;
   fTargetRadius=2*cm;
