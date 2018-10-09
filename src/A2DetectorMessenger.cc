@@ -63,12 +63,18 @@ A2DetectorMessenger::A2DetectorMessenger(
   fTargetMatCmd->SetGuidance("Select the target material");
   fTargetMatCmd->SetParameterName("TargetMaterial",false);
   fTargetMatCmd->AvailableForStates(cmdState,G4State_Idle);
-  
+
   fTargetLengthCmd = new G4UIcmdWithADoubleAndUnit("/A2/det/setTargetLength",this);
   fTargetLengthCmd->SetGuidance("Set target cell length");
   fTargetLengthCmd->SetParameterName("TargetLength",false);
   fTargetLengthCmd->SetUnitCategory("Length");
   fTargetLengthCmd->AvailableForStates(cmdState,G4State_Idle);
+
+  fTargetRadiusCmd = new G4UIcmdWithADoubleAndUnit("/A2/det/setTargetRadius",this);
+  fTargetRadiusCmd->SetGuidance("Set target radius");
+  fTargetRadiusCmd->SetParameterName("TargetRadius",false);
+  fTargetRadiusCmd->SetUnitCategory("Length");
+  fTargetRadiusCmd->AvailableForStates(cmdState,G4State_Idle);
 
   fTargetZCmd = new G4UIcmdWithADoubleAndUnit("/A2/det/setTargetZ",this);
   fTargetZCmd->SetGuidance("Set distance of target center from center of ball");
@@ -185,6 +191,7 @@ A2DetectorMessenger::~A2DetectorMessenger()
   delete fUsePizzaCmd;
   delete fPizzaZCmd;
   delete fTargetLengthCmd;
+  delete fTargetRadiusCmd;
   delete fTargetZCmd;
   delete fTargetMagneticFieldCmd;
   delete fHemiGapCmd;
@@ -233,6 +240,9 @@ void A2DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   
   if( command == fTargetLengthCmd )
     { fA2Detector->SetTargetLength(fTargetLengthCmd->GetNewDoubleValue(newValue));}
+
+  if( command == fTargetRadiusCmd )
+    { fA2Detector->SetTargetRadius(fTargetRadiusCmd->GetNewDoubleValue(newValue));}
 
   if( command == fTargetZCmd )
     { fA2Detector->SetTargetZ(fTargetZCmd->GetNewDoubleValue(newValue));}
