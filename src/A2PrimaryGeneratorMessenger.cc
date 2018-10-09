@@ -83,6 +83,12 @@ A2PrimaryGeneratorMessenger::A2PrimaryGeneratorMessenger(
   SetBeamYSigmaCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   SetBeamYSigmaCmd->SetUnitCategory("Length");
 
+  SetBeamDiameterCmd = new G4UIcmdWithADoubleAndUnit("/A2/generator/SetBeamDiameter",this);
+  SetBeamDiameterCmd->SetGuidance("Set the diameter of the photon beam");
+  SetBeamDiameterCmd->SetParameterName("BeamDiameter",false);
+  SetBeamDiameterCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  SetBeamDiameterCmd->SetUnitCategory("Length");
+
   SetTargetZ0Cmd = new G4UIcmdWithADoubleAndUnit("/A2/generator/SetTargetZ0",this);
   SetTargetZ0Cmd->SetGuidance("Set the target Z0 position");
   SetTargetZ0Cmd->SetParameterName("TargetZ0",false);
@@ -126,6 +132,7 @@ A2PrimaryGeneratorMessenger::~A2PrimaryGeneratorMessenger()
   delete SetSeedCmd;
   delete SetBeamXSigmaCmd;
   delete SetBeamYSigmaCmd;
+  delete SetBeamDiameterCmd;
   delete SetTargetZ0Cmd;
   delete SetTargetThickCmd;
   delete SetTargetRadiusCmd;
@@ -172,6 +179,9 @@ void A2PrimaryGeneratorMessenger::SetNewValue(
  
    if( command == SetBeamYSigmaCmd )
      { A2Action->SetBeamYSigma(SetBeamYSigmaCmd->GetNewDoubleValue(newValue));}
+
+   if( command == SetBeamDiameterCmd )
+     { A2Action->SetBeamDiameter(SetBeamDiameterCmd->GetNewDoubleValue(newValue));}
  
    if( command == SetTargetZ0Cmd )
      { A2Action->SetTargetZ0(SetTargetZ0Cmd->GetNewDoubleValue(newValue));}
