@@ -114,6 +114,7 @@ Command                                | Meaning
 `/A2/generator/SetThetaMax 120 deg`    | maximum polar angle for a particle in the phase-space generator
 `/A2/generator/SetBeamXSigma 10 mm`    | x-sigma of incoming beam
 `/A2/generator/SetBeamYSigma 10 mm`    | y-sigma of incoming beam
+`/A2/generator/SetBeamDiameter 10 mm`  | beam-spot diameter on target
 `/A2/generator/SetTargetZ0 0 mm`       | target z-position
 `/A2/generator/SetTargetThick 0.4 mm`  | target length
 `/A2/generator/SetTargetRadius 0.5 cm` | target radius
