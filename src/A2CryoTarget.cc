@@ -11,8 +11,9 @@ using namespace CLHEP;
 
 A2CryoTarget::A2CryoTarget(A2CryoTargetType type)
 {
-  fTargetLength=5.12*cm;
+  fLength=5.12*cm;
   fType = type;
+  fRadius = fType==kCryoHe ? 1.5025*cm : 2.*cm;
 }
 A2CryoTarget::~A2CryoTarget()
 {
@@ -36,8 +37,8 @@ G4VPhysicalVolume* A2CryoTarget::Construct(G4LogicalVolume *MotherLogic, G4doubl
 
 G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic, G4double Z0){
 
-  if (fType==kCryoHe) G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long He3/4 target" <<G4endl;
-  else G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target (4.1 cm CFK radius)" <<G4endl;
+  if (fType==kCryoHe) G4cout << "A2CryoTarget: Constructing the " << fLength/cm << " cm long He3/4 target" <<G4endl;
+  else G4cout << "A2CryoTarget: Constructing the " << fLength/cm << " cm long LH2/LD2 target (4.1 cm CFK radius)" <<G4endl;
 
   fMotherLogic=MotherLogic;
   //c Target volume parameters
@@ -61,7 +62,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic, G4doub
   G4double t_CU64 = 0.1*cm;
   //G4double l_CU64 = 16.6*cm - (r_CU64/tan(31.*deg));// ! See target manual
   //G4double l_CU64 = 14.1*cm - 5.0*cm; // for 10-cm target, distance from back to middle of cell - distance between middle of cell and copper tube
-  G4double l_CU64 = 19.0*cm - fTargetLength;
+  G4double l_CU64 = 19.0*cm - fLength;
   //c Parameters for the spherical cell part upstream
   G4double t_lD2C = 0.14*cm;//    ! Deformation of window = Thickness of cell part
   G4double r_lD2C = ((r_CU64-t_CU64)*(r_CU64-t_CU64)-t_lD2C*t_lD2C)/(2*t_lD2C)+t_lD2C;
@@ -70,8 +71,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic, G4doub
   G4double r_lD2A = fType==kCryoHe ? 1.5025*cm : 2.*cm;
   //G4double l_cell = 4.76*cm ;  // ! Length of cell at beam axis
   //G4double l_cell = 10.0*cm ;  // For 10-cm cell
-  G4double l_cell = fTargetLength;
-  fLength=l_cell;
+  G4double l_cell = fLength;
   fRadius=r_lD2A;
   G4double t_lD2B = r_lD2B - sqrt(r_lD2B*r_lD2B-r_lD2A*r_lD2A);
   G4double l_lD2A = l_cell - t_lD2C - t_lD2B;
@@ -184,7 +184,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct1(G4LogicalVolume *MotherLogic, G4doub
 
 G4VPhysicalVolume* A2CryoTarget::Construct2(G4LogicalVolume *MotherLogic, G4double Z0){
 
-  G4cout << "A2CryoTarget: Constructing the " << fTargetLength/cm << " cm long LH2/LD2 target (3.1 cm CFK radius)" <<G4endl;
+  G4cout << "A2CryoTarget: Constructing the " << fLength/cm << " cm long LH2/LD2 target (3.1 cm CFK radius)" <<G4endl;
 
   fMotherLogic=MotherLogic;
   //c Target volume parameters
@@ -208,7 +208,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct2(G4LogicalVolume *MotherLogic, G4doub
   G4double t_CU64 = 0.1*cm;
   //G4double l_CU64 = 16.6*cm - (r_CU64/tan(31.*deg));// ! See target manual
   //G4double l_CU64 = 14.1*cm - 5.0*cm; // for 10-cm target, distance from back to middle of cell - distance between middle of cell and copper tube
-  G4double l_CU64 = 19.0*cm - fTargetLength;
+  G4double l_CU64 = 19.0*cm - fLength;
   //c Parameters for the spherical cell part upstream
   G4double t_lD2C = 0.14*cm;//    ! Deformation of window = Thickness of cell part
   G4double r_lD2C = ((r_CU64-t_CU64)*(r_CU64-t_CU64)-t_lD2C*t_lD2C)/(2*t_lD2C)+t_lD2C;
@@ -217,8 +217,7 @@ G4VPhysicalVolume* A2CryoTarget::Construct2(G4LogicalVolume *MotherLogic, G4doub
   G4double r_lD2A = 2.*cm;
   //G4double l_cell = 4.76*cm ;  // ! Length of cell at beam axis
   //G4double l_cell = 10.0*cm ;  // For 10-cm cell
-  G4double l_cell = fTargetLength;
-  fLength=l_cell;
+  G4double l_cell = fLength;
   fRadius=r_lD2A;
   G4double t_lD2B = r_lD2B - sqrt(r_lD2B*r_lD2B-r_lD2A*r_lD2A);
   G4double l_lD2A = l_cell - t_lD2C - t_lD2B;

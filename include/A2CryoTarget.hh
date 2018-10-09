@@ -20,10 +20,8 @@ public:
   virtual G4VPhysicalVolume* Construct(G4LogicalVolume *MotherLogic, G4double Z0 = 0);
   virtual G4VPhysicalVolume* Construct1(G4LogicalVolume *MotherLogic, G4double Z0 = 0);
   virtual G4VPhysicalVolume* Construct2(G4LogicalVolume *MotherLogic, G4double Z0 = 0);
-  void SetTargetLength(G4double Len){fTargetLength=Len;}
 
 private:
- G4double fTargetLength;
  A2CryoTargetType fType;
 
 };
