@@ -16,6 +16,8 @@ A2 Geant4 simulation
 * generalized interface for input event-files
 * support for Pluto event-files
 * added tracked particles to metadata
+* added new class for generic and specific solid targets
+* support for target shifts (S. Wagner)
 
 ### 0.1.0
 * fixed bug related to compiler optimizations for Geant4 >= 10.3 (S. Gardner)
@@ -183,7 +185,9 @@ Command                          | Meaning
 ### Solid Targets
 Command                              | Meaning
 :----------------------------------- |:-------
-`/A2/det/useTarget Solid`            | solid target
+`/A2/det/useTarget Solid`            | solid target (pre-2007 experiments)
+`/A2/det/useTarget Solid_Generic`    | generic solid target
+`/A2/det/useTarget Solid_Oct_18`     | solid target for October 2018 experiment
 `/A2/det/targetMaterial G4_Li`       | Lithium
 `/A2/det/targetMaterial G4_GRAPHITE` | Graphite
 `/A2/det/targetMaterial G4_Ca`       | Calcium
@@ -202,6 +206,7 @@ Command                                        | Meaning
 ### General Target Options
 Command                        | Meaning
 :----------------------------- |:-------
-`/A2/det/setTargetLength 2 cm` | set target length
+`/A2/det/setTargetLength 2 cm` | set target length (not supported by all targets)
+`/A2/det/setTargetRadius 2 cm` | set target radius (not supported by all targets)
 `/A2/det/setTargetZ 0. cm`     | target z-shift
 
