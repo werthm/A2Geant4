@@ -59,7 +59,8 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
   //fHemiGap=0.4*cm;
   fCBCrystGeometry = "std";
   fTarget=NULL;
-  fTargetLength=4.8*cm;
+  fTargetLength=0;
+  fTargetRadius=0;
   fTargetZ=0;
   fUseTarget=G4String("NO");
   //Default taps settings as for 2003
@@ -215,10 +216,20 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
     else if(fUseTarget=="CryoHe3") fTarget=static_cast<A2Target*>(new A2CryoTarget(A2CryoTarget::kCryoHe));
     else if(fUseTarget=="Solid") fTarget=static_cast<A2Target*>(new A2SolidTarget());
     else if(fUseTarget=="Polarized") fTarget=static_cast<A2Target*>(new A2PolarizedTarget());
-    else{G4cerr<<"A2DetectorConstruction::Construct() Target type does not exist. See DetectorSetup.mac"<<G4endl;exit(1);}
-    //A2CryoTarget* Target=new  A2CryoTarget();
+    else{G4cerr<<"A2DetectorConstruction::Construct() Target type does not exist. See DetectorSetup.mac or README"<<G4endl;exit(1);}
     fTarget->SetMaterial(fTargetMaterial);
-    if(fUseTarget=="Cryo" || fUseTarget=="Cryo2" || fUseTarget=="CryoHe3") ((A2CryoTarget*)fTarget)->SetTargetLength(fTargetLength);
+    if (fTargetLength)
+    {
+      G4cout << "A2DetectorConstruction::Construct() Changing target length from default " << fTarget->GetLength() <<
+                 " mm to " << fTargetLength << " mm" << G4endl;
+      fTarget->SetLength(fTargetLength);
+    }
+    if (fTargetRadius)
+    {
+      G4cout << "A2DetectorConstruction::Construct() Changing target radius from default " << fTarget->GetRadius() <<
+                 " mm to " << fTargetRadius << " mm" << G4endl;
+      fTarget->SetRadius(fTargetRadius);
+    }
     if(fUseTarget=="Polarized")
     {
       G4cout<<"A2DetectorConstruction::Construct() make the polarised target with "<<fTypeMagneticCoils<<" coils"<<G4endl;
