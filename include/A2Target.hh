@@ -26,6 +26,7 @@ public:
  
   void SetIsInteractive(G4int is){fIsInteractive=is;}
   void SetMaterial(G4Material* mat){fMaterial=mat;}
+  void SetLength(G4double l) { fLength = l; }
 
   G4ThreeVector GetCenter(){return fCenter;}
   G4double GetLength(){return fLength;}
