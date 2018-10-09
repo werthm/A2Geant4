@@ -12,7 +12,7 @@ using namespace CLHEP;
 
 A2SolidTarget::A2SolidTarget()
 {
-  fRadius=2*cm;
+  fRadius=2.1*cm;
 }
 A2SolidTarget::~A2SolidTarget()
 {
@@ -110,7 +110,7 @@ G4VPhysicalVolume* A2SolidTarget::Construct(G4LogicalVolume *MotherLogic, G4doub
     ///////////////////////////////////////
 
   //  G4Tubs* CELL=new G4Tubs("CELL",0,1.5*cm,trgt_length/2,0*deg,360*deg);
-  G4Tubs* CELL=new G4Tubs("CELL",0,2.1*cm,trgt_length/2,0*deg,360*deg);//ctarbert measurement
+  G4Tubs* CELL=new G4Tubs("CELL",0,fRadius,trgt_length/2,0*deg,360*deg);//ctarbert measurement
   G4LogicalVolume* CELLLogic=new G4LogicalVolume(CELL,fMaterial,"CELL");
   new G4PVPlacement(0,G4ThreeVector(0,0,zm-0.75*cm-13*cm),CELLLogic,"CELL",VAC1Logic,false,1);
   G4VisAttributes* CellVisAtt= new G4VisAttributes(G4Colour(1.0,.0,0.0));
