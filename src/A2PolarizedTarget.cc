@@ -79,6 +79,8 @@ G4VPhysicalVolume* A2PolarizedTarget::Construct(G4LogicalVolume *MotherLogic, G4
  G4Tubs* MyShape=new G4Tubs("TRGT",0.,r_TRGT + 1.0*mm, l_TRGT/2 +1.0*mm,0*deg,360*deg);
  fMyLogic=new G4LogicalVolume(MyShape,fNistManager->FindOrBuildMaterial("G4_AIR"),"TRGT");
  fMyPhysi=new G4PVPlacement(0,G4ThreeVector(0,0, Z0 - 20.0*mm/2 - 11.5*mm - 231.5*mm + l_TRGT/2.),fMyLogic,"TRGT",fMotherLogic,false,1);
+ fCenter.set(0, 0, Z0);
+ G4cout << "Target centre " << fCenter.z() << G4endl;
  fMyLogic->SetVisAttributes (G4VisAttributes::Invisible);
 
  //Colours with thier corresponding materials used in the visualization:

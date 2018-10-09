@@ -37,6 +37,9 @@ G4VPhysicalVolume* A2SolidTargetGeneric::Construct(G4LogicalVolume* motherLogic,
     G4double airTube_radius = fRadius + 10*um;
     G4double airTube_length = fLength + 10*um;
 
+    // set target center
+    fCenter.set(0, 0, z0);
+
     // prepare specific targets
     switch (fType)
     {
@@ -54,6 +57,7 @@ G4VPhysicalVolume* A2SolidTargetGeneric::Construct(G4LogicalVolume* motherLogic,
     // user info
     G4cout << "A2SolidTargetGeneric::Construct(): Target length   : " << fLength << " mm" << G4endl;
     G4cout << "A2SolidTargetGeneric::Construct(): Target radius   : " << fRadius << " mm" << G4endl;
+    G4cout << "A2SolidTargetGeneric::Construct(): Target center   : " << fCenter.z() << " mm" << G4endl;
     G4cout << "A2SolidTargetGeneric::Construct(): Target material : " << fMaterial->GetName() << G4endl;
 
     // set the mother volume
@@ -82,7 +86,7 @@ G4VPhysicalVolume* A2SolidTargetGeneric::Construct(G4LogicalVolume* motherLogic,
     G4Tubs* cell = new G4Tubs("CELL", 0, fRadius, fLength/2., 0*deg, 360*deg);
     G4LogicalVolume* cell_log = new G4LogicalVolume(cell, fMaterial, "CELL");
     if (fType == kOct_18)
-        v = new G4PVPlacement(0, G4ThreeVector(0, 0, -airTube_z0), cell_log, "CELL", fMyLogic, false, 0);
+        v = new G4PVPlacement(0, G4ThreeVector(0, 0, z0 - airTube_z0), cell_log, "CELL", fMyLogic, false, 0);
     else
         v = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cell_log, "CELL", fMyLogic, false, 0);
     G4VisAttributes* vis_att = new G4VisAttributes(G4Colour(1, 0, 0));

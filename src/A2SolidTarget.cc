@@ -118,8 +118,8 @@ G4VPhysicalVolume* A2SolidTarget::Construct(G4LogicalVolume *MotherLogic, G4doub
   CELLLogic->SetVisAttributes(CellVisAtt);
   // G4cout<<"Target centre "<<(zpos+zm-0.75*cm-13*cm-0.5*cm)/cm<<"cm"<<G4endl;
   //  fCenter.set(0,0,zpos+zm-0.75*cm-13*cm-0.5*cm);//position of cell in world volume
-  G4cout<<"Target centre "<<(zm-0.75*cm-13*cm+zpos-0.25*cm-0.5*cm)/cm<<"cm"<<G4endl;
-  fCenter.set(0,0,zm-0.75*cm-13*cm+zpos-0.25*cm-0.5*cm);//position of cell in world volume
+  G4cout<<"Target centre "<<(Z0 + zm-0.75*cm-13*cm+zpos-0.25*cm-0.5*cm)/cm<<"cm"<<G4endl;
+  fCenter.set(0,0,Z0 + zm-0.75*cm-13*cm+zpos-0.25*cm-0.5*cm);//position of cell in world volume
 
   /////////////////////////////////////
     //Target holder
