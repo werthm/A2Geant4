@@ -13,20 +13,21 @@ class G4VPhysicalVolume;
 class A2Target
 {
 public:
-  
+
   A2Target();
   ~A2Target();
-  
+
   //virtual function to build the target needs to be implemented in derived class
   virtual G4VPhysicalVolume* Construct(G4LogicalVolume *MotherLogic, G4double Z0 = 0)=0;//Build the target
 
   G4VPhysicalVolume* GetPhysi(){return fMyPhysi;}
   G4LogicalVolume* GetLogic(){return fMyLogic;}
   G4LogicalVolume* GetMotherLogic(){return fMotherLogic;}
- 
+
   void SetIsInteractive(G4int is){fIsInteractive=is;}
   void SetMaterial(G4Material* mat){fMaterial=mat;}
   void SetLength(G4double l) { fLength = l; }
+  void SetRadius(G4double r) { fRadius = r; }
 
   G4ThreeVector GetCenter(){return fCenter;}
   G4double GetLength(){return fLength;}

@@ -10,8 +10,9 @@ A2Target::A2Target()
   fIsInteractive=1;
   fNistManager=G4NistManager::Instance();
   fLength=0;
+  fRadius=0;
 }
 A2Target::~A2Target()
 {
- 
+
 }
