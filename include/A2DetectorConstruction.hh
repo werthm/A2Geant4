@@ -122,7 +122,7 @@ public:
 
   G4String fTOFparFile; //TOF setup configuration
   
-  G4String fUseTarget; //Build the target, either "Cryo","Solid"
+  G4String fUseTarget; // target identifier
  
  //taps setup
   G4String fTAPSSetupFile; 
