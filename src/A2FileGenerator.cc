@@ -4,6 +4,7 @@
 #include "TMath.h"
 
 #include "G4ParticleDefinition.hh"
+#include "Randomize.hh"
 
 #include "A2FileGenerator.hh"
 
@@ -55,6 +56,25 @@ void A2FileGenerator::SetParticleIsTrack(G4int p, G4bool t)
         return;
 
     fPart[p].fIsTrack = t;
+}
+
+//______________________________________________________________________________
+void A2FileGenerator::GenerateVertexCylinder(G4double t_length, G4double t_center,
+                                             G4double b_diam)
+{
+    // Create a random vertex within the target-beam cylinder.
+
+    // randomize the vertex within the beam spot and the target
+    Double_t vX = 1e10;
+    Double_t vY = 1e10;
+    Double_t beamRad = b_diam / 2.;
+    while (vX*vX+vY*vY > beamRad*beamRad)
+    {
+        vX = beamRad * (2. * G4UniformRand() - 1.);
+        vY = beamRad * (2. * G4UniformRand() - 1.);
+    }
+    Double_t vZ = t_length / 2. * (2. * G4UniformRand() - 1.) + t_center;
+    fVertex.set(vX, vY, vZ);
 }
 
 //______________________________________________________________________________

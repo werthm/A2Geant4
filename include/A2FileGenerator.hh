@@ -70,6 +70,9 @@ public:
 
     void SetParticleIsTrack(G4int p, G4bool t = true);
 
+    void GenerateVertexCylinder(G4double t_length, G4double t_center,
+                                G4double b_diam);
+
     void Print() const;
 };
 
