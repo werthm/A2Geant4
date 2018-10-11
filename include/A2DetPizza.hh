@@ -11,9 +11,6 @@ class G4LogicalVolume;
 class G4Region;
 class A2SD;
 class A2VisSD;
-class G4TriangularFacet;
-class G4QuadrangularFacet;
-class G4TessellatedSolid;
 
 class A2DetPizza : public A2Detector
 {
@@ -24,15 +21,6 @@ protected:
     G4Region* fRegionPizza;     // region of pizza detector
     A2SD* fPizzaSD;             // sensitive detector
     A2VisSD* fPizzaVisSD;       // sensitive detector (interactive)
-
-    G4TriangularFacet** BuildTriSurface(G4int n, const G4double* x,
-                                        const G4double* y, G4double z,
-                                        G4bool reverse = false);
-    G4QuadrangularFacet** BuildDepthFacets(G4int n, const G4double* x,
-                                           const G4double* y, G4double thickness);
-    G4TessellatedSolid* BuildPlanarTessSolid(G4int n, const G4double* x,
-                                             const G4double* y, G4double thickness,
-                                             const G4String& name);
 
 public:
     A2DetPizza(G4double zpos);
