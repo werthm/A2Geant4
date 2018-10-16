@@ -41,8 +41,40 @@ A2 Geant4 simulation
 * Geant4 10.2/10.3/10.4
 * ROOT 5 or 6
 * CMake 2.6
+* Optional: Qt 4 or 5
 
 ### Installation
+
+#### Installation of Geant4
+
+Download the source tarball from https://geant4.web.cern.ch and extract it
+in a temporary directory:
+```
+cd /tmp
+wget https://geant4-data.web.cern.ch/geant4-data/releases/geant4.10.04.p02.tar.gz
+tar xvfz geant4.10.04.p02.tar.gz
+```
+Create a build directory (not inside the source directory) and run cmake. Set
+CMAKE_INSTALL_PREFIX to the final installation location and GEANT4_USE_QT to ON
+if you want to use the graphical user interface. Set GEANT4_INSTALL_DATA to ON
+so the large data packages will be downloaded automatically. Set N to the number
+of CPU cores to speed up the compilation process:
+```
+cd /tmp
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/opt/Geant4.10.04.02 -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_QT=ON /tmp/geant4.10.04.p02
+make -jN
+make install
+```
+Geant4 should now be installed in /opt/Geant4.10.04.02. Source the configuration script
+(geant4.sh for bash, geant4.csh for C shell)
+in your shell config file to set all the environment variables:
+```
+source /opt/Geant4.10.04.02/bin/geant4.sh
+```
+More details can be found in the official
+[documentation](http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/InstallationGuide/html/gettingstarted.html).
 
 #### Method 1: Getting the git master branch
 ```
