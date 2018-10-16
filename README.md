@@ -73,6 +73,7 @@ in your shell config file to set all the environment variables:
 ```
 source /opt/Geant4.10.04.02/bin/geant4.sh
 ```
+The temporary source and build directories can now be deleted.
 More details can be found in the official
 [documentation](http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/InstallationGuide/html/gettingstarted.html).
 
