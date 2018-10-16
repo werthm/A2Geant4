@@ -40,7 +40,7 @@ A2 Geant4 simulation
 ### Dependencies
 * Geant4 10.2/10.3/10.4
 * ROOT 5 or 6
-* CMake 2.6
+* CMake 3.3
 * Optional: Qt 4 or 5
 
 ### Installation
