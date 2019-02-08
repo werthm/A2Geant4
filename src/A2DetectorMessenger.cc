@@ -134,6 +134,12 @@ A2DetectorMessenger::A2DetectorMessenger(
   fPIDZCmd->SetUnitCategory("Length");
   fPIDZCmd->AvailableForStates(cmdState,G4State_Idle);
 
+  fPIDRotCmd = new G4UIcmdWithADoubleAndUnit("/A2/det/setPIDRotation",this);
+  fPIDRotCmd->SetGuidance("Set angle of rotation around z-axis of PID");
+  fPIDRotCmd->SetParameterName("PIDRotation",false);
+  fPIDRotCmd->SetUnitCategory("Angle");
+  fPIDRotCmd->AvailableForStates(cmdState,G4State_Idle);
+
   fUpdateCmd = new G4UIcmdWithoutParameter("/A2/det/update",this);
   fUpdateCmd->SetGuidance("Update calorimeter geometry.");
   fUpdateCmd->SetGuidance("This command MUST be applied before \"beamOn\" ");
@@ -184,6 +190,7 @@ A2DetectorMessenger::~A2DetectorMessenger()
   delete fTAPSNCmd;
   delete fTAPSPbCmd;
   delete fPIDZCmd;
+  delete fPIDRotCmd;
   delete fUseMWPCCmd;
   delete fTOFFileCmd;
   delete fUseTOFCmd;
@@ -272,6 +279,9 @@ void A2DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   
   if( command == fPIDZCmd )
     { fA2Detector->SetPIDZ(fPIDZCmd->GetNewDoubleValue(newValue));}
+
+  if( command == fPIDRotCmd )
+    { fA2Detector->SetPIDRotation(fPIDRotCmd->GetNewDoubleValue(newValue));}
   
   if( command == fTOFFileCmd )
     { fA2Detector->SetTOFFile(newValue);}

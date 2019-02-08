@@ -72,6 +72,7 @@ A2DetectorConstruction::A2DetectorConstruction(G4String detSet)
 
   //default settings for PID
   fPIDZ=0.;
+  fPIDRotation = 0;
 
   // default settings for Pizza detector
   fPizzaZ = A2DetPizza::fgDefaultZPos;
@@ -170,16 +171,19 @@ G4VPhysicalVolume* A2DetectorConstruction::Construct()
     if(fUsePID==1)
     {
       fPID=new A2DetPID();
+      ((A2DetPID*)fPID)->SetRotationAngle(fPIDRotation);
       ((A2DetPID*)fPID)->Construct1(fWorldLogic,fPIDZ);
     }
     else if(fUsePID==2)
     {
       fPID=new A2DetPID();
+      ((A2DetPID*)fPID)->SetRotationAngle(fPIDRotation);
       ((A2DetPID*)fPID)->Construct2(fWorldLogic,fPIDZ);
     }
     else if(fUsePID==3)
     {
       fPID=new A2DetPID3();
+      ((A2DetPID3*)fPID)->SetRotationAngle(fPIDRotation);
       ((A2DetPID3*)fPID)->Construct1(fWorldLogic,fPIDZ);
     }
     else {G4cerr<<"There are 3 possible PIDS, please set UsePID to be 1 (2003) or 2 (available in 2007) or 3 (available in 2016)"<<G4endl; exit(1);}

@@ -65,6 +65,7 @@ class A2DetectorConstruction : public G4VUserDetectorConstruction
   void SetTAPSN(G4int nn){fTAPSN=nn;}
   void SetTAPSPbWO4Rings(G4int nn){fNPbWO4=nn;}
   void SetPIDZ(G4double zz){fPIDZ=zz;}
+  void SetPIDRotation(G4double rot){fPIDRotation=rot;}
   void SetPizzaZ(G4double zz){fPizzaZ=zz;}
 
   A2Target* GetTarget(){return fTarget;}
@@ -134,6 +135,7 @@ public:
 
   //PID setup
   G4double fPIDZ;
+  G4double fPIDRotation;
 
   // Pizza setup
   G4double fPizzaZ;
