@@ -27,7 +27,6 @@
 /// \brief Implementation of the PhysicsList class
 //
 //
-// $Id: PhysicsList.cc 101216 2016-11-09 13:54:13Z gcosmo $
 //
 /////////////////////////////////////////////////////////////////////////
 //
@@ -44,7 +43,7 @@
 // 
 
 #include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1030 && G4VERSION_NUMBER < 1050
+#if G4VERSION_NUMBER >= 1050
 
 #include "A2PhysicsList.hh"
 #include "A2PhysicsListMessenger.hh"
@@ -68,6 +67,8 @@
 #include "G4StoppingPhysics.hh"
 #include "G4IonBinaryCascadePhysics.hh"
 #include "G4IonPhysics.hh"
+#include "G4IonPhysicsXS.hh"
+#include "G4IonElasticPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 
@@ -84,6 +85,7 @@
 #include "G4HadronPhysicsQGSP_BIC_HP.hh"
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 #include "G4HadronPhysicsQGS_BIC.hh"
+#include "G4RadioactiveDecayPhysics.hh"
 
 #include "G4ProcessManager.hh"
 #include "G4ParticleTypes.hh"
@@ -117,7 +119,7 @@ A2PhysicsList::A2PhysicsList() : G4VModularPhysicsList(),
   // EM physics
   fEmPhysicsList = new G4EmStandardPhysics(verboseLevel);
 
-  G4cout << "A2PhysicsList::A2PhysicsList version 10_3" << G4endl;
+  G4cout << "A2PhysicsList::A2PhysicsList version 10_5" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -266,6 +268,7 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
 
     SetBuilderList0(false);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC(verboseLevel));
+    fHadronPhys.push_back( new G4IonElasticPhysics(verboseLevel));
 
   } else if (name == "QGSP_BIC_EMY") {
 
@@ -281,6 +284,10 @@ void A2PhysicsList::AddPhysicsList(const G4String& name)
 
     SetBuilderList0(true);
     fHadronPhys.push_back( new G4HadronPhysicsQGSP_BIC_HP(verboseLevel));
+
+  } else if (name == "RadioactiveDecay") {
+
+    fHadronPhys.push_back( new G4RadioactiveDecayPhysics(verboseLevel));
 
   } else {
 
@@ -327,7 +334,8 @@ void A2PhysicsList::SetBuilderList2()
   fHadronPhys.push_back( new G4EmExtraPhysics(verboseLevel));
   fHadronPhys.push_back( new G4HadronElasticPhysicsXS(verboseLevel) );
   fHadronPhys.push_back( new G4StoppingPhysics(verboseLevel));
-  fHadronPhys.push_back( new G4IonPhysics(verboseLevel));
+  fHadronPhys.push_back( new G4IonPhysicsXS(verboseLevel));
+  fHadronPhys.push_back( new G4IonElasticPhysics(verboseLevel));
   fHadronPhys.push_back( new G4NeutronTrackingCut(verboseLevel));
 }
 
