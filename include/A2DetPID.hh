@@ -35,9 +35,11 @@ public:
   void MakeSupports1(); //for PID1;
   void MakeSupports2(); //for PID2
 
+  void SetRotationAngle(G4double ang) { fRotationAngle = ang; }
+
 private:
   G4int fNPids;  //Number of Pid scintillators
-  //G4double fZ0;
+  G4double fRotationAngle;  // rotation
 
   A2SD* fPIDSD;
 

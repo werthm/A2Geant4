@@ -14,8 +14,8 @@ using namespace CLHEP;
 A2DetPID::A2DetPID(){
   fregionPID=NULL;
   fregionPID=new G4Region("PID");//allows seperate cuts to be defined for crystal
-  // fZ0=0*cm;
   fNPids=24;//including dummies
+  fRotationAngle = 0;
 
   fPIDPhysi=new G4VPhysicalVolume*[fNPids];   //Crystal physical volumes
   for(G4int i=0;i<fNPids+1;i++) fPIDPhysi[i]=NULL;
@@ -57,6 +57,10 @@ G4VPhysicalVolume* A2DetPID::Construct1(G4LogicalVolume* MotherLogical,G4double 
 
   fpmtr_z=20.565*cm;//zposition of the pmt supportring
 
+  if (fRotationAngle != 0)
+    G4cout << "A2DetPID::Construct1(): " << "Rotating the PID by " << fRotationAngle/deg <<
+           " deg from element 0 at 0 deg" << G4endl;
+
   //Make the light guide shape
   MakeLightGuide();
   MakePhotomultipliers();
@@ -97,7 +101,10 @@ G4VPhysicalVolume* A2DetPID::Construct2(G4LogicalVolume* MotherLogical,G4double 
   fpid_xs=2*fpid_rin*tan(fpid_theta/2);//short lenght
   fpid_xl=2*fpid_rout*tan(fpid_theta/2);//long length
 
- 
+  if (fRotationAngle != 0)
+    G4cout << "A2DetPID::Construct2(): " << "Rotating the PID by " << fRotationAngle/deg <<
+           " deg from element 0 at 0 deg" << G4endl;
+
   //Make the light guide shape
   MakeLightGuide();
   MakePhotomultipliers();
@@ -134,8 +141,9 @@ void A2DetPID::MakeDetector(){
  G4RotationMatrix** Rot=new G4RotationMatrix*[fNPids];;
  G4RotationMatrix** RotPMTR=new G4RotationMatrix*[fNPids];
   for(G4int i=0;i<fNPids;i++){
-   // for(G4int i=0;i<1;i++){
-    G4double pid_angle=fpid_theta*i;
+    G4double pid_angle = fpid_theta*i;
+    if (fRotationAngle != 0)
+      pid_angle = 180*deg - fpid_theta/2. - fpid_theta*i - fRotationAngle;
     G4double pid_R=fpid_rin+fpid_thick/2; //radius to centre of scintillator
     G4double xpos=pid_R*cos(pid_angle);
     G4double ypos=pid_R*sin(pid_angle);

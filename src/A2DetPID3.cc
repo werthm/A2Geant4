@@ -7,6 +7,9 @@
 #include "G4Tubs.hh"
 #include "G4Cons.hh"
 #include "G4SubtractionSolid.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 // This is the src code currently used to construct PID3
 // Due to an issue with volume overlaps the PMTs, lightguides and support strcuture are currently NOT created
@@ -16,8 +19,8 @@
 A2DetPID3::A2DetPID3(){
   fregionPID=NULL;
   fregionPID=new G4Region("PID");//allows seperate cuts to be defined for crystal
-  // fZ0=0*cm;
   fNPids=24;//including dummies
+  fRotationAngle = 0;
 
   fPIDPhysi=new G4VPhysicalVolume*[fNPids];   //Crystal physical volumes
   for(G4int i=0;i<fNPids+1;i++) fPIDPhysi[i]=NULL;
@@ -64,6 +67,10 @@ G4VPhysicalVolume* A2DetPID3::Construct1(G4LogicalVolume* MotherLogical,G4double
   fpid_xs2=2*(fpid_rin-(fpidendL*tan(30*CLHEP::deg)))*tan(fpid_theta/2);//short length at new inner radius
   fpid_xl2=2*(fpid_rout-(fpidendL*tan(30*CLHEP::deg)))*tan(fpid_theta/2);//long length at new inner radius
 
+  if (fRotationAngle != 0)
+    G4cout << "A2DetPID3::Construct1(): " << "Rotating the PID by " << fRotationAngle/deg <<
+           " deg from element 0 at 0 deg" << G4endl;
+
   //Make the light guide shape
   MakeLightGuide1(); // Makes the bent light guides for the smaller PID case Uncomment if desired, see other lines later too
   MakePhotomultipliers(); // This is unchanged since last two PIDs Uncomment if desired
@@ -106,8 +113,9 @@ void A2DetPID3::MakeDetector1(){
  G4RotationMatrix** Rot=new G4RotationMatrix*[fNPids];;
  G4RotationMatrix** RotPMTR=new G4RotationMatrix*[fNPids];
   for(G4int i=0;i<fNPids;i++){
-   // for(G4int i=0;i<1;i++){
     G4double pid_angle=fpid_theta*i;
+    if (fRotationAngle != 0)
+      pid_angle = 180*deg - fpid_theta/2. - fpid_theta*i - fRotationAngle;
     G4double pid_R=fpid_rin+fpid_thick/2; //radius to centre of scintillator
     G4double xpos=pid_R*cos(pid_angle);
     G4double ypos=pid_R*sin(pid_angle);
