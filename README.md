@@ -20,7 +20,7 @@ February 12, 2018
 * added new class for generic and specific solid targets (neutron skin)
 * support for target shifts (S. Wagner)
 * support for PID rotations
-* support for Geant 10.5
+* support for Geant4 10.5
 
 ### 0.1.0
 August 17, 2018
