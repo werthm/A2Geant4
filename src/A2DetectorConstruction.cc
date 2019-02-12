@@ -472,6 +472,25 @@ void A2DetectorConstruction::DefineMaterials()
   A2_Acrylic->AddElement(NistManager->FindOrBuildElement(1), 8);
   A2_Acrylic->AddElement(NistManager->FindOrBuildElement(8), 2);
 
+  //
+  // Solid targets
+  //
+
+  // Extruded Polystyrene
+  G4Material* A2_XPS = new G4Material("A2_XPS", 0.03333*g/cm3, 2);
+  A2_XPS->AddElement(NistManager->FindOrBuildElement(6), 8);
+  A2_XPS->AddElement(NistManager->FindOrBuildElement(1), 8);
+
+  // Polypropylen
+  G4Material* A2_POLYPROPYLENE = new G4Material("A2_POLYPROPYLEN", 0.9*g/cm3, 2);
+  A2_POLYPROPYLENE->AddElement(NistManager->FindOrBuildElement(6), 3);
+  A2_POLYPROPYLENE->AddElement(NistManager->FindOrBuildElement(1), 6);
+
+  // Carbon fiber reinforced plastic
+  G4Material* A2_CFRP = new G4Material("A2_CFRP", 1.6*g/cm3, 2);
+  A2_CFRP->AddElement(NistManager->FindOrBuildElement(6), fractionmass=0.95);
+  A2_CFRP->AddMaterial(A2_Epoxy, fractionmass=0.05);
+
   /*Now useG4NistManager
  //This function illustrates the possible ways to define materials
  
