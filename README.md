@@ -12,14 +12,18 @@ A2 Geant4 simulation
 
 ## Release notes
 
-### 0.2.0beta
+### 0.2.0
+February 12, 2018
 * generalized interface for input event-files
 * support for Pluto event-files
 * added tracked particles to metadata
-* added new class for generic and specific solid targets
+* added new class for generic and specific solid targets (neutron skin)
 * support for target shifts (S. Wagner)
+* support for PID rotations
+* support for Geant 10.5
 
 ### 0.1.0
+August 17, 2018
 * fixed bug related to compiler optimizations for Geant4 >= 10.3 (S. Gardner)
 * G4ExtrudedSolid-based CB-crystal implementation for Geant4 >= 10.4 (S. Gardner)
 * informative metadata in output file
@@ -38,7 +42,7 @@ A2 Geant4 simulation
 ## Installation
 
 ### Dependencies
-* Geant4 10.2/10.3/10.4
+* Geant4 10.2/10.3/10.4/10.5
 * ROOT 5 or 6
 * CMake 3.3
 * Optional: Qt 4 or 5
@@ -178,10 +182,11 @@ Command                               | Meaning
 `/A2/det/setTAPSPbWO4Rings 2`         | number of PbWO4 rings (1, 2)
 
 ### PID
-Command                 | Meaning
-:-----------------------|:-------
-`/A2/det/usePID 2`      | use PID (0=off, 1=PID I, 2=PID II, 3=PID III)
-`/A2/det/setPIDZ 0. cm` | PID z-shift
+Command                         | Meaning
+:-------------------------------|:-------
+`/A2/det/usePID 2`              | use PID (0=off, 1=PID I, 2=PID II, 3=PID III)
+`/A2/det/setPIDZ 0. cm`         | PID z-shift
+`/A2/det/setPIDRotation 10 deg` | PID rotation (0=old orientation, otherwise rotation with respect to element 0 @ 0 deg)
 
 ### MWPC
 Command                 | Meaning
