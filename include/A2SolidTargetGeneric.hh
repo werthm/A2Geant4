@@ -1,6 +1,6 @@
 // Generic solid target supporting different types used
 // in past experiments.
-// Author: Dominik Werthmueller, 2018
+// Author: Dominik Werthmueller, 2018-2019
 
 #ifndef A2SolidTargetGeneric_h
 #define A2SolidTargetGeneric_h 1
