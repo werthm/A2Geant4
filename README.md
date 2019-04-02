@@ -46,6 +46,7 @@ August 17, 2018
 * ROOT 5 or 6
 * CMake 3.3
 * Optional: Qt 4 or 5
+* Optional: Pluto 6 (only with ROOT 6, $PLUTOSYS needs to be set)
 
 ### Installation
 

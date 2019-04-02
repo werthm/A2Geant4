@@ -15,11 +15,22 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+# define variables
+set(EXT_LIBRARIES)
+
 # use copied CMake modules from ROOT 6
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 # locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
-find_package(ROOT REQUIRED MODULE COMPONENTS MathCore RIO Hist Tree Geom)
+find_package(ROOT REQUIRED MODULE COMPONENTS MathCore RIO Hist Tree TreePlayer Geom EG)
+
+# locate Pluto
+find_package(Pluto)
+if (Pluto_FOUND)
+  include_directories(${Pluto_INCLUDE_DIRS})
+  set(EXT_LIBRARIES ${EXT_LIBRARIES} ${Pluto_LIBRARIES})
+  add_definitions(-DWITH_PLUTO)
+endif()
 
 # define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
 include(${ROOT_USE_FILE})
@@ -42,7 +53,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(A2Geant4 ${PROJECT_SOURCE_DIR}/src/A2.cc ${sources} ${headers})
-target_link_libraries(A2Geant4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(A2Geant4 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${EXT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
