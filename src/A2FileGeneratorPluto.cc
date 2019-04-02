@@ -1,11 +1,12 @@
 // event generator reading Pluto-files
-// Author: Dominik Werthmueller, 2018
+// Author: Dominik Werthmueller, 2018-2019
+
+#ifdef WITH_PLUTO
 
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 
-#include "TMath.h"
-#include "TTree.h"
+#include "TTreeReader.h"
 
 #include "A2FileGeneratorPluto.hh"
 
@@ -59,18 +60,8 @@ A2FileGeneratorPluto::A2FileGeneratorPluto(const char* filename)
     // Constructor.
 
     // init members
-    fNPart = 0;
-    fPartTop = new Int_t[fgMaxParticles];
-    fPartPx = new Double_t[fgMaxParticles];
-    fPartPy = new Double_t[fgMaxParticles];
-    fPartPz = new Double_t[fgMaxParticles];
-    fPartE = new Double_t[fgMaxParticles];
-    fPartX = new Double_t[fgMaxParticles];
-    fPartY = new Double_t[fgMaxParticles];
-    fPartZ = new Double_t[fgMaxParticles];
-    fPartT = new Double_t[fgMaxParticles];
-    fPartID = new Int_t[fgMaxParticles];
-    fPartDtrIdx = new Int_t[fgMaxParticles];
+    fReader = 0;
+    fReaderPart = 0;
 }
 
 //______________________________________________________________________________
@@ -78,28 +69,10 @@ A2FileGeneratorPluto::~A2FileGeneratorPluto()
 {
     // Destructor.
 
-    if (fPartTop)
-        delete [] fPartTop;
-    if (fPartPx)
-        delete [] fPartPx;
-    if (fPartPy)
-        delete [] fPartPy;
-    if (fPartPz)
-        delete [] fPartPz;
-    if (fPartE)
-        delete [] fPartE;
-    if (fPartX)
-        delete [] fPartX;
-    if (fPartY)
-        delete [] fPartY;
-    if (fPartZ)
-        delete [] fPartZ;
-    if (fPartT)
-        delete [] fPartT;
-    if (fPartID)
-        delete [] fPartID;
-    if (fPartDtrIdx)
-        delete [] fPartDtrIdx;
+    if (fReaderPart)
+        delete fReaderPart;
+    if (fReader)
+        delete fReader;
 }
 
 //______________________________________________________________________________
@@ -111,37 +84,11 @@ G4bool A2FileGeneratorPluto::Init()
     if (!A2FileGeneratorTree::Init())
         return false;
 
-    // use decomposed object mode
-    fTree->SetMakeClass(1);
+    // create tree reader
+    fReader = new TTreeReader(fTree);
 
-    // set branch status
-    fTree->SetBranchStatus("*", 0);
-    fTree->SetBranchStatus("Npart", 1);
-    fTree->SetBranchStatus("Particles", 1);
-    fTree->SetBranchStatus("Particles.fP.fX", 1);
-    fTree->SetBranchStatus("Particles.fP.fY", 1);
-    fTree->SetBranchStatus("Particles.fP.fZ", 1);
-    fTree->SetBranchStatus("Particles.fE", 1);
-    fTree->SetBranchStatus("Particles.fV.fX", 1);
-    fTree->SetBranchStatus("Particles.fV.fY", 1);
-    fTree->SetBranchStatus("Particles.fV.fZ", 1);
-    fTree->SetBranchStatus("Particles.pid", 1);
-    fTree->SetBranchStatus("Particles.daughterIndex", 1);
-
-    // link number of particles
-    LinkBranch("Npart", &fNPart);
-
-    // link particle variables
-    LinkBranch("Particles", fPartTop);
-    LinkBranch("Particles.fP.fX", fPartPx);
-    LinkBranch("Particles.fP.fY", fPartPy);
-    LinkBranch("Particles.fP.fZ", fPartPz);
-    LinkBranch("Particles.fE", fPartE);
-    LinkBranch("Particles.fV.fX", fPartX);
-    LinkBranch("Particles.fV.fY", fPartY);
-    LinkBranch("Particles.fV.fZ", fPartZ);
-    LinkBranch("Particles.pid", fPartID);
-    LinkBranch("Particles.daughterIndex", fPartDtrIdx);
+    // create particle reader array
+    fReaderPart = new TTreeReaderArray<PParticle>(*fReader, "Particles");
 
     // check for cocktail
     if (fTree->GetMinimum("Npart") != fTree->GetMaximum("Npart"))
@@ -155,45 +102,48 @@ G4bool A2FileGeneratorPluto::ReadEvent(G4int event)
 {
     // Read the event 'event'.
 
-    // call parent method
-    if (!A2FileGeneratorTree::ReadEvent(event))
+    // read event
+    if (!fReader->Next())
         return false;
 
     // clear particles
     fPart.clear();
 
     // loop over particles
-    for (G4int i = 0; i < fNPart; i++)
+    for (UInt_t i = 0; i < fReaderPart->GetSize(); i++)
     {
+        // get pluto particle
+        const PParticle& ppart = fReaderPart->At(i);
+
         // set event particle
         A2GenParticle_t part;
-        part.fDef = PlutoToG4(fPartID[i]);
-        part.fP.set(fPartPx[i]*GeV, fPartPy[i]*GeV, fPartPz[i]*GeV);
-        part.fE = fPartE[i]*GeV;
+        part.fDef = PlutoToG4(ppart.ID());
+        part.fP.set(ppart.Px()*GeV, ppart.Py()*GeV, ppart.Pz()*GeV);
+        part.fE = ppart.E()*GeV;
         part.SetCorrectMass();
-        part.fX.set(fVertex.x() + fPartX[i]*mm,
-                    fVertex.y() + fPartY[i]*mm,
-                    fVertex.z() + fPartZ[i]*mm);
-        part.fT = fPartT[i] * 1e-3 / TMath::C() * 1e9 * ns; // TODO check this
+        part.fX.set(fVertex.x() + ppart.X()*mm,
+                    fVertex.y() + ppart.Y()*mm,
+                    fVertex.z() + ppart.Z()*mm);
+        part.fT = ppart.T() * ns;
 
         // check for stable particles to be tracked
-        if (fPartID[i] < 1000 && fPartDtrIdx[i] == -1)
+        if (ppart.ID() < 1000 && ppart.GetDaughterIndex() == -1)
         {
             part.fIsTrack = true;
         }
         // check for pseudo beam-particle
-        else if (fPartID[i] > 1000)
+        else if (ppart.ID() > 1000)
         {
             // extract beam and target indices
             //G4int beam_id = fPartID[i] % 1000;
-            G4int target_id = fPartID[i] / 1000;
+            G4int target_id = ppart.ID() / 1000;
 
             // get target mass (assume target at rest)
             G4ParticleDefinition* target_def = PlutoToG4(target_id);
+            G4double target_mass = 0;
             if (target_def)
             {
-                G4double target_mass = target_def->GetPDGMass() / 1000;
-                fPartE[i] -= target_mass;
+                target_mass = target_def->GetPDGMass() / 1000;
             }
             else
             {
@@ -203,8 +153,8 @@ G4bool A2FileGeneratorPluto::ReadEvent(G4int event)
 
             // set beam (assume photon beam);
             fBeam.fDef = G4ParticleTable::GetParticleTable()->FindParticle(22);
-            fBeam.fP.set(fPartPx[i]*GeV, fPartPy[i]*GeV, fPartPz[i]*GeV);
-            fBeam.fE = fPartE[i]*GeV;
+            fBeam.fP.set(ppart.Px()*GeV, ppart.Py()*GeV, ppart.Pz()*GeV);
+            fBeam.fE = (ppart.E() - target_mass)*GeV;
             fBeam.fM = 0;
             fBeam.fIsTrack = false;
         }
@@ -245,4 +195,6 @@ G4int A2FileGeneratorPluto::GetMaxParticles()
 
     return fTree->GetMaximum("Npart");
 }
+
+#endif
 

@@ -1,29 +1,26 @@
 // event generator reading Pluto-files
-// Author: Dominik Werthmueller, 2018
+// Author: Dominik Werthmueller, 2018-2019
+
+#ifdef WITH_PLUTO
 
 #ifndef A2FileGeneratorPluto_h
 #define A2FileGeneratorPluto_h 1
 
 #include "Rtypes.h"
+#include "TTreeReaderArray.h"
+
+#include "PParticle.h"
 
 #include "A2FileGeneratorTree.hh"
+
+class TTreeReader;
 
 class A2FileGeneratorPluto : public A2FileGeneratorTree
 {
 
 protected:
-    Int_t fNPart;           // number of particles
-    Int_t* fPartTop;        //[fNPart] particle top branch
-    Double_t* fPartPx;      //[fNPart] particle x-momentum
-    Double_t* fPartPy;      //[fNPart] particle y-momentum
-    Double_t* fPartPz;      //[fNPart] particle z-momentum
-    Double_t* fPartE;       //[fNPart] particle energy
-    Double_t* fPartX;       //[fNPart] particle x-vertex
-    Double_t* fPartY;       //[fNPart] particle y-vertex
-    Double_t* fPartZ;       //[fNPart] particle z-vertex
-    Double_t* fPartT;       //[fNPart] particle time
-    Int_t* fPartID;         //[fNPart] particle ID
-    Int_t* fPartDtrIdx;     //[fNPart] particle daughter index
+    TTreeReader* fReader;                       // tree reader
+    TTreeReaderArray<PParticle>* fReaderPart;   // particles
 
     G4ParticleDefinition* PlutoToG4(Int_t id);
 
@@ -39,5 +36,6 @@ public:
     virtual G4int GetMaxParticles();
 };
 
+#endif
 #endif
 
