@@ -85,7 +85,7 @@ More details can be found in the official
 #### Method 1: Getting the git master branch
 ```
 cd /some/directory
-git clone https://github.com/werthm/A2Geant4.git
+git clone https://github.com/A2-Collaboration/A2Geant4.git
 cd A2Geant4
 mkdir build
 cd build
@@ -97,7 +97,7 @@ make -j
 Download a [release](../../releases), unpack and compile it:
 ```
 cd /some/directory
-wget https://github.com/werthm/A2Geant4/archive/v0.1.0.tar.gz
+wget https://github.com/A2-Collaboration/A2Geant4/archive/v0.1.0.tar.gz
 tar xvfz v0.1.0.tar.gz
 cd A2Geant4-0.1.0
 mkdir build
