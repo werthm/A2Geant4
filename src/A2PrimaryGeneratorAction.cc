@@ -363,9 +363,18 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
 
   // open file
   if (tree_mkin)
+  {
     fFileGen = new A2FileGeneratorMkin(fInFileName);
+  }
   else if (tree_pluto)
+  {
+#ifdef WITH_PLUTO
     fFileGen = new A2FileGeneratorPluto(fInFileName);
+#else
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Support for Pluto event files was not activated at compile time!" << G4endl;
+    exit(1);
+#endif
+  }
   else
   {
     G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): ROOT event-tree format is not supported!" << G4endl;
