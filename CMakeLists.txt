@@ -3,6 +3,15 @@
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 project(A2Geant4)
 
+# workaround for ubuntu: check if gold linker is available and use it
+execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
+if ("${LD_VERSION}" MATCHES "GNU gold")
+  set(DEFAULT_LINKER_FLAGS "${DEFAULT_LINKER_FLAGS} -Wl,-fuse-ld=gold")
+message(STATUS "GNU google ld (gold) linker will be used.")
+endif()
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${DEFAULT_LINKER_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${DEFAULT_LINKER_FLAGS}")
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
