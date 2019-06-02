@@ -90,6 +90,8 @@ void A2FileGenerator::Print() const
         type = "Pluto";
     else if (fType == kPlutoCocktail)
         type = "Pluto Cocktail";
+    else if (fType == kGiBUU)
+        type = "GiBUU";
     else
         type = "Unknown";
 
