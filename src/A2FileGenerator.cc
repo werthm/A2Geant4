@@ -21,16 +21,29 @@ A2FileGenerator::A2FileGenerator(const char* filename, EFileGenType type)
 }
 
 //______________________________________________________________________________
-void A2FileGenerator::A2GenParticle_t::SetCorrectMass()
+void A2FileGenerator::A2GenParticle_t::SetCorrectMass(G4bool usePDG)
 {
     // Init the mass of the particle based on the particle definition and
     // the 4-momentum.
 
-    // check for defined massless particles
-    if (fDef && fDef->GetPDGMass() == 0)
-        fM = 0;
+    if (usePDG && fDef)
+    {
+        // set mass
+        fM = fDef->GetPDGMass();
+
+        // recalculate momentum
+        G4double p_old = fP.mag();
+        G4double p_new = TMath::Sqrt(fE*fE - fM*fM);
+        fP.set(fP.x()/p_old*p_new, fP.y()/p_old*p_new, fP.z()/p_old*p_new);
+    }
     else
-        fM = TMath::Sqrt(fE*fE - fP.mag2());
+    {
+        // check for defined massless particles
+        if (fDef && fDef->GetPDGMass() == 0)
+            fM = 0;
+        else
+            fM = TMath::Sqrt(fE*fE - fP.mag2());
+    }
 }
 
 //______________________________________________________________________________

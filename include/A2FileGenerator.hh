@@ -24,7 +24,7 @@ public:
         G4bool fIsTrack;            // tracking flag
         A2GenParticle_t() : fDef(0), fP(0, 0, 0), fE(0),
                             fM(0), fX(0, 0, 0), fT(0), fIsTrack(false) { }
-        void SetCorrectMass();
+        void SetCorrectMass(G4bool usePDG = false);
         void Print(const char* pre = "") const;
     };
 
