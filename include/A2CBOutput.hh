@@ -84,6 +84,8 @@ protected:
   Float_t fepiz[MAXSIZE_PIZZA]; //hit sector energy deposits
   Float_t ftpiz[MAXSIZE_PIZZA]; //hit sector time
 
+  Float_t fweight; // event weight
+
   TLorentzVector** fGenLorentzVec;
   TLorentzVector* fBeamLorentzVec;
   Int_t *fGenPartType;

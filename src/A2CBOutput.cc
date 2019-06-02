@@ -1,4 +1,5 @@
 #include "A2CBOutput.hh"
+#include "A2FileGenerator.hh"
 #include "G4RunManager.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -53,6 +54,7 @@ A2CBOutput::A2CBOutput(){
     ftofz=new Float_t[fToFTot];
   }
 
+  fweight = 1;
 }
 A2CBOutput::~A2CBOutput(){
   delete fidpart;
@@ -127,6 +129,8 @@ void A2CBOutput::SetBranches(){
   fTree->Branch("ipiz",fipiz,"fipiz[fnpiz]/I",basket);
   fTree->Branch("epiz",fepiz,"fepiz[fnpiz]/F",basket);
   fTree->Branch("tpiz",ftpiz,"ftpiz[fnpiz]/F",basket);
+  if (fPGA->GetFileGen()->GetType() == A2FileGenerator::kGiBUU)
+    fTree->Branch("weight",&fweight,"fweight/F",basket);
  }
 void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
   G4int CollSize=HitsColl->GetNumberOfCollections();
@@ -240,4 +244,5 @@ void A2CBOutput::WriteGenInput(){
     fplab[i]=fGenLorentzVec[i]->Rho()/GeV;
     fidpart[i]=fGenPartType[i];
   }
+  fweight = fPGA->GetFileGen()->GetWeight();
 }
