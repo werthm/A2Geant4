@@ -12,6 +12,11 @@ A2 Geant4 simulation
 
 ## Release notes
 
+### 0.3.0beta
+* support for GiBUU event-files
+* using Pluto library for Pluto reader
+* fixed some building issues
+
 ### 0.2.0
 February 12, 2019
 * generalized interface for input event-files
