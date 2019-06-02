@@ -5,6 +5,7 @@
 #include "A2DetectorConstruction.hh"
 #include "A2FileGeneratorMkin.hh"
 #include "A2FileGeneratorPluto.hh"
+#include "A2FileGeneratorGiBUU.hh"
 
 #include "G4ParticleGun.hh"
 #include "Randomize.hh"
@@ -109,7 +110,8 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     {
       // generate vertex for pluto input
       if (fFileGen->GetType() == A2FileGenerator::kPluto ||
-          fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+          fFileGen->GetType() == A2FileGenerator::kPlutoCocktail ||
+          fFileGen->GetType() == A2FileGenerator::kGiBUU)
       {
         fFileGen->GenerateVertexCylinder(fDetCon->GetTarget()->GetLength(),
                                          fDetCon->GetTarget()->GetCenter().z(),
@@ -125,7 +127,9 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //
 
       // check for first event
-      if (fNevent == 0 && fFileGen->GetType() != A2FileGenerator::kPlutoCocktail)
+      if (fNevent == 0 &&
+          fFileGen->GetType() != A2FileGenerator::kPlutoCocktail &&
+          fFileGen->GetType() != A2FileGenerator::kGiBUU)
       {
         for (G4int i = 0; i < fFileGen->GetNParticles(); i++)
         {
@@ -349,10 +353,12 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
   TFile* ftest = new TFile(fInFileName);
   TTree* tree_mkin = 0;
   TTree* tree_pluto = 0;
+  TTree* tree_gibuu = 0;
   if (ftest && !ftest->IsZombie())
   {
     tree_mkin = (TTree*)ftest->Get("h1");
     tree_pluto = (TTree*)ftest->Get("data");
+    tree_gibuu = (TTree*)ftest->Get("RootTuple");
     delete ftest;
   }
   else
@@ -375,6 +381,10 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
     exit(1);
 #endif
   }
+  else if (tree_gibuu)
+  {
+    fFileGen = new A2FileGeneratorGiBUU(fInFileName);
+  }
   else
   {
     G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): ROOT event-tree format is not supported!" << G4endl;
@@ -391,6 +401,8 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
     G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto single-event file" << G4endl;
   else if (fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
     G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening Pluto cocktail-event file" << G4endl;
+  else if (fFileGen->GetType() == A2FileGenerator::kGiBUU)
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Opening GiBUU-event file" << G4endl;
 
   // create data structures for generated particles
   fNGenMaxParticles = fFileGen->GetMaxParticles();
@@ -408,7 +420,7 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
   }
   else
   {
-    if (fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+    if (fFileGen->GetType() == A2FileGenerator::kPlutoCocktail || fFileGen->GetType() == A2FileGenerator::kGiBUU)
     {
       G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Particle tracking should not be specified if input is Pluto cocktail!" << G4endl;
       exit(1);
@@ -419,11 +431,13 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
     G4cout<<"A2PrimaryGeneratorAction::SetUpFileInput(): Mismatch between number of tracked particles and particles marked for tracking!"<<G4endl;
     exit(1);
   }
-  if (fFileGen->GetType() == A2FileGenerator::kPluto || fFileGen->GetType() == A2FileGenerator::kPlutoCocktail)
+  if (fFileGen->GetType() == A2FileGenerator::kPluto ||
+      fFileGen->GetType() == A2FileGenerator::kPlutoCocktail ||
+      fFileGen->GetType() == A2FileGenerator::kGiBUU)
   {
     if (fBeamDiameter == 0)
     {
-      G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Pluto-input requires a beam diameter set via /A2/generator/SetBeamDiameter" << G4endl;
+      G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): Pluto/GiBUU-input requires a beam diameter set via /A2/generator/SetBeamDiameter" << G4endl;
       exit(1);
     }
   }
