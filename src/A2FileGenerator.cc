@@ -17,6 +17,7 @@ A2FileGenerator::A2FileGenerator(const char* filename, EFileGenType type)
     fType = type;
     fFileName = filename;
     fNEvents = 0;
+    fWeight = 1;
 }
 
 //______________________________________________________________________________
@@ -95,6 +96,7 @@ void A2FileGenerator::Print() const
     G4cout << "Generator type      : " << type << G4endl
            << "File name           : " << fFileName << G4endl
            << "Number of events    : " << fNEvents << G4endl
+           << "Event weight        : " << fWeight << G4endl
            << "Number of particles : " << fPart.size() << G4endl
            << "Primary vertex      : " << fVertex << G4endl
            << "Beam particle" << G4endl;

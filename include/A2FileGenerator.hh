@@ -39,6 +39,7 @@ protected:
     EFileGenType fType;                     // type of file generator
     G4String fFileName;                     // input file name
     G4int fNEvents;                         // number of events
+    G4double fWeight;                       // event weight
     A2GenParticle_t fBeam;                  // beam particle
     G4ThreeVector fVertex;                  // primary vertex [mm]
     std::vector<A2GenParticle_t> fPart;     // list of particles
@@ -54,6 +55,7 @@ public:
     EFileGenType GetType() const { return fType; }
     const G4String& GetFileName() const { return fFileName; }
     G4int GetNEvents() const { return fNEvents; }
+    G4double GetWeight() const { return fWeight; }
     const G4ThreeVector& GetVertex() const { return fVertex; }
     const A2GenParticle_t& GetBeam() const { return fBeam; }
 
@@ -69,6 +71,7 @@ public:
     G4bool IsParticleTrack(G4int p) const { return fPart[p].fIsTrack; }
 
     void SetParticleIsTrack(G4int p, G4bool t = true);
+    void SetWeight(G4double w) { fWeight = w; }
 
     void GenerateVertexCylinder(G4double t_length, G4double t_center,
                                 G4double b_diam);
