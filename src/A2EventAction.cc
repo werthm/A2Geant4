@@ -95,7 +95,8 @@ void A2EventAction::EndOfEventAction(const G4Event* evt)
     {
       TString timeFmt;
       FormatTimeSec((fReqEvents - evtNb) / (Double_t)fEventRate, timeFmt);
-      G4cout << TString::Format(", %s remaining for %d events", timeFmt.Data(), fReqEvents) << G4endl;
+      G4cout << TString::Format(", %s remaining for %d/%d events",
+                timeFmt.Data(), fReqEvents-evtNb, fReqEvents) << G4endl;
     }
     else
       G4cout << G4endl;
@@ -292,6 +293,8 @@ void  A2EventAction::CloseOutput(){
     trackedPart = "";
     if (fPGA->GetFileGen()->GetType() == A2FileGenerator::kPlutoCocktail)
       trackedPart = "all stable (Pluto cocktail)";
+    else if (fPGA->GetFileGen()->GetType() == A2FileGenerator::kGiBUU)
+      trackedPart = "all (GiBUU)";
     else
     {
       for (G4int i = 0; i < fPGA->GetFileGen()->GetNParticles(); i++)
