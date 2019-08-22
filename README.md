@@ -15,6 +15,7 @@ A2 Geant4 simulation
 ### 0.3.0beta
 * support for GiBUU event-files
 * using Pluto library for Pluto reader
+* storing primary particle IDs for PID/Veto hits
 * fixed some building issues
 
 ### 0.2.0
@@ -167,7 +168,7 @@ Command                                | Meaning
 Command                              | Meaning
 :----------------------------------- |:-------
 `/A2/event/setOutputFile ouput.root` | set the tracked-event output file
-`/A2/event/storePrimaries false`     | disable storage of primary particle indices for CB/TAPS hits
+`/A2/event/storePrimaries false`     | disable storage of primary particle indices
 
 ## Detector setup commands
 
