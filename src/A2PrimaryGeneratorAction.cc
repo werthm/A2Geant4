@@ -189,7 +189,7 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       else
       {
         if (fNevent == 0)
-          G4cout << "All stable particles will be tracked" << G4endl;
+          G4cout << "All (stable) particles will be tracked" << G4endl;
       }
 
       //
@@ -430,7 +430,8 @@ void A2PrimaryGeneratorAction::SetUpFileInput(){
   // perform a few checks
   if (fNToBeTracked == 0)
   {
-    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No particles marked for tracking so all stable particles will be tracked" << G4endl;
+    G4cout << "A2PrimaryGeneratorAction::SetUpFileInput(): No particles marked for tracking so, depending on the event file format, " <<
+              "all (stable) particles will be tracked" << G4endl;
   }
   else
   {
