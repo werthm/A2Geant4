@@ -86,6 +86,7 @@ private:
   G4float fTmax;       //Max phase space kinetic energy
   G4float fThetamin;       //Min phase spce angle
   G4float fThetamax;       //Max phase space angle
+  G4float fBeamEnergy;    //beam energy
   G4float fBeamXSigma;    //beam X width
   G4float fBeamYSigma;    //beam X width
   G4float fBeamDiameter;    //beam diameter on target
@@ -100,6 +101,7 @@ public:
   void SetTmax(G4float max){fTmax=max;}
   void SetThetamin(G4float min){fThetamin=min;}
   void SetThetamax(G4float max){fThetamax=max;}
+  void SetBeamEnergy(G4float energy){fBeamEnergy=energy;}
   void SetBeamXSigma(G4float sigma){fBeamXSigma=sigma;}
   void SetBeamYSigma(G4float sigma){fBeamYSigma=sigma;}
   void SetBeamDiameter(G4float d){fBeamDiameter=d;}

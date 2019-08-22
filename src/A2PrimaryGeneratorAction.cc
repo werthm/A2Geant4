@@ -34,6 +34,7 @@ A2PrimaryGeneratorAction::A2PrimaryGeneratorAction()
   fTmax=400*MeV;
   fThetamin=0;
   fThetamax=180*deg;
+  fBeamEnergy=0;
   fBeamXSigma=0.5*cm;
   fBeamYSigma=0.5*cm;
   fBeamDiameter = 0;
@@ -192,6 +193,16 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       }
 
       //
+      // one-time user info
+      //
+
+      if (fNevent == 0)
+      {
+        if (fBeamEnergy != 0)
+          G4cout << "Using " << fBeamEnergy/GeV << " GeV as constant photon beam energy" << G4endl;
+      }
+
+      //
       // set arrays for CB output reader
       //
 
@@ -202,7 +213,10 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
       // set generated beam 4-vector to store in output file
       const A2FileGenerator::A2GenParticle_t& beam = fFileGen->GetBeam();
-      fBeamLorentzVec->SetPxPyPzE(beam.fP.x(), beam.fP.y(), beam.fP.z(), beam.fE);
+      if (fBeamEnergy != 0)
+        fBeamLorentzVec->SetPxPyPzE(0, 0, fBeamEnergy, fBeamEnergy);
+      else
+        fBeamLorentzVec->SetPxPyPzE(beam.fP.x(), beam.fP.y(), beam.fP.z(), beam.fE);
 
       // set generated 4-vectors to store in output file
       fNGenParticles = fFileGen->GetNParticles();
