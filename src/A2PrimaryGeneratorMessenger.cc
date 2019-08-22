@@ -71,6 +71,12 @@ A2PrimaryGeneratorMessenger::A2PrimaryGeneratorMessenger(
   SetThetamaxCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
   SetThetamaxCmd->SetUnitCategory("Angle");
 
+  SetBeamEnergyCmd = new G4UIcmdWithADoubleAndUnit("/A2/generator/SetBeamEnergy",this);
+  SetBeamEnergyCmd->SetGuidance("Set the energy of the photon beam");
+  SetBeamEnergyCmd->SetParameterName("BeamEnergy",false);
+  SetBeamEnergyCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  SetBeamEnergyCmd->SetUnitCategory("Energy");
+
   SetBeamXSigmaCmd = new G4UIcmdWithADoubleAndUnit("/A2/generator/SetBeamXSigma",this);
   SetBeamXSigmaCmd->SetGuidance("Set the X width of the photon beam");
   SetBeamXSigmaCmd->SetParameterName("BeamXSigma",false);
@@ -130,6 +136,7 @@ A2PrimaryGeneratorMessenger::~A2PrimaryGeneratorMessenger()
   delete SetThetamaxCmd;
   delete SetModeCmd;
   delete SetSeedCmd;
+  delete SetBeamEnergyCmd;
   delete SetBeamXSigmaCmd;
   delete SetBeamYSigmaCmd;
   delete SetBeamDiameterCmd;
@@ -174,6 +181,9 @@ void A2PrimaryGeneratorMessenger::SetNewValue(
   if( command == SetThetamaxCmd )
      { A2Action->SetThetamax(SetThetamaxCmd->GetNewDoubleValue(newValue));}
  
+   if( command == SetBeamEnergyCmd )
+     { A2Action->SetBeamEnergy(SetBeamEnergyCmd->GetNewDoubleValue(newValue));}
+
    if( command == SetBeamXSigmaCmd )
      { A2Action->SetBeamXSigma(SetBeamXSigmaCmd->GetNewDoubleValue(newValue));}
  

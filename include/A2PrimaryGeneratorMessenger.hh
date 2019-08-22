@@ -38,6 +38,7 @@ class A2PrimaryGeneratorMessenger: public G4UImessenger
   G4UIcmdWithADoubleAndUnit* SetTmaxCmd;
   G4UIcmdWithADoubleAndUnit* SetThetaminCmd;
   G4UIcmdWithADoubleAndUnit* SetThetamaxCmd;
+  G4UIcmdWithADoubleAndUnit* SetBeamEnergyCmd;
   G4UIcmdWithADoubleAndUnit* SetBeamXSigmaCmd;
   G4UIcmdWithADoubleAndUnit* SetBeamYSigmaCmd;
   G4UIcmdWithADoubleAndUnit* SetBeamDiameterCmd;

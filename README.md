@@ -156,6 +156,7 @@ Command                                | Meaning
 `/A2/generator/SetTMax 450 MeV`        | maximum kinetic energy for a particle in the phase-space generator
 `/A2/generator/SetThetaMin 0 deg`      | minimum polar angle for a particle in the phase-space generator
 `/A2/generator/SetThetaMax 120 deg`    | maximum polar angle for a particle in the phase-space generator
+`/A2/generator/SetBeamEnergy 0.2 GeV`  | energy of incoming beam (overwrites beam energy in event file)
 `/A2/generator/SetBeamXSigma 10 mm`    | x-sigma of incoming beam
 `/A2/generator/SetBeamYSigma 10 mm`    | y-sigma of incoming beam
 `/A2/generator/SetBeamDiameter 10 mm`  | beam-spot diameter on target
