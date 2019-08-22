@@ -49,10 +49,12 @@ protected:
   Int_t ficryst[MAXSIZE_NAI];   //id numbers of Nai hits
   Int_t fpcryst[MAXSIZE_NAI];  //particle index in each NaI crystal
   Int_t fictaps[MAXSIZE_TAPS];   //id numbers of TAPS hits
-  Int_t fpctaps[MAXSIZE_TAPS];   //id numbers of TAPS hits
+  Int_t fpctaps[MAXSIZE_TAPS];   //particle index in each TAPS crystal
   Int_t fivtaps[MAXSIZE_TAPS];   //id numbers of TAPS veto hits
+  Int_t fpvtaps[MAXSIZE_TAPS];   //particle index in each TAPS veto
   Int_t *fidpart;   //g3 id number of initial generated particle
   Int_t fiveto[MAXSIZE_PID];    //id number of the PID hits
+  Int_t fpveto[MAXSIZE_PID];    //particle index in each PID element
   Int_t fnhits;    //Number of NaI hits
   Int_t fnpart;    //number of generated particles (not necessarily same as # tracked)
   Int_t fntaps;    //Number of hits in TAPS

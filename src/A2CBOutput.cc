@@ -100,6 +100,8 @@ void A2CBOutput::SetBranches(){
     G4cout << "Storing IDs of primary particles" << G4endl;
     fTree->Branch("pcryst",fpcryst,"fpcryst[fnhits]/I",basket);
     fTree->Branch("pctaps",fpctaps,"fpctaps[fntaps]/I",basket);
+    fTree->Branch("pveto",fpveto,"fpveto[fvhits]/I",basket);
+    fTree->Branch("pvtaps",fpvtaps,"fpvtaps[fnvtaps]/I",basket);
   }
   fTree->Branch("ivtaps",fivtaps,"fictaps[fnvtaps]/I",basket);
   fTree->Branch("idpart",fidpart,"fidpart[fnpart]/I",basket);
@@ -175,6 +177,7 @@ void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
 	A2Hit* hit=static_cast<A2Hit*>(hc->GetHit(ii));
 	fevtaps[ii]=hit->GetEdep()/GeV;
 	fivtaps[ii]=hit->GetID();
+	fpvtaps[ii]=hit->GetParticle();
       }
     }
     if(hc->GetName()=="A2SDHitsPIDSD"){
@@ -184,6 +187,7 @@ void A2CBOutput::WriteHit(G4HCofThisEvent* HitsColl){
 	feveto[ii]=hit->GetEdep()/GeV;
 	ftveto[ii]=hit->GetTime()/ns;
 	fiveto[ii]=hit->GetID();
+	fpveto[ii]=hit->GetParticle();
       }
     }
     if(hc->GetName().contains("A2MWPCSD")){
