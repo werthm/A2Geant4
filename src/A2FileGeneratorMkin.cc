@@ -120,6 +120,8 @@ G4bool A2FileGeneratorMkin::Init()
                     LinkBranch(TString::Format("Vy_l%02d%02d", i+1, g3_id).Data(), &fPartVBr[fNPart][1], false);
                     LinkBranch(TString::Format("Vz_l%02d%02d", i+1, g3_id).Data(), &fPartVBr[fNPart][2], false);
                     LinkBranch(TString::Format("Vt_l%02d%02d", i+1, g3_id).Data(), &fPartVBr[fNPart][3], false);
+                    G4cout << "A2FileGeneratorMkin::Init(): Found vertex branches for particle " << g3_id <<
+                           " with index " << fNPart+1 << G4endl;
                 }
 
                 // look-up particle
@@ -207,8 +209,8 @@ G4bool A2FileGeneratorMkin::ReadEvent(G4int event)
         }
         else
         {
-             fPart[i].fX = fVertex;
-             fPart[i].fT = 0;
+            fPart[i].fX = fVertex;
+            fPart[i].fT = 0;
         }
 
         // tracking flag
