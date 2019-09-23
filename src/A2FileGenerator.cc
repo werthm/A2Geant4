@@ -31,6 +31,8 @@ void A2FileGenerator::A2GenParticle_t::SetCorrectMass(G4bool usePDG)
         // set mass
         fM = fDef->GetPDGMass();
 
+        //printf("mass of %s is %.2f\n", fDef->GetParticleName().c_str(), TMath::Sqrt(fE*fE - fP.mag2()));
+
         // recalculate momentum
         G4double p_old = fP.mag();
         G4double p_new = TMath::Sqrt(fE*fE - fM*fM);
