@@ -21,6 +21,9 @@ protected:
     TTreeReaderValue<std::vector<G4double>>* fReaderPy;     // particle momentum
     TTreeReaderValue<std::vector<G4double>>* fReaderPz;     // particle momentum
     TTreeReaderValue<std::vector<G4double>>* fReaderE;      // particle energy
+    TTreeReaderValue<std::vector<G4double>>* fReaderX;      // particle position
+    TTreeReaderValue<std::vector<G4double>>* fReaderY;      // particle position
+    TTreeReaderValue<std::vector<G4double>>* fReaderZ;      // particle position
 
     static const G4int fgMaxParticles;
 

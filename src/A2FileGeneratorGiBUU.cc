@@ -5,6 +5,7 @@
 #include "G4IonTable.hh"
 
 #include "TTreeReader.h"
+#include "TMath.h"
 
 #include "A2FileGeneratorGiBUU.hh"
 
@@ -26,6 +27,9 @@ A2FileGeneratorGiBUU::A2FileGeneratorGiBUU(const char* filename)
     fReaderPy = 0;
     fReaderPz = 0;
     fReaderE = 0;
+    fReaderX = 0;
+    fReaderY = 0;
+    fReaderZ = 0;
 }
 
 //______________________________________________________________________________
@@ -45,6 +49,12 @@ A2FileGeneratorGiBUU::~A2FileGeneratorGiBUU()
         delete fReaderPz;
     if (fReaderE)
         delete fReaderE;
+    if (fReaderX)
+        delete fReaderX;
+    if (fReaderY)
+        delete fReaderY;
+    if (fReaderZ)
+        delete fReaderZ;
     if (fReader)
         delete fReader;
 }
@@ -68,6 +78,12 @@ G4bool A2FileGeneratorGiBUU::Init()
     fReaderPy = new TTreeReaderValue<std::vector<G4double>>(*fReader, "Py");
     fReaderPz = new TTreeReaderValue<std::vector<G4double>>(*fReader, "Pz");
     fReaderE = new TTreeReaderValue<std::vector<G4double>>(*fReader, "E");
+    if (fTree->GetBranch("x"))
+    {
+        fReaderX = new TTreeReaderValue<std::vector<G4double>>(*fReader, "x");
+        fReaderY = new TTreeReaderValue<std::vector<G4double>>(*fReader, "y");
+        fReaderZ = new TTreeReaderValue<std::vector<G4double>>(*fReader, "z");
+    }
 
     return true;
 }
@@ -106,6 +122,28 @@ G4bool A2FileGeneratorGiBUU::ReadEvent(G4int event)
             G4cout << "A2FileGeneratorGiBUU::Init(): Undefined particle with PDG ID " << pdg
                    << " will not be tracked!" << G4endl;
             continue;
+        }
+
+        // check for off-shell particles
+        Double_t e = 1000 * (*fReaderE)->at(i);
+        switch (partDef->GetPDGEncoding())
+        {
+            case  111: // pi0
+            case  211: // pi+
+            case -211: // pi+
+                if (e < 138.0)
+                    continue;
+                else
+                    break;
+            case 2212: // proton
+            case 2112: // neutron
+                if (e < 938.0)
+                    continue;
+                else
+                    break;
+            default:
+                G4cout << "A2FileGeneratorGiBUU::Init(): No off-shell cuts defined for particle " <<
+                       partDef->GetParticleName() << G4endl;
         }
 
         // set event particle
