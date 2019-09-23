@@ -109,7 +109,7 @@ void A2PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   case EPGA_FILE:
     if (fFileGen)
     {
-      // generate vertex for pluto input
+      // generate vertex for pluto/GiBUU input
       if (fFileGen->GetType() == A2FileGenerator::kPluto ||
           fFileGen->GetType() == A2FileGenerator::kPlutoCocktail ||
           fFileGen->GetType() == A2FileGenerator::kGiBUU)
