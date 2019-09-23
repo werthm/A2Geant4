@@ -12,7 +12,8 @@ A2 Geant4 simulation
 
 ## Release notes
 
-### 0.3.0beta
+### 0.3.0
+September 23, 2019
 * support for GiBUU event-files
 * using Pluto library for Pluto reader
 * storing primary particle IDs for PID/Veto hits
