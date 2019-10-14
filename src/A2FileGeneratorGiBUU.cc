@@ -4,8 +4,8 @@
 #include "G4ParticleTable.hh"
 #include "G4IonTable.hh"
 
-#include "TTreeReader.h"
 #include "TMath.h"
+#include "TTree.h"
 
 #include "A2FileGeneratorGiBUU.hh"
 
