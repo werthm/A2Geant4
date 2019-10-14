@@ -36,9 +36,13 @@ find_package(ROOT REQUIRED MODULE COMPONENTS MathCore RIO Hist Tree TreePlayer G
 # locate Pluto
 find_package(Pluto)
 if (Pluto_FOUND)
-  include_directories(${Pluto_INCLUDE_DIRS})
-  set(EXT_LIBRARIES ${EXT_LIBRARIES} ${Pluto_LIBRARIES})
-  add_definitions(-DWITH_PLUTO)
+  if (ROOT_VERSION VERSION_LESS 6)
+    message(WARNING "ROOT 6 is needed for the Pluto reader, disabling Pluto support")
+  else()
+    include_directories(${Pluto_INCLUDE_DIRS})
+    set(EXT_LIBRARIES ${EXT_LIBRARIES} ${Pluto_LIBRARIES})
+    add_definitions(-DWITH_PLUTO)
+  endif()
 endif()
 
 # define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
