@@ -20,7 +20,6 @@ A2FileGeneratorGiBUU::A2FileGeneratorGiBUU(const char* filename)
     // Constructor.
 
     // init members
-    fReader = 0;
     fReaderWeight = 0;
     fReaderCode = 0;
     fReaderPx = 0;
@@ -37,26 +36,6 @@ A2FileGeneratorGiBUU::~A2FileGeneratorGiBUU()
 {
     // Destructor.
 
-    if (fReaderWeight)
-        delete fReaderWeight;
-    if (fReaderCode)
-        delete fReaderCode;
-    if (fReaderPx)
-        delete fReaderPx;
-    if (fReaderPy)
-        delete fReaderPy;
-    if (fReaderPz)
-        delete fReaderPz;
-    if (fReaderE)
-        delete fReaderE;
-    if (fReaderX)
-        delete fReaderX;
-    if (fReaderY)
-        delete fReaderY;
-    if (fReaderZ)
-        delete fReaderZ;
-    if (fReader)
-        delete fReader;
 }
 
 //______________________________________________________________________________
@@ -68,21 +47,18 @@ G4bool A2FileGeneratorGiBUU::Init()
     if (!A2FileGeneratorTree::Init())
         return false;
 
-    // create tree reader
-    fReader = new TTreeReader(fTree);
-
-    // create particle readers
-    fReaderWeight = new TTreeReaderValue<G4double>(*fReader, "weight");
-    fReaderCode = new TTreeReaderValue<std::vector<G4int>>(*fReader, "barcode");
-    fReaderPx = new TTreeReaderValue<std::vector<G4double>>(*fReader, "Px");
-    fReaderPy = new TTreeReaderValue<std::vector<G4double>>(*fReader, "Py");
-    fReaderPz = new TTreeReaderValue<std::vector<G4double>>(*fReader, "Pz");
-    fReaderE = new TTreeReaderValue<std::vector<G4double>>(*fReader, "E");
+    // link branches
+    LinkBranch("weight", &fReaderWeight);
+    LinkBranch("barcode", &fReaderCode);
+    LinkBranch("Px", &fReaderPx);
+    LinkBranch("Py", &fReaderPy);
+    LinkBranch("Pz", &fReaderPz);
+    LinkBranch("E", &fReaderE);
     if (fTree->GetBranch("x"))
     {
-        fReaderX = new TTreeReaderValue<std::vector<G4double>>(*fReader, "x");
-        fReaderY = new TTreeReaderValue<std::vector<G4double>>(*fReader, "y");
-        fReaderZ = new TTreeReaderValue<std::vector<G4double>>(*fReader, "z");
+        LinkBranch("x", &fReaderX);
+        LinkBranch("y", &fReaderY);
+        LinkBranch("z", &fReaderZ);
     }
 
     return true;
@@ -93,21 +69,21 @@ G4bool A2FileGeneratorGiBUU::ReadEvent(G4int event)
 {
     // Read the event 'event'.
 
-    // read event
-    if (!fReader->Next())
+    // call parent method
+    if (!A2FileGeneratorTree::ReadEvent(event))
         return false;
 
     // clear particles
     fPart.clear();
 
     // event weight
-    SetWeight(*(*fReaderWeight));
+    SetWeight(fReaderWeight);
 
     // loop over particles
-    for (UInt_t i = 0; i < (*fReaderCode)->size(); i++)
+    for (UInt_t i = 0; i < fReaderCode->size(); i++)
     {
         // look-up particle
-        Int_t pdg = (*fReaderCode)->at(i);
+        Int_t pdg = fReaderCode->at(i);
         G4ParticleDefinition* partDef = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
         if (!partDef)
         {
@@ -125,7 +101,7 @@ G4bool A2FileGeneratorGiBUU::ReadEvent(G4int event)
         }
 
         // check for off-shell particles
-        Double_t e = 1000 * (*fReaderE)->at(i);
+        Double_t e = 1000 * fReaderE->at(i);
         switch (partDef->GetPDGEncoding())
         {
             case  111: // pi0
@@ -149,8 +125,8 @@ G4bool A2FileGeneratorGiBUU::ReadEvent(G4int event)
         // set event particle
         A2GenParticle_t part;
         part.fDef = partDef;
-        part.fP.set((*fReaderPx)->at(i)*GeV, (*fReaderPy)->at(i)*GeV, (*fReaderPz)->at(i)*GeV);
-        part.fE = (*fReaderE)->at(i)*GeV;
+        part.fP.set(fReaderPx->at(i)*GeV, fReaderPy->at(i)*GeV, fReaderPz->at(i)*GeV);
+        part.fE = fReaderE->at(i)*GeV;
         part.SetCorrectMass(true);
         part.fX = fVertex;
         part.fT = 0;

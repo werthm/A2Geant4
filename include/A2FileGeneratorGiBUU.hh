@@ -4,8 +4,6 @@
 #ifndef A2FileGeneratorGiBUU_h
 #define A2FileGeneratorGiBUU_h 1
 
-#include "TTreeReaderValue.h"
-
 #include "A2FileGeneratorTree.hh"
 
 class TTreeReader;
@@ -14,16 +12,15 @@ class A2FileGeneratorGiBUU : public A2FileGeneratorTree
 {
 
 protected:
-    TTreeReader* fReader;                                   // tree reader
-    TTreeReaderValue<G4double>* fReaderWeight;              // event weight
-    TTreeReaderValue<std::vector<G4int>>* fReaderCode;      // particle code
-    TTreeReaderValue<std::vector<G4double>>* fReaderPx;     // particle momentum
-    TTreeReaderValue<std::vector<G4double>>* fReaderPy;     // particle momentum
-    TTreeReaderValue<std::vector<G4double>>* fReaderPz;     // particle momentum
-    TTreeReaderValue<std::vector<G4double>>* fReaderE;      // particle energy
-    TTreeReaderValue<std::vector<G4double>>* fReaderX;      // particle position
-    TTreeReaderValue<std::vector<G4double>>* fReaderY;      // particle position
-    TTreeReaderValue<std::vector<G4double>>* fReaderZ;      // particle position
+    G4double fReaderWeight;             // event weight
+    std::vector<G4int>* fReaderCode;    // particle code
+    std::vector<G4double>* fReaderPx;   // particle momentum
+    std::vector<G4double>* fReaderPy;   // particle momentum
+    std::vector<G4double>* fReaderPz;   // particle momentum
+    std::vector<G4double>* fReaderE;    // particle energy
+    std::vector<G4double>* fReaderX;    // particle position
+    std::vector<G4double>* fReaderY;    // particle position
+    std::vector<G4double>* fReaderZ;    // particle position
 
     static const G4int fgMaxParticles;
 
