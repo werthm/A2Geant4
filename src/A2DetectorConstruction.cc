@@ -476,6 +476,19 @@ void A2DetectorConstruction::DefineMaterials()
   // Solid targets
   //
 
+  G4Isotope* iso_Ca40 = new G4Isotope("A2_NS_Iso_Ca40", 20, 40, 39.962591*g/mole);
+  G4Isotope* iso_Ca48 = new G4Isotope("A2_NS_Iso_Ca48", 20, 48, 47.952523*g/mole);
+  G4Isotope* iso_Pb208 = new G4Isotope("A2_NS_Iso_Pb208", 82, 208, 207.976651*g/mole);
+  G4Element* elem_Ca48 = new G4Element("A2_NS_Elem_Ca48", "A2_NS_Elem_Ca48", 2);
+  elem_Ca48->AddIsotope(iso_Ca40, 0.085);
+  elem_Ca48->AddIsotope(iso_Ca48, 0.915);
+  G4Element* elem_Pb208 = new G4Element("A2_NS_Elem_Pb208", "A2_NS_Elem_Pb208", 1);
+  elem_Pb208->AddIsotope(iso_Pb208, 1.);
+  G4Material* mat_Ca48 = new G4Material("A2_NS_Ca48", 1.82975*g/cm3, 1);
+  mat_Ca48->AddElement(elem_Ca48, 1.);
+  G4Material* mat_Pb208 = new G4Material("A2_NS_Pb208", 11.382*g/cm3, 1);
+  mat_Pb208->AddElement(elem_Pb208, 1.);
+
   // Extruded Polystyrene
   G4Material* A2_XPS = new G4Material("A2_XPS", 0.03333*g/cm3, 2);
   A2_XPS->AddElement(NistManager->FindOrBuildElement(6), 8);
