@@ -14,6 +14,7 @@ public:
     enum ESolidTargetType {
         kStandard,
         kOct_18,        // neutron skin October/November 2018
+        kJan_19,        // neutron skin January 2019
     };
 
 protected:

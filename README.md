@@ -236,6 +236,7 @@ Command                              | Meaning
 `/A2/det/useTarget Solid`            | solid target (pre-2007 experiments)
 `/A2/det/useTarget Solid_Generic`    | generic solid target
 `/A2/det/useTarget Solid_Oct_18`     | solid target for October 2018 experiment
+`/A2/det/useTarget Solid_Jan_19`     | solid target for January 2019 experiment
 `/A2/det/targetMaterial G4_Li`       | Lithium
 `/A2/det/targetMaterial G4_GRAPHITE` | Graphite
 `/A2/det/targetMaterial G4_Ca`       | Calcium
